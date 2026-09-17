@@ -1,0 +1,182 @@
+[
+  {
+    "id": "q01",
+    "question": "How long does UCSD have to let me see my student records after I ask?",
+    "expect": "answer",
+    "expectedChunks": ["160-2#5.A", "160-2#5.G.3", "160-2#EXHIBIT-A.1"]
+  },
+  {
+    "id": "q02",
+    "question": "Can UCSD charge me for copies of my own records?",
+    "expect": "answer",
+    "expectedChunks": ["160-2#5.D", "160-2#5.G.4", "160-2#REPRODUCTION-OF-STUDENT-RECORDS"]
+  },
+  {
+    "id": "q03",
+    "question": "What information about me can UCSD hand out to anyone without asking me first?",
+    "expect": "answer",
+    "expectedChunks": ["160-2#3.D", "160-2#3.J.1", "160-2#8.A", "160-2#DIRECTORY-INFORMATION.1"]
+  },
+  {
+    "id": "q04",
+    "question": "Can I dispute a grade by asking the university to correct my student record?",
+    "expect": "answer",
+    "expectedChunks": ["160-2#13.B", "160-2#14.B"]
+  },
+  {
+    "id": "q05",
+    "question": "If UCSD gets a subpoena for my records, do they have to tell me?",
+    "expect": "answer",
+    "expectedChunks": ["160-2#9.A.7"]
+  },
+  {
+    "id": "q06",
+    "question": "Where do I file a complaint if UCSD violates my FERPA rights?",
+    "expect": "answer",
+    "expectedChunks": ["160-2#15.A.1", "160-2#15.A.2", "160-2#4.B.6", "160-2#EXHIBIT-A.4"]
+  },
+  {
+    "id": "q07",
+    "question": "Am I required to check my UCSD email?",
+    "expect": "answer",
+    "expectedChunks": ["160-3#V.4", "160-3#V.5", "160-3#I"]
+  },
+  {
+    "id": "q08",
+    "question": "Can I have my @ucsd.edu email forwarded to my personal Gmail?",
+    "expect": "answer",
+    "expectedChunks": ["160-3#IV.A"]
+  },
+  {
+    "id": "q09",
+    "question": "If a student dies, who at UCSD gets notified first?",
+    "expect": "answer",
+    "expectedChunks": ["160-6#POLICY-STATEMENT.III.B.1", "160-6#PROCEDURES.I.B"]
+  },
+  {
+    "id": "q10",
+    "question": "When a student dies, does the campus-wide notice say how they died?",
+    "expect": "answer",
+    "expectedChunks": ["160-6#POLICY-STATEMENT.III.A", "160-6#PROCEDURES.I.D"]
+  },
+  {
+    "id": "q11",
+    "question": "Can a student who passed away still be awarded their degree?",
+    "expect": "answer",
+    "expectedChunks": ["160-6#RESPONSIBILITIES.I.I"]
+  },
+  {
+    "id": "q12",
+    "question": "Which student governments does UCSD officially recognize?",
+    "expect": "answer",
+    "expectedChunks": ["160-8#POLICY-STATEMENT", "160-8#POLICY-STATEMENT.1", "160-8#POLICY-STATEMENT.2"]
+  },
+  {
+    "id": "q13",
+    "question": "Is the Seventh College student council an official student government?",
+    "expect": "answer",
+    "expectedChunks": ["160-8#POLICY-STATEMENT.5", "160-8#REVISION-HISTORY"]
+  },
+  {
+    "id": "q14",
+    "question": "I got a student conduct notice. How many days do I have to set up a meeting with the conduct officer?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.E.2.a"]
+  },
+  {
+    "id": "q15",
+    "question": "Can I bring someone with me to my student conduct meeting?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.B.5", "160-10#POLICY-STATEMENT.B.5.a", "160-10#POLICY-STATEMENT.B.5.e", "160-10#RESPONSIBILITIES.8.a"]
+  },
+  {
+    "id": "q16",
+    "question": "Can UCSD discipline me for something that happened off campus?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.A.1", "160-10#POLICY-STATEMENT.A.4", "160-10#POLICY-STATEMENT.A.3.a"]
+  },
+  {
+    "id": "q17",
+    "question": "How long does a conduct violation stay on my record?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.J.3", "160-10#POLICY-STATEMENT.J.4"]
+  },
+  {
+    "id": "q18",
+    "question": "Who reviews my appeal if I'm an undergrad?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.I.2.a"]
+  },
+  {
+    "id": "q19",
+    "question": "Is wearing a mask on campus a conduct violation?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.C.6.c"]
+  },
+  {
+    "id": "q20",
+    "question": "Can I ask for a different conduct officer if I think mine is biased against me?",
+    "expect": "answer",
+    "expectedChunks": ["160-10#POLICY-STATEMENT.E.3", "160-10#POLICY-STATEMENT.F.16"]
+  },
+  {
+    "id": "q21",
+    "question": "How long do I have to file a discrimination grievance against a staff member?",
+    "expect": "answer",
+    "expectedChunks": ["160-11#4.B.1", "160-11#4.B"]
+  },
+  {
+    "id": "q22",
+    "question": "Who looks into a grievance about my privacy rights being violated?",
+    "expect": "answer",
+    "expectedChunks": ["160-11#4.A.2", "160-11#4.A"]
+  },
+  {
+    "id": "q23",
+    "question": "How much does it cost to live in the dorms at UCSD this year?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q24",
+    "question": "How do I appeal a parking ticket I got on campus?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q25",
+    "question": "When is the financial aid application deadline for next year?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q26",
+    "question": "Can my landlord in La Jolla raise my rent in the middle of my lease?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q27",
+    "question": "What is the late homework policy in CSE 100?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q28",
+    "question": "How do I take a medical leave of absence for a quarter?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q29",
+    "question": "Will my F-1 visa be affected if I drop below 12 units?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q30",
+    "question": "Can I change my dining plan halfway through the quarter?",
+    "expect": "refuse",
+    "expectedChunks": []
+  }
+]
