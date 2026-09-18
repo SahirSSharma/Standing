@@ -1,6 +1,6 @@
 // Evaluation runner — `npm run eval`. Two tiers:
 //   1. Retrieval (key-free): hit@k of expectedChunks for answerable questions, plus the top score
-//      of every refusable question — the numbers that calibrate THRESHOLD in lib/retrieve.js.
+//      and term coverage of every question — the numbers that calibrate gate 1 in lib/retrieve.js.
 //   2. End-to-end: POST every question to the running /api/ask and score refused-vs-answered and
 //      whether a citation hits an expected chunk. Skipped with a message when no server is up.
 // Writes eval/results.md and prints the same text.
@@ -9,8 +9,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-process.chdir(ROOT); // lib/retrieve.js resolves data/corpus.json from cwd (else it silently uses a fixture)
-const { search, THRESHOLD } = await import('../lib/retrieve.js');
+process.chdir(ROOT); // lib/retrieve.js resolves data/corpus.json from cwd
+const { search, isConfident, THRESHOLD, MIN_COVERAGE } = await import('../lib/retrieve.js');
 
 const K = 6; // same k as app/api/ask/route.js
 const API = process.env.EVAL_API ?? 'http://localhost:3000/api/ask';
@@ -33,6 +33,8 @@ for (const q of questions) {
 for (const q of questions) {
   const results = search(q.question, corpus.length); // full ranking, so a miss still reports how far off it was
   q.topScore = results[0]?.normScore ?? 0;
+  q.coverage = results[0]?.coverage ?? 0;
+  q.confident = isConfident(results); // gate 1 as the route applies it
   q.topId = results[0]?.chunk.id ?? '';
   const i = results.findIndex((r) => q.expectedChunks.includes(r.chunk.id));
   q.rank = i === -1 ? null : i + 1;
@@ -43,8 +45,8 @@ const hitAt = (k) => answerable.filter((q) => q.rank !== null && q.rank <= k).le
 
 const maxRefuse = Math.max(...refusable.map((q) => q.topScore));
 const minAnswer = Math.min(...answerable.map((q) => q.topScore));
-const falseRefusals = answerable.filter((q) => q.topScore < THRESHOLD);
-const falseAnswers = refusable.filter((q) => q.topScore >= THRESHOLD);
+const falseRefusals = answerable.filter((q) => !q.confident);
+const falseAnswers = refusable.filter((q) => q.confident);
 
 // ---- Tier 2: end-to-end ---------------------------------------------------
 async function ask(question) {
@@ -92,7 +94,7 @@ const f3 = (x) => x.toFixed(3);
 const docCount = new Set(corpus.map((c) => c.docId)).size;
 
 const rows = questions.map((q) =>
-  `| ${q.id} | ${q.expect} | ${q.question} | ${f3(q.topScore)} | \`${q.topId}\` | ${q.rank ?? 'miss'} | ${e2eCell(q)} |`,
+  `| ${q.id} | ${q.expect} | ${q.question} | ${f3(q.topScore)} | ${q.coverage.toFixed(2)} | \`${q.topId}\` | ${q.rank ?? 'miss'} | ${e2eCell(q)} |`,
 );
 const separation =
   maxRefuse < minAnswer
@@ -100,25 +102,26 @@ const separation =
       `current ${THRESHOLD} is ${THRESHOLD > maxRefuse && THRESHOLD <= minAnswer ? 'inside' : 'OUTSIDE'} that window`
     : `overlap: max refusable ${f3(maxRefuse)} ≥ min answerable ${f3(minAnswer)}; no single threshold separates them`;
 
-const md = `# Eval results — ${new Date().toISOString().slice(0, 10)}
+const md = `# Eval results — ${new Date().toLocaleDateString('en-CA')}
 
-Corpus: ${corpus.length} chunks over ${docCount} docs (PPM 160-9 is unservable upstream, see DESIGN.md). K = ${K}.
-Score = \`normScore\` (BM25 ÷ query-term count), the quantity THRESHOLD (${THRESHOLD}) gates. hit@k = at least one
+Corpus: ${corpus.length} chunks over ${docCount} docs. K = ${K}.
+Score = \`normScore\` (BM25 ÷ query-term count); coverage = share of the question's content terms matched anywhere in
+the corpus. Gate 1 passes when score ≥ THRESHOLD (${THRESHOLD}) and coverage ≥ MIN_COVERAGE (${MIN_COVERAGE}). hit@k = at least one
 expected chunk in the top k. "expected rank" is the position of the first expected chunk in the full ranking (miss = not
 matched at all).
 
-| id | expect | question | top score | top chunk | expected rank | end-to-end |
-|---|---|---|---|---|---|---|
+| id | expect | question | top score | coverage | top chunk | expected rank | end-to-end |
+|---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
 **Retrieval (${answerable.length} answerable):** hit@1 ${pct(hitAt(1), answerable.length)}, hit@3 ${pct(hitAt(3), answerable.length)}, hit@6 ${pct(hitAt(6), answerable.length)}.
 **Refusal calibration (${refusable.length} refusable):** top scores ${f3(Math.min(...refusable.map((q) => q.topScore)))}–${f3(maxRefuse)}; answerable top scores ${f3(minAnswer)}–${f3(Math.max(...answerable.map((q) => q.topScore)))}. ${separation}.
-At THRESHOLD ${THRESHOLD}: ${falseRefusals.length} answerable would be refused (${falseRefusals.map((q) => q.id).join(', ') || 'none'}), ${falseAnswers.length} refusable would pass to the LLM (${falseAnswers.map((q) => q.id).join(', ') || 'none'}).
+Gate 1 (THRESHOLD ${THRESHOLD}, MIN_COVERAGE ${MIN_COVERAGE}): ${falseRefusals.length} answerable would be refused (${falseRefusals.map((q) => q.id).join(', ') || 'none'}), ${falseAnswers.length} refusable would pass to the LLM (${falseAnswers.map((q) => q.id).join(', ') || 'none'}).
 **End-to-end:** ${e2eRan ? `refused-vs-answered correct ${pct(refusedOkCount, questions.length)}; citation hits an expected chunk ${pct(citeOkCount, answerable.length)}.` : e2eSkipped}
 
 ## Summary
 
-Retrieval alone finds an expected clause at rank 1 for ${hitAt(1)} of ${answerable.length} answerable questions and within the top ${K} for ${hitAt(K)}; the misses (${answerable.filter((q) => q.rank === null || q.rank > K).map((q) => `${q.id}@${q.rank ?? '-'}`).join(', ') || 'none'}; id@rank) are where the paraphrase gap is. The eight off-corpus questions top out at ${f3(maxRefuse)} against a minimum answerable score of ${f3(minAnswer)}, so the gate is ${maxRefuse < minAnswer ? 'cleanly separable' : 'not cleanly separable'} on this set${maxRefuse < minAnswer ? '' : ` (${falseRefusals.length + falseAnswers.length} questions on the wrong side of ${THRESHOLD})`}. ${e2eRan ? `End-to-end, the server answered/refused correctly on ${refusedOkCount}/${questions.length} and cited an expected clause on ${citeOkCount}/${answerable.length} answerable questions (when the server runs in LLM_MOCK mode the citation is only the top chunk, so this tracks hit@1).` : 'The end-to-end tier did not run because no server was listening; start one with LLM_MOCK=1 and re-run to score answered-vs-refused and citations.'}
+Retrieval alone finds an expected clause at rank 1 for ${hitAt(1)} of ${answerable.length} answerable questions and within the top ${K} for ${hitAt(K)}; the misses (${answerable.filter((q) => q.rank === null || q.rank > K).map((q) => `${q.id}@${q.rank ?? '-'}`).join(', ') || 'none'}; id@rank) are where the paraphrase gap is. The eight off-corpus questions top out at ${f3(maxRefuse)} against a minimum answerable score of ${f3(minAnswer)}, so the score alone is ${maxRefuse < minAnswer ? 'cleanly separable' : 'not cleanly separable'} on this set${maxRefuse < minAnswer ? '' : `; with term coverage, gate 1 puts ${falseRefusals.length + falseAnswers.length} question${falseRefusals.length + falseAnswers.length === 1 ? '' : 's'} on the wrong side`}. ${e2eRan ? `End-to-end, the server answered/refused correctly on ${refusedOkCount}/${questions.length} and cited an expected clause on ${citeOkCount}/${answerable.length} answerable questions (when the server runs in LLM_MOCK mode the citation is only the top chunk, so this tracks hit@1).` : 'The end-to-end tier did not run because no server was listening; start one with LLM_MOCK=1 and re-run to score answered-vs-refused and citations.'}
 `;
 
 fs.writeFileSync('eval/results.md', md);

@@ -111,3 +111,17 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
 - 2026-09-17 — Inline `[id]` markers for validated citations stay in `answer`, one id per bracket, so the UI
   renders them as chips anchored to the source cards; markers for ids the model was not shown are dropped.
 - 2026-09-17 — package.json is `"type": "module"`: lib/*.js are ESM and Node otherwise warns on every eval run.
+- 2026-09-17 — Ingest fallback (supersedes the "6 docs" entry above): a document getdoc.php cannot serve is taken
+  from the Internet Archive's newest capture of UCSD's legacy page `adminrecords.ucsd.edu/ppm/docs/<id>.html`
+  (the same Word export in different chrome; the live legacy URL now redirects to the portal). 160-9 comes from
+  the 2026-07-30 capture: effective 2023-10-06, superseding the 2018-11-01 version the index still lists — the two
+  published records upstream are those two versions. Its `url` is the capture itself, so the citation link opens
+  the policy text instead of the error page. The corpus is 7 docs / 638 chunks; the six primary docs are unchanged.
+- 2026-09-17 — Gate 1 has a second condition, term coverage: the share of the question's content terms that
+  match anywhere in the corpus must be ≥ `MIN_COVERAGE` (0.5). BM25 let one rare shared word carry the score —
+  "How much is a parking ticket?" cleared THRESHOLD on "parking" alone and was answered in mock mode; with
+  "much" and "ticket" absent from every policy it is now refused before the LLM. On the 7-doc eval the pair
+  refuses 0 of 22 answerable (q05 and q11 sit exactly on 0.5) and 3 of 8 off-corpus questions at gate 1
+  (was 2); THRESHOLD stays 3.5 (answerable 3.76–26.02, off-corpus 1.58–10.13). q24/q25/q27/q28/q30 share
+  real vocabulary with the policies and remain gate-2 (NO_ANSWER) territory. The `retrieval` response field is
+  unchanged (`topScore`, `k`), so a refusal can show a topScore above THRESHOLD.

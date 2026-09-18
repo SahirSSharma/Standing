@@ -17,3 +17,11 @@
   longer splits sentences at "$0.10"; inline `[id]` markers for valid citations are kept so the UI can
   render them as chips; package.json is `"type": "module"`; the corpus fixture and the header's
   hardcoded document list were removed now that `data/` is committed.
+- Repair: `npm run ingest` falls back to the Internet Archive's newest capture of UCSD's legacy PPM page
+  when getdoc.php cannot serve a document, which brings in PPM 160-9 (2023-10-06 revision, linked to the
+  capture) — the corpus is now 7 docs / 638 chunks with the six primary docs unchanged. Gate 1 also
+  requires term coverage (`MIN_COVERAGE` 0.5: at least half of the question's content words must match
+  somewhere in the corpus), so "How much is a parking ticket?" is refused instead of answered from the
+  one clause that mentions parking. Eval on the 7-doc corpus: hit@1 11/22, hit@3 15/22, hit@6 17/22,
+  gate 1 refuses 3/8 off-corpus questions, mock end-to-end 25/30; `eval/results.md` is stamped with the
+  local date.

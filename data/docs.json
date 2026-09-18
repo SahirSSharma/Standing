@@ -6,7 +6,7 @@
     "supersedes": "2014-11-13",
     "issuingOffice": "Registrars Office",
     "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-2",
-    "fetchedAt": "2026-09-17",
+    "fetchedAt": "2026-09-18",
     "chars": 67937
   },
   {
@@ -16,7 +16,7 @@
     "supersedes": "2015-04-29",
     "issuingOffice": "Vice Chancellor - Student Affairs",
     "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-3",
-    "fetchedAt": "2026-09-17",
+    "fetchedAt": "2026-09-18",
     "chars": 5876
   },
   {
@@ -26,7 +26,7 @@
     "supersedes": "2019-09-18",
     "issuingOffice": "Vice Chancellor - Student Affairs",
     "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-6",
-    "fetchedAt": "2026-09-17",
+    "fetchedAt": "2026-09-18",
     "chars": 11190
   },
   {
@@ -36,8 +36,18 @@
     "supersedes": "2018-11-01",
     "issuingOffice": "Office of Student Conduct",
     "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-8",
-    "fetchedAt": "2026-09-17",
+    "fetchedAt": "2026-09-18",
     "chars": 2988
+  },
+  {
+    "docId": "160-9",
+    "title": "Student Organizations",
+    "effectiveDate": "2023-10-06",
+    "supersedes": "2018-11-01",
+    "issuingOffice": "Center for Student Accountability, Growth, and Education",
+    "url": "https://web.archive.org/web/20260730202147/https://adminrecords.ucsd.edu/ppm/docs/160-9.html",
+    "fetchedAt": "2026-09-18",
+    "chars": 11916
   },
   {
     "docId": "160-10",
@@ -46,7 +56,7 @@
     "supersedes": "2025-06-03",
     "issuingOffice": "Center for Student Accountability, Growth, and Education",
     "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-10",
-    "fetchedAt": "2026-09-17",
+    "fetchedAt": "2026-09-18",
     "chars": 63934
   },
   {
@@ -56,7 +66,7 @@
     "supersedes": null,
     "issuingOffice": "Office of Student Conduct",
     "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-11",
-    "fetchedAt": "2026-09-17",
+    "fetchedAt": "2026-09-18",
     "chars": 4679
   }
 ]

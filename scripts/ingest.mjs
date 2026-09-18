@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 // Ingest UCSD PPM policy documents into data/docs.json + data/corpus.json (contracts: DESIGN.md).
 // Usage: node scripts/ingest.mjs [--all] [PPM# ...]     default: the 7 "Student Matters" docs
+// A document getdoc.php cannot serve (160-9: "2 published documents with the same documentID") is
+// taken from the Internet Archive's newest capture of UCSD's legacy PPM page instead — same Word
+// export, different chrome — and its docs.json url is that capture, so the citation link still works.
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const INDEX_URL = 'https://adminrecords.ucsd.edu/ppm/docs/toc160.html';
 const docUrl = (id) => `https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=${id}`;
+const legacyUrl = (id) => `https://adminrecords.ucsd.edu/ppm/docs/${id}.html`;
+// `2` = newest capture (the archive redirects to its timestamp), `id_` = the page's original bytes.
+const archiveUrl = (url) => `https://web.archive.org/web/2id_/${url}`;
 const DEFAULT_DOCS = ['160-2', '160-3', '160-6', '160-8', '160-9', '160-10', '160-11'];
 const UA = 'Standing/0.1 (LexHack 2026 student project; sequential polite fetches)';
 const MAX_CHUNK = 1800;
@@ -17,7 +23,7 @@ async function get(url) {
   first = false;
   const res = await fetch(url, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(30_000) });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.text();
+  return res; // callers read .text(); res.url is the final URL after redirects
 }
 
 // ---------- html → text ----------
@@ -40,26 +46,38 @@ function parseIndex(html) {
   return rows;
 }
 
-// ---------- one document: header cell (metadata) + body cell (Word-exported paragraphs) ----------
+// ---------- one document: metadata header + Word-exported body, in either host's page layout ----------
+function metadata(meta) { // "Effective: 10/05/2017 Supersedes: 11/13/2014 ... Issuing Office: Registrars Office"
+  const grab = (re) => meta.match(re)?.[1] ?? null;
+  return {
+    effectiveDate: toIso(grab(/Effective:\s*(\d\d\/\d\d\/\d{4})/)),
+    supersedes: toIso(grab(/Supersedes\s*:\s*(\d\d\/\d\d\/\d{4})/)),
+    issuingOffice: grab(/Issuing Office:\s*(.*)$/),
+  };
+}
+const bodyLines = (body) => body
+  .replace(/<(style|title)[^>]*>[\s\S]*?<\/\1>/gi, '').replace(/<!--[\s\S]*?-->/g, '')
+  .split(/(?=<(?:p|br|div|td|tr|li|h\d)\b)/i)
+  .filter((s) => !/^<p[^>]*MsoToc/i.test(s)) // Word table of contents — not policy text
+  .map(text).filter(Boolean);
+
+// compliancebridge: a 60% header cell (metadata <hr> title) and a 60% body cell before a 20% cell.
 function parseDoc(html) {
   const cells = html.split("<td width='60%'>");
   if (cells.length < 3) { // bare skeleton with an optional server message after the stylesheet
     throw new Error(text(html.split('</style>').pop()) || 'empty response (no such document)');
   }
   const [meta, title] = cells[1].split('<hr>').map(text);
-  const grab = (re) => meta.match(re)?.[1] ?? null;
-  const body = cells[2].slice(0, cells[2].lastIndexOf("<td width='20%'>"))
-    .replace(/<(style|title)[^>]*>[\s\S]*?<\/\1>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
-  const lines = body.split(/(?=<(?:p|br|div|td|tr|li|h\d)\b)/i)
-    .filter((s) => !/^<p[^>]*MsoToc/i.test(s)) // Word table of contents — not policy text
-    .map(text).filter(Boolean);
-  return {
-    title,
-    effectiveDate: toIso(grab(/Effective:\s*(\d\d\/\d\d\/\d{4})/)),
-    supersedes: toIso(grab(/Supersedes\s*:\s*(\d\d\/\d\d\/\d{4})/)),
-    issuingOffice: grab(/Issuing Office:\s*(.*)$/),
-    lines,
-  };
+  return { title, ...metadata(meta), lines: bodyLines(cells[2].slice(0, cells[2].lastIndexOf("<td width='20%'>"))) };
+}
+
+// legacy adminrecords page: the same metadata lines above a "[pdf format]" div, then
+// <div id="ppm_policy"><h1 class="ppm_title">TITLE</h1> + the Word export.
+function parseLegacyDoc(html) {
+  const [head, policy] = html.split('<div id="ppm_policy">');
+  if (!policy) throw new Error('not a PPM document page (no ppm_policy div)');
+  // title left empty: the page's <h1> is all caps, so the caller uses the index row's cased title
+  return { title: '', ...metadata(text(head.split('<div id="ppm_pdf">')[0])), lines: bodyLines(policy.slice(policy.indexOf('</h1>') + 5)) };
 }
 
 // ---------- clause structure ----------
@@ -150,7 +168,7 @@ function splitText(t) {
 
 // ---------- main ----------
 const args = process.argv.slice(2);
-const index = parseIndex(await get(INDEX_URL));
+const index = parseIndex(await (await get(INDEX_URL)).text());
 const ids = args.includes('--all') ? index.map((r) => r.id) : args.filter((a) => !a.startsWith('--'));
 const wanted = ids.length ? ids : DEFAULT_DOCS;
 const unknown = wanted.filter((id) => !index.some((r) => r.id === id));
@@ -160,12 +178,19 @@ const docs = [], corpus = [], failed = [];
 const fetchedAt = new Date().toISOString().slice(0, 10);
 for (const id of wanted) {
   const row = index.find((r) => r.id === id);
-  let doc;
-  try { doc = parseDoc(await get(docUrl(id))); }
-  catch (e) { console.error(`ERROR ${id} (${row.title}): ${e.message}`); failed.push(id); continue; }
+  let doc, url = docUrl(id);
+  try { doc = parseDoc(await (await get(url)).text()); }
+  catch (e) {
+    console.error(`WARN  ${id} (${row.title}): ${e.message} — falling back to the archived legacy page`);
+    try {
+      const res = await get(archiveUrl(legacyUrl(id)));
+      doc = parseLegacyDoc(await res.text());
+      url = res.url.replace('id_/', '/'); // the capture as a viewable page, pinned to its timestamp
+      console.error(`WARN  ${id}: ingested from ${url}`);
+    } catch (e2) { console.error(`ERROR ${id} (${row.title}): ${e2.message}`); failed.push(id); continue; }
+  }
   const { nodes, dropped } = chunkDoc(doc);
   const title = doc.title || row.title;
-  const url = docUrl(id);
   docs.push({ docId: id, title, effectiveDate: doc.effectiveDate ?? row.date, supersedes: doc.supersedes,
     issuingOffice: doc.issuingOffice, url, fetchedAt, chars: doc.lines.join('\n').length });
   const clauses = new Set(nodes.map((n) => n.clause));
