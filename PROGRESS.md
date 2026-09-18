@@ -34,7 +34,7 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
   pivot; the next push rebuilds it on v2.
 
 ## Blocker — API usage limit (found 2026-09-17, late)
-- The `ANTHROPIC_API_KEY` in `.env.local` hit its Console usage limit after ~12 real answers: every request
+- The `ANTHROPIC_API_KEY` in `.env.local` hit its Console usage limit after roughly 70 real answers in one evening (two full 30-question eval runs plus probes): every request
   now fails with 400 "You have reached your specified API usage limits. You will regain access on 2026-10-01
   at 00:00 UTC", which `/api/ask` reports as 502. The deadline is 2026-09-27 and the Vercel Preview uses
   the same key, so the deployed product 502s on every real answer until the limit is raised. Fix: raise the
