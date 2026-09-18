@@ -11,6 +11,8 @@
   its deadlines and quoted sources, the library, one policy, and the real refusal. Nothing spent.
 - PROGRESS.md: what production needs before a live link can go on Devpost, and the sponsor's free .xyz
   domain steps with unregistered candidates.
+- `mystanding.xyz` (registered by Sahir the same afternoon) added to the Vercel team and attached to the
+  project; the two A records it needs at gen.xyz and the Production-key step are in PROGRESS.md.
 
 ## 2026-09-18 — Quick picks: answers written for your situation
 - Picking a situation card now opens "Tell Pip a bit more" (`app/components/Context.js`): two to four

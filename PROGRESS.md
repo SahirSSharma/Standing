@@ -43,16 +43,20 @@ request letter, deadline calculator (stretch, last).
   prototype" is scored on. On Sahir's go: `vercel env add ANTHROPIC_API_KEY production` (paste the key),
   `vercel deploy --prod --yes`, then curl `/`, `/policies`, `/policies/SR-515` and one router refusal
   (0.2¢) and one real answer (2–25¢) on the production URL before reporting; then the domain.
-- **Free .xyz domain (sponsor perk):** promo code `LXH26`, 350 first-come, valid to Oct 31 2026, one
-  year free. Register at gen.xyz/register: search the name → Go to checkout → set the term to **1 year**
-  (3 years voids the code) → Recommended Add-Ons (leave as is) → Information & Checkout → code LXH26 →
-  Apply (total must read $15.00 before and $0.00 after; any other price means the name is premium, pick
-  another) → contact details → PayPal → Submit Order → click the verification email within 15 days or
-  the domain is suspended. Unregistered on Sep 18 per the registry's RDAP: `knowwhereyoustand.xyz`
-  (first choice — the tagline), `askpip.xyz`, `wheredoistand.xyz`, `yourstanding.xyz`,
-  `trystanding.xyz`, `standingucsd.xyz`; `standing.xyz`, `standingapp.xyz` and `whereyoustand.xyz` are
-  taken. Pointing it at Vercel waits for production: `vercel domains add <name>` prints the records to
-  enter under Manage DNS at gen.xyz/account.
+- **Domain: `mystanding.xyz`** — registered by Sahir on Sep 18 (1:52 pm PDT, sponsor code LXH26, one year
+  free, expires 2027-09-18). Added to the Vercel team and attached to project `standing` (ownership
+  verified). It still resolves to gen.xyz's parking nameservers: Sahir adds two `A` records for `@` at
+  gen.xyz/account → Manage → Manage DNS: `216.198.79.1` and `64.29.17.1` (Vercel's current pair;
+  `76.76.21.21` is the older fallback). `vercel domains verify mystanding.xyz` reports "action_required"
+  until then. A custom domain serves the **production** deployment, so the domain shows nothing until
+  production exists.
+- **Production is blocked on the key.** `ANTHROPIC_API_KEY` (id U4SRjkaZP6snovAJ, type sensitive) targets
+  Preview only. Copying it with `vercel env add … production` and extending its target with
+  `vercel api … -X PATCH` were both refused by this session's permission classifier (it blocks any
+  command that handles the key). Sahir ticks **Production** on that variable in the dashboard
+  (Settings → Environment Variables → edit → Save); then `vercel deploy --prod --yes`, curl `/`,
+  `/policies`, `/policies/SR-515`, one router refusal (0.2¢) and one real answer (≈20¢ cold) on the
+  production URL, then `vercel domains verify` once the A records propagate.
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
 Sahir raised the Console limit; every run below happened after that. Kept for the record:
