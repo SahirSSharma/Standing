@@ -13,29 +13,44 @@ _Status: day 1 — see PROGRESS.md._
 ```bash
 npm install
 npm run dev           # http://localhost:3000 — data/ is committed, no ingest needed
-npm run eval          # retrieval + answer/refusal evaluation → eval/results.md
+npm run eval          # 30 real questions against the running server → eval/results.md (≈$1.50)
 npm run ingest        # re-fetch the UCSD PPM documents → data/ (7 docs, see Corpus)
 ```
-Set `ANTHROPIC_API_KEY` for real answers, or `LLM_MOCK=1` to run without a key (the answer is then the
-top-ranked clause verbatim, with its citation).
+Put `ANTHROPIC_API_KEY` in `.env.local` for real answers. `LLM_MOCK=1` (or no key) runs without the
+API: the answer is then the clause sharing the most words with the question, cited. It never refuses,
+so it exercises the UI and the eval plumbing, not the product.
 
 ## Stack
 - **Next.js 16** (App Router, JavaScript) deployed on **Vercel**; **Tailwind CSS 4** for the UI.
-- **MiniSearch** — a BM25 index over 638 clause-level chunks, built in memory when the route loads.
-  Deterministic and key-free, so the refusal gate and the eval run without any API key.
-- **@anthropic-ai/sdk** — `claude-sonnet-5` sees only the retrieved clauses and must cite their ids;
-  the server validates every citation against what the model was shown.
-- No database, no embeddings, no data build step: `data/corpus.json` (404 KB) is committed.
+- **@anthropic-ai/sdk** — `claude-opus-5` reads all seven policies on every question (one document
+  block each, 74k tokens) with the API's citation feature on, so every cited passage comes back as a
+  character range into a policy rather than as text the model typed. The seven documents are
+  prompt-cached: the first call writes them, every later call reads them back at cache price.
+- No database, no embeddings, no search index, no data build step: `data/corpus.json` (404 KB) is
+  committed and loaded once when the route starts.
 
 ## How a question is answered
-1. `lib/retrieve.js` ranks clause chunks (stopwords removed, prefix matching; heading and document
-   title indexed alongside the text) and returns the top 6.
-2. Gate 1: if the top normalized score is under `THRESHOLD`, or fewer than half of the question's content
-   words match anything in the policies (`MIN_COVERAGE`), refuse without calling the LLM.
-3. `lib/llm.js` asks Claude to answer from those clauses only, citing ids like `[160-2#5.A]`.
-4. Gate 2: an answer of `NO_ANSWER`, or one with no valid citation, is a refusal.
+1. `lib/corpus.js` writes each policy as one plain-text document, one paragraph per clause chunk
+   (`[5.A] <clause text>`), and records where each clause starts and ends.
+2. `lib/llm.js` sends the seven documents plus the question. The reply comes back as text blocks, each
+   carrying the passages it relied on as character ranges.
+3. Every range is mapped to the clause(s) it covers — at least half of the clause or half of the cited
+   passage, since a citation often spans a lead-in and its sub-clause. Each clause becomes a citation:
+   id, heading, the cited words, the policy's effective date and official URL. An inline `[160-2#5.A]`
+   marker after the sentence is what the UI turns into a chip.
+4. The server refuses in two cases: the model answers `NO_ANSWER` (the policies don't cover it), or
+   none of its citations resolve to a clause in the corpus. A refusal is an explicit card, never a
+   blank answer.
 
 The response shape is fixed in [DESIGN.md](DESIGN.md).
+
+### Why there is no retrieval step
+Version 1 ran BM25 over the 638 clause chunks, showed the model the top 6, and refused below a score
+threshold. Measured on our own 30-question set, an expected clause was in the top 3 for only 73% of
+answerable questions (16/22) on the six-document corpus and 68% (15/22) once PPM 160-9 was added, and
+the first real question we asked live — "Can UCSD share my grades with my parents?" — was refused because
+the answering clause (160-2 §8.A) ranked outside the top 6. The whole corpus is 74k tokens, so we removed
+retrieval and its thresholds and let the model read every policy; the eval below is what that bought.
 
 ## Corpus
 The seven "Student Matters" documents of the UCSD Policy & Procedure Manual (PPM 160-2, 160-3, 160-6,
@@ -46,32 +61,34 @@ capture of UCSD's legacy page for it (the 2023-10-06 revision) and links citatio
 
 ## Evaluation
 `eval/questions.json` holds 30 student-phrased questions: 22 answerable, each with the clause ids that
-contain the answer (quote-checked), and 8 the corpus cannot answer. `npm run eval` writes
-[eval/results.md](eval/results.md). Numbers from 2026-09-17:
+contain the answer and a verbatim `answerQuote` that must appear in one of them (checked on every run),
+and 8 the policies cannot answer. `npm run eval` POSTs all 30 to the running server, three at a time,
+and writes [eval/results.md](eval/results.md). It grades the answer-or-refuse decision and the citation
+ids; it does not grade the prose. Final numbers from 2026-09-17 (real key, `claude-opus-5`):
 
 | Metric | Result |
 |---|---|
-| Retrieval hit@1 (an expected clause ranks first) | 11/22 (50%) |
-| Retrieval hit@3 | 15/22 (68%) |
-| Retrieval hit@6 (what the LLM is shown) | 17/22 (77%) |
-| Gate 1: answerable questions wrongly refused (THRESHOLD 3.5, MIN_COVERAGE 0.5) | 0/22 |
-| Gate 1: off-corpus questions refused without an LLM call | 3/8 |
-| End-to-end (`LLM_MOCK=1`): answered vs refused correct | 25/30 (83%) |
-| End-to-end (`LLM_MOCK=1`): a citation hits an expected clause | 11/22 (50%) |
+| Answer-vs-refuse decision correct (all 30) | 30/30 (100%) |
+| Answerable questions wrongly refused | 0/22 |
+| Off-corpus questions wrongly answered | 0/8 |
+| A citation is an expected clause (`cited-expected`) | 22/22 (100%) |
+| A citation is in the expected policy (`cited-doc`) | 22/22 (100%) |
+| Corpus prefix served from the prompt cache | 30/30 |
+| Latency, median / mean | 12.9 s / 12.0 s |
 
-Reading the numbers: retrieval scores (`normScore`, BM25 ÷ query terms) run 3.76–26.02 for answerable
-questions and 1.58–10.13 for off-corpus ones, so no threshold separates them; THRESHOLD 3.5 sits just
-below the lowest answerable score, the coverage check catches questions whose words the policies never
-use ("How much is a parking ticket?" matches only "parking"), and the LLM's `NO_ANSWER` (gate 2) carries
-the rest. In mock mode gate 2 never fires, so 25/30 is a floor, and the citation number equals hit@1
-because the mock cites only the top chunk. The five retrieval misses (q07, q09, q15, q20, q21) are paraphrase gaps: the expected
-clause holds the answer but shares no content words with the question ("Am I required to check my UCSD
-email?" vs "Attending to delivered and posted messages on a frequent and consistent basis").
+How we got there: the first real run scored 30/30 on the decision but 18/22 on `cited-expected`. In all
+four misses (q06, q12, q18, q21) the model cited the right passage and the server credited the wrong
+clause — a passage spanning a lead-in and its sub-clause went to whichever was longer, the lead-in.
+Mapping a citation to every clause it substantially covers fixed all four; the question set and the
+prompt were not changed between the two runs. Answers vary run to run (the grades question cites §8.A
+on one run and §3.J.2, the same rule, on another), so `cited-expected` accepts any of a question's
+expected clauses, and q21 additionally requires the exact clause (`mustCite`) because its answering
+sentence appears verbatim in two sections of PPM 160-11.
 
-Reproduce:
+Reproduce (30 real calls, ≈$1.50, ≈3 minutes; the first call pays the cache write):
 ```bash
-LLM_MOCK=1 npm run dev     # terminal 1
-npm run eval               # terminal 2 — the retrieval tier always runs; the end-to-end tier needs the server
+npm run dev            # terminal 1, ANTHROPIC_API_KEY in .env.local
+npm run eval           # terminal 2 — exits before any paid call if nothing answers on :3000; EVAL_URL overrides
 ```
 
 See [DESIGN.md](DESIGN.md) for architecture and data contracts, [CHANGELOG.md](CHANGELOG.md) for

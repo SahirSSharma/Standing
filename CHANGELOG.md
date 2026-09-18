@@ -25,3 +25,23 @@
   one clause that mentions parking. Eval on the 7-doc corpus: hit@1 11/22, hit@3 15/22, hit@6 17/22,
   gate 1 refuses 3/8 off-corpus questions, mock end-to-end 25/30; `eval/results.md` is stamped with the
   local date.
+- v2 — full-policy reading (evening). Retrieval is gone: `lib/retrieve.js`, MiniSearch, `THRESHOLD` and
+  `MIN_COVERAGE` are removed. `lib/corpus.js` writes each policy as one plain-text document with clause
+  spans; `lib/llm.js` sends all seven as document blocks (74k tokens, prompt-cached) to `claude-opus-5`
+  with the API's citation feature on and resolves every cited character range to clauses; `POST /api/ask`
+  refuses on `NO_ANSWER` or zero resolved citations and reports `grounding` (documents, input tokens,
+  cache hit, model) on every response. The `retrieval` response field is gone; nothing in the UI read it.
+- Eval v2: `npm run eval` is end-to-end only. It POSTs the 30 questions to the running server three at a
+  time, re-checks every `answerQuote` verbatim on each run, scores answer/refuse on all 30 and
+  `cited-expected` / `cited-doc` on the 22 answerable, and exits before any paid call if nothing is
+  listening. q12's quote now names an actual government (ASUCSD) and expects the whole authorized list;
+  q03 adds the directory-information exhibit; q21 carries `mustCite` because its sentence appears
+  verbatim in two sections of PPM 160-11.
+- Citation resolution: a cited range that straddles clauses maps to every clause it covers by at least
+  half (of the clause or of the citation), each with the cited words from that clause as its quote,
+  instead of to the single largest-overlap chunk — the first real-key eval run lost q06, q12, q18 and
+  q21 that way, with the model citing the right passage and the server crediting the parent lead-in.
+  Final eval (real key): 30/30 answer/refuse, cited-expected 22/22, cited-doc 22/22, cache hits 30/30,
+  median 12.9 s.
+- Docs rewritten for v2 (README, PROGRESS); the v1 retrieval numbers stay in the README as the reason
+  retrieval was removed.
