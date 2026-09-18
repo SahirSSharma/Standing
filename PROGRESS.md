@@ -25,7 +25,7 @@ request letter, deadline calculator (stretch, last).
 | 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | done (verified at 390–2560 on the mock; real answers checked in the eval) |
 | 6 | Policy library `/policies` + `/policies/[docId]` | done (42 static pages) |
 | 7 | Eval: +questions for the new areas, router accuracy, one real run | questions written (61) and validated; real run below |
-| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-118lmflp5-sss-4bfd.vercel.app (pages verified live; answers blocked by the usage limit below) |
+| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-h26oqt1or-sss-4bfd.vercel.app (pages verified live; answers blocked by the usage limit below) |
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval)
 The first v3 eval run got 18 answers in (all 18 decisions right, 15/18 cited the expected clause) and then
