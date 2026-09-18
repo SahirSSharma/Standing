@@ -162,3 +162,12 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   list POLICY-STATEMENT.1–.9; q03 adds the exhibit 160-2#DIRECTORY-INFORMATION.1; q21's quote is byte-identical in
   160-11#4.A.1 (privacy), so a question may carry an optional `note` and `mustCite: [ids]` — cited-expected then also
   requires every mustCite id to be cited (q21: 160-11#4.B.1), which a quote-only grader could not check.
+- 2026-09-17 (evening) — Integration: the first real-key eval run scored 30/30 on answer/refuse but 18/22 on
+  cited-expected, and all four misses (q06, q12, q18, q21) were one resolver rule — a citation that straddles a
+  lead-in and its sub-clause (or a whole list) was attributed to the single largest-overlap chunk, the parent,
+  not the clause holding the answer. `resolve()` now returns every clause the citation covers by at least half
+  of the clause or half of the citation; each becomes its own citation, and `quote` is the cited words inside
+  that clause with the `[label]` prefix removed (the contract's "≤300 chars from chunk text"). Second run:
+  30/30, cited-expected 22/22, with no change to questions.json and no prompt change. Side effects: a citation
+  over a list emits one chip per item (q12 shows ten), and a clause whose text is "None" (160-11 §3) is cited
+  when a range starts there.

@@ -1,49 +1,46 @@
 # Eval results — 2026-09-17
 
-Corpus: 638 chunks over 7 docs. K = 6.
-Score = `normScore` (BM25 ÷ query-term count); coverage = share of the question's content terms matched anywhere in
-the corpus. Gate 1 passes when score ≥ THRESHOLD (3.5) and coverage ≥ MIN_COVERAGE (0.5). hit@k = at least one
-expected chunk in the top k. "expected rank" is the position of the first expected chunk in the full ranking (miss = not
-matched at all).
+Server: http://localhost:3000/api/ask. 30 questions (22 answerable, 8 off-corpus), 3 at a time.
+cited-expected = a returned citation id is in expectedChunks (q21 additionally requires its mustCite id); cited-doc = a citation
+points into the expected policy (partial credit). "top cited ids" are the first three citations returned. cache = grounding.cacheRead.
 
-| id | expect | question | top score | coverage | top chunk | expected rank | end-to-end |
+| id | expect | got | cited-expected | cited-doc | top cited ids | ms | cache |
 |---|---|---|---|---|---|---|---|
-| q01 | answer | How long does UCSD have to let me see my student records after I ask? | 10.988 | 0.86 | `160-2#5.A` | 1 | ok, cite yes |
-| q02 | answer | Can UCSD charge me for copies of my own records? | 26.023 | 1.00 | `160-2#5.D` | 1 | ok, cite yes |
-| q03 | answer | What information about me can UCSD hand out to anyone without asking me first? | 3.763 | 0.86 | `160-2#9.A.9` | 6 | ok, cite no |
-| q04 | answer | Can I dispute a grade by asking the university to correct my student record? | 10.110 | 0.67 | `160-2#13.C.2.c` | 3 | ok, cite no |
-| q05 | answer | If UCSD gets a subpoena for my records, do they have to tell me? | 7.621 | 0.50 | `160-2#9.A.7.a` | 3 | ok, cite no |
-| q06 | answer | Where do I file a complaint if UCSD violates my FERPA rights? | 20.489 | 0.80 | `160-2#15.A.1` | 1 | ok, cite yes |
-| q07 | answer | Am I required to check my UCSD email? | 5.955 | 1.00 | `160-2#INSTRUCTIONS` | miss | ok, cite no |
-| q08 | answer | Can I have my @ucsd.edu email forwarded to my personal Gmail? | 12.185 | 0.80 | `160-3#IV.A` | 1 | ok, cite yes |
-| q09 | answer | If a student dies, who at UCSD gets notified first? | 3.955 | 0.60 | `160-2#13.C.1` | 95 | ok, cite no |
-| q10 | answer | When a student dies, does the campus-wide notice say how they died? | 7.208 | 0.57 | `160-6#PROCEDURES.I.D` | 1 | ok, cite yes |
-| q11 | answer | Can a student who passed away still be awarded their degree? | 8.115 | 0.50 | `160-6#RESPONSIBILITIES.I.I` | 1 | ok, cite yes |
-| q12 | answer | Which student governments does UCSD officially recognize? | 7.983 | 1.00 | `160-8#RELATED-INFORMATION` | 4 | ok, cite no |
-| q13 | answer | Is the Seventh College student council an official student government? | 20.883 | 0.86 | `160-8#POLICY-STATEMENT.5` | 1 | ok, cite yes |
-| q14 | answer | I got a student conduct notice. How many days do I have to set up a meeting with the conduct officer? | 15.842 | 0.73 | `160-10#POLICY-STATEMENT.E.2.a` | 1 | ok, cite yes |
-| q15 | answer | Can I bring someone with me to my student conduct meeting? | 10.886 | 0.60 | `160-10#POLICY-STATEMENT.F.6` | 8 | ok, cite no |
-| q16 | answer | Can UCSD discipline me for something that happened off campus? | 5.308 | 0.60 | `160-6#SCOPE` | 3 | ok, cite no |
-| q17 | answer | How long does a conduct violation stay on my record? | 12.865 | 0.80 | `160-10#POLICY-STATEMENT.J.3` | 1 | ok, cite yes |
-| q18 | answer | Who reviews my appeal if I'm an undergrad? | 7.615 | 1.00 | `160-10#POLICY-STATEMENT.I.2.a` | 1 | ok, cite yes |
-| q19 | answer | Is wearing a mask on campus a conduct violation? | 21.836 | 1.00 | `160-10#POLICY-STATEMENT.C.6.c` | 1 | ok, cite yes |
-| q20 | answer | Can I ask for a different conduct officer if I think mine is biased against me? | 7.004 | 0.50 | `160-10#POLICY-STATEMENT.F.19` | 11 | ok, cite no |
-| q21 | answer | How long do I have to file a discrimination grievance against a staff member? | 6.161 | 1.00 | `160-2#TYPES-AND-LOCATIONS-OF-STUDENT-RECORDS-AND-THE-OFFICIALS-RESPONSIBLE-FOR-THEIR-MAINTENANCE.2` | 27 | ok, cite no |
-| q22 | answer | Who looks into a grievance about my privacy rights being violated? | 14.138 | 0.80 | `160-2#15` | 2 | ok, cite no |
-| q23 | refuse | How much does it cost to live in the dorms at UCSD this year? | 2.046 | 0.60 | `160-2#TYPES-AND-LOCATIONS-OF-STUDENT-RECORDS-AND-THE-OFFICIALS-RESPONSIBLE-FOR-THEIR-MAINTENANCE.3` | miss | ok |
-| q24 | refuse | How do I appeal a parking ticket I got on campus? | 5.552 | 0.60 | `160-6#RESPONSIBILITIES.I.O` | miss | WRONG (answered) |
-| q25 | refuse | When is the financial aid application deadline for next year? | 8.146 | 1.00 | `160-2#TYPES-AND-LOCATIONS-OF-STUDENT-RECORDS-AND-THE-OFFICIALS-RESPONSIBLE-FOR-THEIR-MAINTENANCE.4` | miss | WRONG (answered) |
-| q26 | refuse | Can my landlord in La Jolla raise my rent in the middle of my lease? | 4.793 | 0.43 | `160-2#EXHIBIT-A` | miss | ok |
-| q27 | refuse | What is the late homework policy in CSE 100? | 5.643 | 0.60 | `160-10#POLICY-SUMMARY` | miss | WRONG (answered) |
-| q28 | refuse | How do I take a medical leave of absence for a quarter? | 10.134 | 1.00 | `160-10#PROCEDURES` | miss | WRONG (answered) |
-| q29 | refuse | Will my F-1 visa be affected if I drop below 12 units? | 1.576 | 0.83 | `160-10#POLICY-STATEMENT.G.7.b` | miss | ok |
-| q30 | refuse | Can I change my dining plan halfway through the quarter? | 3.726 | 0.67 | `160-10#REVISION-HISTORY.1` | miss | WRONG (answered) |
+| q01 | answer | answer | yes | yes | `160-2#5.A`, `160-2#5.G`, `160-2#5.G.1` | 6041 | yes |
+| q02 | answer | answer | yes | yes | `160-2#5.D`, `160-2#5.G.4`, `160-2#5.C` | 5110 | yes |
+| q03 | answer | answer | yes | yes | `160-2#3.D`, `160-2#8.A`, `160-2#8.B.2` | 8293 | yes |
+| q04 | answer | answer | yes | yes | `160-2#3.D`, `160-2#8.A`, `160-2#9.B` | 9537 | yes |
+| q05 | answer | answer | yes | yes | `160-2#9.A.7`, `160-2#9.A.7.a`, `160-2#12.B` | 12924 | yes |
+| q06 | answer | answer | yes | yes | `160-2#15.A`, `160-2#15.A.1`, `160-2#15.A.2` | 18218 | yes |
+| q07 | answer | answer | yes | yes | `160-3#III`, `160-3#V`, `160-3#V.1` | 17264 | yes |
+| q08 | answer | answer | yes | yes | `160-3#III`, `160-3#IV.A`, `160-3#V.2` | 17542 | yes |
+| q09 | answer | answer | yes | yes | `160-6#POLICY-STATEMENT.I`, `160-6#POLICY-STATEMENT.II`, `160-6#POLICY-STATEMENT.III.B` | 16595 | yes |
+| q10 | answer | answer | yes | yes | `160-6#POLICY-STATEMENT.III.A`, `160-6#PROCEDURES.I.D`, `160-6#POLICY-STATEMENT.III.B.3` | 16687 | yes |
+| q11 | answer | answer | yes | yes | `160-6#RESPONSIBILITIES.I.I`, `160-6#POLICY-STATEMENT.I` | 16240 | yes |
+| q12 | answer | answer | yes | yes | `160-8#POLICY-STATEMENT`, `160-8#POLICY-STATEMENT.1`, `160-8#POLICY-STATEMENT.2` | 13573 | yes |
+| q13 | answer | answer | yes | yes | `160-8#POLICY-SUMMARY`, `160-8#POLICY-STATEMENT`, `160-8#POLICY-STATEMENT.1` | 11001 | yes |
+| q14 | answer | answer | yes | yes | `160-10#POLICY-STATEMENT.E.2`, `160-10#POLICY-STATEMENT.E.2.a`, `160-10#POLICY-STATEMENT.E.2.b` | 10882 | yes |
+| q15 | answer | answer | yes | yes | `160-10#RESPONSIBILITIES.8.a`, `160-10#POLICY-STATEMENT.B.5`, `160-10#POLICY-STATEMENT.B.5.a` | 12325 | yes |
+| q16 | answer | answer | yes | yes | `160-10#POLICY-STATEMENT.A.1`, `160-10#POLICY-STATEMENT.A.1.a`, `160-10#POLICY-STATEMENT.A.1.b` | 18036 | yes |
+| q17 | answer | answer | yes | yes | `160-10#POLICY-STATEMENT.J.3`, `160-10#POLICY-STATEMENT.J.4`, `160-10#POLICY-STATEMENT.J.5` | 18834 | yes |
+| q18 | answer | answer | yes | yes | `160-10#POLICY-STATEMENT.I.2`, `160-10#POLICY-STATEMENT.I.2.a`, `160-10#POLICY-STATEMENT.I.1` | 18026 | yes |
+| q19 | answer | answer | yes | yes | `160-9#POLICY-STATEMENT.A.2`, `160-9#POLICY-STATEMENT.A.3` | 14161 | yes |
+| q20 | answer | answer | yes | yes | `160-9#POLICY-STATEMENT.B.2`, `160-9#DEFINITIONS.B` | 13584 | yes |
+| q21 | answer | answer | yes | yes | `160-11#4.B`, `160-11#4.B.1`, `160-11#4.B.2` | 13110 | yes |
+| q22 | answer | answer | yes | yes | `160-11#3`, `160-11#4.A`, `160-11#4.A.1` | 13647 | yes |
+| q23 | refuse | refuse | — | — | — | 11200 | yes |
+| q24 | refuse | refuse | — | — | — | 8911 | yes |
+| q25 | refuse | refuse | — | — | — | 5233 | yes |
+| q26 | refuse | refuse | — | — | — | 5414 | yes |
+| q27 | refuse | refuse | — | — | — | 7679 | yes |
+| q28 | refuse | refuse | — | — | — | 7691 | yes |
+| q29 | refuse | refuse | — | — | — | 7515 | yes |
+| q30 | refuse | refuse | — | — | — | 5185 | yes |
 
-**Retrieval (22 answerable):** hit@1 11/22 (50%), hit@3 15/22 (68%), hit@6 17/22 (77%).
-**Refusal calibration (8 refusable):** top scores 1.576–10.134; answerable top scores 3.763–26.023. overlap: max refusable 10.134 ≥ min answerable 3.763; no single threshold separates them.
-Gate 1 (THRESHOLD 3.5, MIN_COVERAGE 0.5): 0 answerable would be refused (none), 5 refusable would pass to the LLM (q24, q25, q27, q28, q30).
-**End-to-end:** refused-vs-answered correct 25/30 (83%); citation hits an expected chunk 11/22 (50%).
+**Answered/refused correct:** 30/30 (100%) — false refusals 0 (none), false answers 0 (none), errors 0 (none).
+**Citations (22 answerable):** cited-expected 22/22 (100%), cited-doc 22/22 (100%).
+**Latency:** median 12924 ms, mean 12015 ms over 30 completed calls. **Cache:** corpus prefix read from cache on 30/30 (100%).
 
 ## Summary
 
-Retrieval alone finds an expected clause at rank 1 for 11 of 22 answerable questions and within the top 6 for 17; the misses (q07@-, q09@95, q15@8, q20@11, q21@27; id@rank) are where the paraphrase gap is. The eight off-corpus questions top out at 10.134 against a minimum answerable score of 3.763, so the score alone is not cleanly separable on this set; with term coverage, gate 1 puts 5 questions on the wrong side. End-to-end, the server answered/refused correctly on 25/30 and cited an expected clause on 11/22 answerable questions (when the server runs in LLM_MOCK mode the citation is only the top chunk, so this tracks hit@1).
+The server decided answer-vs-refuse correctly on 30 of 30 questions. Of the 22 answerable questions, 22 cited an expected clause and 22 cited at least the right policy; the clause misses are none. Answers took 12924 ms at the median, with the prompt cache serving the corpus on 30 of 30 calls.
