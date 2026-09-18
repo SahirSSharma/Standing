@@ -1,16 +1,69 @@
 @import "tailwindcss";
 
-/* Light theme only for v1. One accent colour (navy); everything else is ink on paper. */
+/* Warm paper, navy ink, one gold accent. Gold is a surface/border colour only — never text. */
 @theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --color-accent: #1f3b63;
-  --color-ink: #16181d;
-  --color-muted: #5c6370;
-  --color-line: #d8d9d3;
-  --color-paper: #f7f7f4;
+
+  --color-paper: #faf7f2;
+  --color-card: #ffffff;
+  --color-ink: #14213d;
+  --color-ink-hover: #1d2f56;
+  --color-muted: #4f5a70;
+  --color-soft: #5a6478;
+  --color-line: #e6e0d4;
+  --color-gold: #e9b949;
+  --color-gold-tint: #fbf1d6;
+  --color-gold-deep: #8a6512;
+
+
+  --shadow-card: 0 1px 2px rgb(20 33 61 / 0.04), 0 10px 30px -14px rgb(20 33 61 / 0.14);
+  --shadow-field: 0 2px 4px rgb(20 33 61 / 0.04), 0 18px 44px -20px rgb(20 33 61 / 0.28);
 }
 
 html {
   color-scheme: light;
+  font-size: 16px;
+}
+/* Slightly larger type on very wide screens so 2560 px doesn't look stranded. */
+@media (width >= 96rem) {
+  html { font-size: 17px; }
+}
+@media (width >= 137.5rem) {
+  html { font-size: 18px; }
+}
+
+@layer base {
+  /* One focus style everywhere: navy outline (3:1 non-text contrast) with a gold halo. */
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px var(--color-gold);
+  }
+  ::selection {
+    background: var(--color-gold-tint);
+  }
+}
+
+/* Reaches 92% at 15 s (the usual range), then keeps creeping so a slow call never looks frozen. */
+@keyframes standing-progress {
+  0%   { width: 6%; }
+  5%   { width: 28%; }
+  12%  { width: 58%; }
+  25%  { width: 92%; }
+  100% { width: 98%; }
+}
+.progress-fill {
+  animation: standing-progress 60s cubic-bezier(0.25, 0.6, 0.35, 1) forwards;
+}
+@keyframes standing-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.progress-dot {
+  animation: standing-pulse 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill { animation: none; width: 55%; }
+  .progress-dot { animation: none; }
 }
