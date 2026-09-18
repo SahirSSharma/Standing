@@ -55,6 +55,7 @@ async function ask(q) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const r = await res.json();
     q.got = r.refused ? 'refuse' : 'answer';
+    q.verdict = r.verdict ?? null;
     q.citations = r.citations ?? [];
     q.cacheRead = r.grounding?.cacheRead === true;
     q.routedArea = r.grounding?.area;
@@ -75,7 +76,9 @@ await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 // ---- Score ----------------------------------------------------------------------------------
 const answerable = questions.filter((q) => q.expect === 'answer');
 for (const q of questions) {
-  q.correct = q.got === q.expect;
+  // An off-corpus question is also handled correctly when the server answers "n/a" — the policies cover
+  // the topic but say nothing about the point asked, and the answer says so instead of inventing a rule.
+  q.correct = q.got === q.expect || (q.expect === 'refuse' && q.verdict === 'n/a');
   if (q.expect !== 'answer') continue;
   const ids = new Set((q.citations ?? []).map((c) => c.id));
   const docs = new Set(q.expectedChunks.map((id) => id.split('#')[0]));
@@ -92,7 +95,7 @@ for (const q of questions) {
 const ids = (list) => list.map((q) => q.id).join(', ') || 'none';
 const correct = questions.filter((q) => q.correct);
 const falseRefusals = answerable.filter((q) => q.got === 'refuse');
-const falseAnswers = questions.filter((q) => q.expect === 'refuse' && q.got === 'answer');
+const falseAnswers = questions.filter((q) => q.expect === 'refuse' && !q.correct && !q.error);
 const errors = questions.filter((q) => q.error);
 const citedExpected = answerable.filter((q) => q.citedExpected);
 const citedDoc = answerable.filter((q) => q.citedDoc);
@@ -108,7 +111,7 @@ const mean = ms.length ? Math.round(ms.reduce((a, b) => a + b, 0) / ms.length) :
 const pct = (n, d) => `${n}/${d} (${Math.round((100 * n) / d)}%)`;
 const yn = (b) => (b ? 'yes' : 'no');
 const rows = questions.map((q) => {
-  const got = q.error ? `error: ${q.error}` : q.got;
+  const got = q.error ? `error: ${q.error}` : q.verdict === 'n/a' ? 'answer (n/a)' : q.got;
   const [ce, cd] = q.expect === 'answer' && !q.error ? [yn(q.citedExpected), yn(q.citedDoc)] : ['—', '—'];
   const routed = q.error ? '—' : `${q.routedArea ?? '—'}${q.retried ? ' (via runner-up)' : ''}`;
   const top = (q.citations ?? []).slice(0, 3).map((c) => `\`${c.id}\``).join(', ') || '—';
@@ -121,7 +124,8 @@ Server: ${API}. ${questions.length} questions (${answerable.length} answerable, 
 area = where the expected clauses live; routed = grounding.area the answer was read from, "(via runner-up)" when the first area
 answered NO_ANSWER and the runner-up was read (grounding.retried). cited-expected = a returned citation id is in expectedChunks (a question
 with mustCite additionally requires those ids); cited-doc = a citation points into the expected policy (partial credit). "top cited ids"
-are the first three citations returned. cache = grounding.cacheRead.
+are the first three citations returned. cache = grounding.cacheRead. got = "answer (n/a)" when the server answered with
+Verdict: n/a (the policies cover the topic but not the point asked); for an off-corpus question that counts as correct.
 
 | id | area | expect | got | routed | cited-expected | cited-doc | top cited ids | ms | cache |
 |---|---|---|---|---|---|---|---|---|---|

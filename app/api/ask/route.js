@@ -6,7 +6,7 @@ import { citationFor } from '@/lib/corpus';
 import { parseSections } from '@/lib/sections';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60; // Vercel function timeout; an answer takes ~5–15 s, a retry doubles it
+export const maxDuration = 100; // Vercel function timeout: an answer takes ~5–15 s, a runner-up read doubles it, and the SDK client (40 s + one retry) must fit inside
 
 const REASON = "The policies Standing knows don't answer this.";
 

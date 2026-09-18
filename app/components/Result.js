@@ -70,7 +70,7 @@ export default function Result({ data, docs, onAsk, onReset, question: questionP
   return (
     <div className={`grid grid-cols-[minmax(0,1fr)] gap-8 ${COLS} xl:grid-rows-[auto_1fr]`}>
       <article className="space-y-6 xl:col-start-1 xl:row-start-1">
-        <Verdict verdict={verdict} short={short} md={md} />
+        <Verdict verdict={verdict} short={short} md={md} options={youCan.length} />
         <Diagram steps={steps} theyCan={theyCan} youCan={youCan} md={md} first={diagramFirst} />
         <Deadlines deadlines={deadlines} md={md} first={deadlinesFirst} />
         {why && (

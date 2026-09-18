@@ -19,7 +19,7 @@ export default function Situations({ onAsk, first = 0 }) {
   return (
     <section className="mt-12 sm:mt-16" aria-labelledby="situations">
       <h2 id="situations" className="rise text-xl font-semibold tracking-tight" style={{ "--i": first }}>
-        Something happened?
+        Something happened? You&rsquo;ve got options.
       </h2>
       <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 sm:gap-4">
         {SITUATIONS.map((s, i) => (

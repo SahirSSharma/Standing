@@ -108,7 +108,12 @@ Verdict: yes | no | depends | n/a
 ## Steps          1. the process in order, naming who does it
 ## Deadlines      - "<what>: within <time> of <event>"
 ```
-Every bullet is one sentence of ≤ 20 words; sections that don't apply are left out.
+Every bullet is one sentence of ≤ 20 words; sections that don't apply are left out. `n/a` is for how-to
+questions and for questions the policies cover in topic but not in the point asked ("how much is a parking
+ticket?" — the parking policy never states an amount): the bold line then says what they do not cover, and
+the model never turns that silence into a "no". `NO_ANSWER` is for topics the area does not cover at all. A
+heading outside this list (an n/a answer sometimes writes "## What they don't cover") is folded into "Why"
+under its own bold label rather than dropped.
 
 `POST /api/draft` — request `{ "question", "answer", "citations": ["160-2#8.A", …] }` (the answer
 and citation ids from a `/api/ask` response); response `{ "letter": "To: …\nSubject: …\n\n…", "grounding" }`.
@@ -281,3 +286,30 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   against a 1,200 cap and Deadlines is the last section, so a cut-off would silently drop the calculator), and
   `stop_reason` is logged and reported as `grounding.stopReason`. The eight home-page situations are graded as
   eval questions q62–q69 so a demo card can never lead to an ungraded refusal.
+- 2026-09-18 — Full v3 eval after the limit was raised: 67/69 decisions, 52/54 expected clause, router
+  54/54, $2.46. The one real defect was "no from silence": asked whether professors must grade on a curve,
+  the model read a grading regulation that never mentions curves and answered "Verdict: no … expect your
+  grade to reflect individual performance rather than rank". Fix, in the system prompt: silence on the point
+  asked is `Verdict: n/a` with a bold line saying what the documents do not cover; a topic the area does not
+  cover at all is `NO_ANSWER`; never infer a rule from silence. The parser had to learn `n/a` too — the
+  verdict regex only took letters, so every n/a answer had rendered its "Verdict: n/a" line as body text —
+  and it now folds unknown headings into "Why". The eval counts an n/a answer to an off-corpus question as
+  correct and prints it as "answer (n/a)". Second decision: when the router replies `{"area": null}`
+  (11 of the 15 refusers), the server refuses without a read — 0.2¢ and under a second instead of two
+  area reads (~3.5¢, 5 s); a garbled router reply still falls back to keyword routing, and the eval's
+  54/54 routing on answerable questions is the evidence that an explicit null is safe. `max_tokens` went to
+  2,000 after one answer in 69 hit 1,600. Runs 2 and 3 each had three calls stall for 90–170 s while a
+  fresh direct call answered in 0.6 s (API-side); the SDK client is now `timeout: 40 s, maxRetries: 1`
+  and the ask route's `maxDuration` is 100 s so one retry fits inside it.
+- 2026-09-18 — Pip. Sahir: "friendlier, a logo/mascot, more positive, an animation of them speaking or
+  pointing to the answer". Pip is a sea lion (La Jolla's own; King Triton and the trident are UCSD marks),
+  drawn as one inline SVG in the three brand colours with a gold scarf, chosen by Sahir from three
+  candidates (sea lion, pelican, an abstract standing figure). One component, `app/components/Pip.js`,
+  posed by prop; the motion is CSS only (`pip-*` keyframes in globals.css, all off under
+  prefers-reduced-motion): waves once in the hero, reads and bobs while an answer loads, points at the
+  speech bubble and moves its mouth for two seconds when the answer lands (cheers on "yes"), and is sorry
+  on a refusal. "More positive" is framing, not hedging: a "no" stays "no" (the mark, the caption and the
+  eval are unchanged) but a "no" with "You can" items gets one line — "You still have options" — and the
+  refusal names four real offices (Ombuds, Student Legal Services, SAGE, OPHD; URLs curl-checked) instead
+  of only saying what Standing can't do. The favicon, apple icon and Open Graph image are rendered from the
+  same drawing.

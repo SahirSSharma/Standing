@@ -5,7 +5,9 @@ transcript, a protest you want to hold, a parking ticket — and you want to kno
 the official UC San Diego policies and answers with a verdict, a diagram of the process, the deadlines
 that apply, and the exact clauses it relied on, each with its effective date and a link to the source. If
 the policies don't answer it, Standing says so instead of guessing. One click drafts the request you can
-send; a date picker turns "within ten business days" into a date.
+send; a date picker turns "within ten business days" into a date. Pip, the sea lion, reads along: waves
+hello, reads while the answer loads, points at the answer and speaks it, and on a refusal points you to the
+campus offices that can help.
 
 Built for [LexHack 2026](https://lexhack-2026.devpost.com/) · Track: Access to Justice & Civic Tech
 
@@ -45,9 +47,12 @@ not the product.
    passage, since a citation often spans a lead-in and its sub-clause. Each clause becomes a citation:
    policy label, clause, heading, the cited words, effective date and official URL. An inline
    `[160-2#5.A]` marker after the sentence is what the UI turns into a chip.
-4. The server refuses when the model answers `NO_ANSWER` for the routed area and again for the runner-up
-   area, or when none of its citations resolve to a clause in the corpus. A refusal is an explicit card,
-   never a blank answer.
+4. The server refuses when the router says no area covers the question (no read at all, ~0.2¢), when the
+   model answers `NO_ANSWER` for the routed area and again for the runner-up area, or when none of its
+   citations resolve to a clause in the corpus. A refusal is an explicit card that names the campus
+   offices that can help, never a blank answer. When the policies cover the topic but not the point
+   asked, the verdict is `n/a` and the answer says what they do not cover — silence is never turned into
+   a "no".
 5. `lib/sections.js` parses the answer's sections so the page can open with the verdict and a diagram —
    a numbered timeline when the policy is a process, "they can / you can" columns otherwise — and keep
    the explanation and the sources behind expanders. `POST /api/draft` writes a request the student can
@@ -94,10 +99,20 @@ POSTs the questions to the running server one at a time, area by area, and write
 is an expected clause, or the list containing it with the answer text in its on-screen quote), the router's
 area, and the cost. It does not grade the prose.
 
-Latest complete run (v2, 7 policies, 30 questions, 2026-09-18, `claude-sonnet-5`): 30/30 decisions,
-22/22 cited the expected clause, 5.1 s median, $0.57. The v3 run (42 policies, 69 questions) is pending the
-API key's usage limit: its first 18 answers were 18/18 on the decision and 15/18 on the expected clause,
-the three misses being two questions that two policies now both answer (accepted since) and one router miss
+Latest complete run (v3, 42 policies, 69 questions, 2026-09-18, `claude-sonnet-5` + `claude-haiku-4-5`
+router; [eval/results.md](eval/results.md)): 66/66 completed decisions right — 54/54 answers, 12/12
+refusals, including four off-corpus questions answered "n/a" with a line saying what the policies do not
+cover — 53/54 cited the expected clause, 54/54 cited the right policy, the router chose the right area
+54/54 times, 7.4 s median, $1.14 with every area served from the prompt cache. The three remaining
+off-corpus questions hit a 90-second client timeout during an API slowdown at the end of the run and were
+re-asked by hand afterwards: all three were refused by the router in under a second. Earlier the same
+evening, the first full v3 run (67/69, 52/54, $2.46, cold caches) found the one real defect — a "no"
+inferred from a regulation's silence on grading curves — which the prompt now rules out.
+
+Before that (v2, 7 policies, 30 questions): 30/30 decisions, 22/22 cited the expected clause, 5.1 s
+median, $0.57. The first v3 attempt stopped at 18 answers on the key's usage limit: 18/18 on the decision
+and 15/18 on the expected clause, the three misses being two questions that two policies now both answer
+(accepted since) and one router miss
 (the discrimination-grievance deadline, read from the complaint-procedure policy instead of the student
 grievance policy — the router summaries were sharpened).
 

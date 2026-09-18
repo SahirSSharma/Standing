@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-18 — Pip, and answers that say what the policies don't cover
+- Pip, Standing's sea lion (`app/components/Pip.js`): one inline SVG in the brand colours, posed by prop
+  and animated in CSS (`pip-*` in globals.css, all off under prefers-reduced-motion). Waves once in the
+  hero, reads and bobs while an answer loads, points at the speech bubble and moves its mouth when the
+  short answer lands (cheers on "yes"), sits sorry on a refusal, and is the header mark, favicon
+  (`app/icon.png`, `app/apple-icon.png`) and Open Graph image (`app/opengraph-image.png`, rendered from the
+  same drawing). Sahir picked the sea lion over a pelican and an abstract mark.
+- Friendlier copy: the hero explains what Pip does, "Something happened? You've got options.", loading steps
+  in plain words, a "no" with "You can" items adds "You still have options — see what you can do below",
+  and the refusal card names four campus offices (Ombuds, Student Legal Services, SAGE, OPHD; URLs checked
+  live) before the situations and the library links.
+- Prompt: silence is not a "no". When the policies cover the topic but say nothing about the point asked
+  the verdict is `n/a` with a bold line saying what they do not cover; a topic the area does not cover is
+  `NO_ANSWER`. Found by the full eval (a "grade on a curve" question got "Verdict: no" from a regulation that
+  never mentions curves). `lib/sections.js` now parses `n/a` (the regex only took letters, so n/a answers
+  had shown their verdict line as text) and folds unknown headings into "Why" under a bold label.
+- Router: an explicit `{"area": null}` refuses without a read (0.2¢, < 1 s; it was two area reads); a
+  garbled reply still falls back to keyword routing. `max_tokens` 2,000 (one answer in 69 hit 1,600).
+- Eval: an n/a answer to an off-corpus question counts as correct and prints as "answer (n/a)"; q64
+  accepts the consent clause 160-2 §9.A. Full v3 runs recorded in `eval/results.md` and README.
+
 ## 2026-09-18 — v3: 42 policies, routed areas, structured answers
 - Corpus v3 (`scripts/catalog.mjs`, `npm run ingest`): 42 policies in six life areas — 34 PPM documents
   (records, conduct, speech & events, safety & discrimination, money & campus life) and 8 Academic Senate

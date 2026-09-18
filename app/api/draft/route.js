@@ -4,7 +4,7 @@ import { draft } from '@/lib/llm';
 import { chunkById } from '@/lib/corpus';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 100; // same client timeout budget as /api/ask
 
 export async function POST(request) {
   let body;

@@ -655,7 +655,8 @@
       "160-2#8.A",
       "160-2#8.B.2",
       "160-2#3.D",
-      "160-2#DIRECTORY-INFORMATION.1"
+      "160-2#DIRECTORY-INFORMATION.1",
+      "160-2#9.A"
     ],
     "answerQuote": "Directory Information may be released without a student's written consent unless the student has notified the UC San Diego Registrar's Office in writing or via electronic procedure established by the UC San Diego Registrar, that any or all of such information is not to be disclosed.",
     "expect": "answer",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRef, useState, useSyncExternalStore } from "react";
 import Areas from "./Areas";
 import { Icon } from "./Icons";
+import Pip from "./Pip";
 import Progress from "./Progress";
 import Result, { COLS } from "./Result";
 import Situations from "./Situations";
@@ -64,19 +65,25 @@ export default function Ask({ areas, totals }) {
     <>
       <section className={idle ? "mx-auto max-w-3xl text-center 2xl:max-w-4xl" : grid}>
         <div>
+          {idle && (
+            <div className="pop mx-auto mb-4 w-fit sm:mb-5" style={{ "--i": 0 }}>
+              <Pip pose="happy" wave label="Pip, the Standing sea lion, waving" className="size-24 sm:size-28 lg:size-32" />
+            </div>
+          )}
           <h1
             className={
               idle
                 ? "rise text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
                 : "text-2xl font-semibold tracking-tight"
             }
-            style={{ "--i": 0 }}
+            style={{ "--i": 1 }}
           >
             Know where you stand.
           </h1>
           {idle && (
-            <p className="rise mx-auto mt-5 text-lg leading-relaxed text-muted sm:text-xl" style={{ "--i": 1 }}>
-              Your rights as a UCSD student, answered from the exact policy clause.
+            <p className="rise mx-auto mt-5 text-lg leading-relaxed text-muted sm:text-xl" style={{ "--i": 2 }}>
+              Ask anything about your rights as a UCSD student. Pip reads the official policies and points you to
+              the exact clause.
             </p>
           )}
 
@@ -86,7 +93,7 @@ export default function Ask({ areas, totals }) {
               ask(question);
             }}
             className={idle ? "rise mt-8 text-left sm:mt-10" : "mt-4 text-left"}
-            style={{ "--i": 1 }}
+            style={{ "--i": 3 }}
           >
             <label htmlFor="question" className="sr-only">
               Your question

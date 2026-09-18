@@ -26,8 +26,11 @@ request letter, deadline calculator (stretch, last).
 | 6 | Policy library `/policies` + `/policies/[docId]` | done (42 static pages) |
 | 7 | Eval: +questions for the new areas, router accuracy, one real run | questions written (61) and validated; real run below |
 | 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-h26oqt1or-sss-4bfd.vercel.app (pages verified live; answers blocked by the usage limit below) |
+| 9 | Full 69-question eval once the limit was raised; fix what it finds | done — see "Eval runs" below: "no from silence" fixed in the prompt, `n/a` parsed, router-null refusals without a read |
+| 10 | Pip the sea lion + friendlier, more positive copy (Sahir's call, Sep 18 evening) | done — hero wave, loading read, verdict point-and-talk, refusal with real offices, favicon/OG; verified 390–2560 on the mock, real answers screenshotted |
 
-## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval)
+## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
+Sahir raised the Console limit; every run below happened after that. Kept for the record:
 The first v3 eval run got 18 answers in (all 18 decisions right, 15/18 cited the expected clause) and then
 every call failed with 400 "You have reached your specified API usage limits. You will regain access on
 2026-10-01" — the Console **monthly spend limit** for the key's workspace, not the credit balance. The $20
@@ -76,6 +79,16 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
   A second question set nobody tuned against would be a fairer number.
 - Cost and latency: measured ~$0.05 and ~12 s per answer on Opus 5; default is now Sonnet 5 (~$0.02 per answer, faster) with a 1-hour corpus cache — Sonnet eval pending the key's usage limit.
 
+## Eval runs (v3, 69 questions; full tables in `eval/results.md` for the latest)
+| Run (2026-09-18) | Decisions | Expected clause | Router | Cost | Notes |
+|---|---|---|---|---|---|
+| 1 — first full run, cold caches | 67/69 | 52/54 | 54/54 | $2.46 | 2 "false answers" were honest n/a answers the parser couldn't read; 1 real defect: "no" inferred from silence (grading curves) |
+| 2 — prompt rule for silence, router-null refusals | 66/69 (+3 API timeouts) | 51/51 completed | 51/51 | $2.02 | n/a answers still mis-scored (parser), fixed after; the 3 timeouts re-asked by hand: all right |
+| 3 — parser reads n/a, unknown headings folded, max_tokens 2000 | 66/66 completed (+3 API timeouts) | 53/54 | 54/54 | $1.14 | the 3 timeouts were the last three refusers during an API stall; re-asked: refused in < 1 s each |
+
+The stalls (calls hanging 90–170 s while a fresh call answered in 0.6 s) are on the API side; the SDK
+client now times out at 40 s with one retry so a hung connection cannot eat a whole request.
+
 ## Budget — $20 of API credit for the rest of the project (from 2026-09-18; revised after the v3 eval)
 Rules so it lasts: agents run with `LLM_MOCK=1` only — real-key calls are made by hand; `npm run eval`
 runs once per change to `lib/llm.js`, the prompt or the router summaries (sequential, area by area, ≈$3.00
@@ -84,8 +97,9 @@ area's cache lives for an hour; every call logs its estimated cost and stop reas
 
 | Use | Budget | Spent so far |
 |---|---|---|
-| Evals (v2 ×2 + one crashed run + v3 partial; one full v3 run still to come) | $6 | $2.25 |
-| Live verification on staging (smoke tests, one screenshot pass on real answers) | $1 | $0.30 |
+| Evals (v2 ×2 + one crashed run + v3 partial $2.25; three full v3 runs $2.46 + $2.02 + $1.14) | $8 | $7.87 — no more full runs unless the prompt or router changes |
+| Live verification (smoke tests, hand re-asks of eval misses, real-answer screenshot passes) | $1 | $0.75 |
 | Sahir + friends testing, demo video takes | $5 | $0 |
 | Judges (Sept 27 onward, ~150 questions ≈ $3 + cache writes) | $4 | $0 |
-| Reserve | $4 | — |
+| Reserve | $2 | — |
+Total spent ≈ $8.60 of $20 (2026-09-18, late evening).

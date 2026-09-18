@@ -98,3 +98,70 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .rise, .pop, .draw, .grow-x { animation: none; opacity: 1; transform: none; stroke-dashoffset: 0; }
 }
+
+/* Pip (app/components/Pip.js). Parts pivot in the SVG's own coordinates (transform-box: view-box):
+   the right flipper turns about the shoulder, the eyelids and mouth sit on the face. */
+.pip-arm, .pip-lid, .pip-page, .pip-head { transform-box: view-box; }
+.pip-arm { transform-origin: 78px 75px; }
+.pip-lid { transform-origin: 51px 35px; transform: scaleY(0); }
+.pip-lid + .pip-lid { transform-origin: 69px 35px; }
+.pip-page { transform-origin: 40px 90px; }
+.pip-head { transform-origin: 60px 58px; }
+.pip-mouth-open { opacity: 0; }
+/* A blink every few seconds, on every pose that has eyelids. */
+@keyframes pip-blink {
+  0%, 93%, 100% { transform: scaleY(0); }
+  96% { transform: scaleY(1); }
+}
+.pip-lid { animation: pip-blink 4.6s ease-in-out infinite; }
+.pip-lid + .pip-lid { animation-delay: 0.02s; }
+/* Point: the flipper swings up to the speech bubble beside it and holds there. */
+@keyframes pip-point {
+  0%   { transform: rotate(0); }
+  60%  { transform: rotate(-124deg); }
+  80%  { transform: rotate(-104deg); }
+  100% { transform: rotate(-112deg); }
+}
+.pip-point .pip-arm { animation: pip-point 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both; }
+.pip-cheer .pip-arm { transform: rotate(-112deg); }
+/* Wave: up, three shakes, down. */
+@keyframes pip-wave {
+  0%, 100% { transform: rotate(0); }
+  18% { transform: rotate(-128deg); }
+  36% { transform: rotate(-100deg); }
+  54% { transform: rotate(-132deg); }
+  72% { transform: rotate(-104deg); }
+  86% { transform: rotate(-120deg); }
+}
+.pip-wave .pip-arm { animation: pip-wave 2s ease-in-out 0.5s 1; }
+/* Talking: the open and closed mouths alternate for about two seconds. */
+@keyframes pip-talk-open {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+@keyframes pip-talk-closed {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.pip-talking .pip-mouth-open { animation: pip-talk-open 0.3s steps(1) 0.5s 7; }
+.pip-talking .pip-mouth-closed { animation: pip-talk-closed 0.3s steps(1) 0.5s 7; }
+/* Reading: the whole sea lion bobs, the head nods over the page. */
+@keyframes pip-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes pip-nod {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(3deg); }
+}
+.pip-bob { animation: pip-bob 1.8s ease-in-out infinite; }
+.pip-bob .pip-head { animation: pip-nod 1.8s ease-in-out infinite; }
+@keyframes pip-sparkle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.7; }
+}
+.pip-sparkle { transform-box: fill-box; transform-origin: center; animation: pip-sparkle 1.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .pip-lid, .pip-arm, .pip-mouth-open, .pip-mouth-closed, .pip-bob, .pip-bob .pip-head, .pip-sparkle { animation: none; }
+  .pip-point .pip-arm { transform: rotate(-112deg); }
+}
