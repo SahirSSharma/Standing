@@ -3,133 +3,157 @@
     "id": "q01",
     "question": "How long does UCSD have to let me see my student records after I ask?",
     "expect": "answer",
-    "expectedChunks": ["160-2#5.A", "160-2#5.G.3", "160-2#EXHIBIT-A.1"]
+    "expectedChunks": ["160-2#5.A", "160-2#5.G.3", "160-2#EXHIBIT-A.1"],
+    "answerQuote": "With the exception of the records listed in Section V.F., below, students shall be permitted to inspect and review their Student Records within a reasonable period of time, but in no case longer than forty-five (45) days after receipt of the student's request."
   },
   {
     "id": "q02",
     "question": "Can UCSD charge me for copies of my own records?",
     "expect": "answer",
-    "expectedChunks": ["160-2#5.D", "160-2#5.G.4", "160-2#REPRODUCTION-OF-STUDENT-RECORDS"]
+    "expectedChunks": ["160-2#5.D", "160-2#5.G.4", "160-2#REPRODUCTION-OF-STUDENT-RECORDS"],
+    "answerQuote": "A fee of $0.10 per page may be assessed and collected for copies of records requested by a student, unless the imposition of the fee effectively prevents a student from exercising the right to inspect and review the student's own records."
   },
   {
     "id": "q03",
-    "question": "What information about me can UCSD hand out to anyone without asking me first?",
+    "question": "How do I stop UCSD from giving out my phone number?",
     "expect": "answer",
-    "expectedChunks": ["160-2#3.D", "160-2#3.J.1", "160-2#8.A", "160-2#DIRECTORY-INFORMATION.1"]
+    "expectedChunks": ["160-2#8.A", "160-2#8.B.2", "160-2#3.D", "160-2#DIRECTORY-INFORMATION.1"],
+    "answerQuote": "Directory Information may be released without a student's written consent unless the student has notified the UC San Diego Registrar's Office in writing or via electronic procedure established by the UC San Diego Registrar, that any or all of such information is not to be disclosed."
   },
   {
     "id": "q04",
-    "question": "Can I dispute a grade by asking the university to correct my student record?",
+    "question": "Can UCSD share my grades with my parents?",
     "expect": "answer",
-    "expectedChunks": ["160-2#13.B", "160-2#14.B"]
+    "expectedChunks": ["160-2#9.A", "160-2#3.J.2", "160-2#8.A"],
+    "answerQuote": "Except for the disclosure of Directory Information under conditions specified in Section VIII of this Policy, Personally Identifiable Information from Student Records may not be disclosed without the prior written consent of the student, other than to the following parties and under the following circumstances:"
   },
   {
     "id": "q05",
     "question": "If UCSD gets a subpoena for my records, do they have to tell me?",
     "expect": "answer",
-    "expectedChunks": ["160-2#9.A.7"]
+    "expectedChunks": ["160-2#9.A.7"],
+    "answerQuote": "A reasonable effort shall be made to notify the student in advance of the disclosure of the record unless responding to a judicial order or grand jury or other subpoena that specifies that the student not be informed of the order or subpoena."
   },
   {
     "id": "q06",
     "question": "Where do I file a complaint if UCSD violates my FERPA rights?",
     "expect": "answer",
-    "expectedChunks": ["160-2#15.A.1", "160-2#15.A.2", "160-2#4.B.6", "160-2#EXHIBIT-A.4"]
+    "expectedChunks": ["160-2#15.A.1", "160-2#15.A.2", "160-2#4.B.6"],
+    "answerQuote": "Students may file complaints with the U.S. Department of Education concerning alleged violations of FERPA."
   },
   {
     "id": "q07",
     "question": "Am I required to check my UCSD email?",
     "expect": "answer",
-    "expectedChunks": ["160-3#V.4", "160-3#V.5", "160-3#I"]
+    "expectedChunks": ["160-3#V.4", "160-3#V.5", "160-3#V"],
+    "answerQuote": "Attending to delivered and posted messages on a frequent and consistent basis."
   },
   {
     "id": "q08",
     "question": "Can I have my @ucsd.edu email forwarded to my personal Gmail?",
     "expect": "answer",
-    "expectedChunks": ["160-3#IV.A"]
+    "expectedChunks": ["160-3#IV.A"],
+    "answerQuote": "The @ucsd.edu alias has an associated delivery destination address that may either be provided by ACMS, or forwarded to another email account designated by the student."
   },
   {
     "id": "q09",
     "question": "If a student dies, who at UCSD gets notified first?",
     "expect": "answer",
-    "expectedChunks": ["160-6#POLICY-STATEMENT.III.B.1", "160-6#PROCEDURES.I.B"]
+    "expectedChunks": ["160-6#PROCEDURES.I.B", "160-6#POLICY-STATEMENT.III.B.1", "160-6#POLICY-STATEMENT.III.B"],
+    "answerQuote": "As soon as possible following receipt of the notice of death, VCSA will notify the Dean of Student Affairs and the Dean of Academic Advising of the college or professional school or academic program where the student was enrolled or had been accepted for enrollment; the Director of Counseling and Psychological Services, if the nature of the death was determined to be by suicide or homicide; and the Director, Environment, Health & Safety, if the cause of death was work- related."
   },
   {
     "id": "q10",
     "question": "When a student dies, does the campus-wide notice say how they died?",
     "expect": "answer",
-    "expectedChunks": ["160-6#POLICY-STATEMENT.III.A", "160-6#PROCEDURES.I.D"]
+    "expectedChunks": ["160-6#POLICY-STATEMENT.III.A", "160-6#PROCEDURES.I.D"],
+    "answerQuote": "The nature of the death is confidential and should not be included in the administrative notification."
   },
   {
     "id": "q11",
-    "question": "Can a student who passed away still be awarded their degree?",
+    "question": "If a student dies right before graduating, can they still get their diploma?",
     "expect": "answer",
-    "expectedChunks": ["160-6#RESPONSIBILITIES.I.I"]
+    "expectedChunks": ["160-6#RESPONSIBILITIES.I.I"],
+    "answerQuote": "College Dean of Academic Advising – verify student's academic standing at time of death to determine if a posthumous degree or certificate will be awarded; alert Academic Records to confer appropriate recognition."
   },
   {
     "id": "q12",
     "question": "Which student governments does UCSD officially recognize?",
     "expect": "answer",
-    "expectedChunks": ["160-8#POLICY-STATEMENT", "160-8#POLICY-STATEMENT.1", "160-8#POLICY-STATEMENT.2"]
+    "expectedChunks": ["160-8#POLICY-STATEMENT", "160-8#POLICY-STATEMENT.1", "160-8#POLICY-STATEMENT.2", "160-8#POLICY-STATEMENT.3", "160-8#POLICY-STATEMENT.4", "160-8#POLICY-STATEMENT.5", "160-8#POLICY-STATEMENT.6", "160-8#POLICY-STATEMENT.7", "160-8#POLICY-STATEMENT.8", "160-8#POLICY-STATEMENT.9"],
+    "answerQuote": "Associated Students of the University of California, San Diego (ASUCSD)"
   },
   {
     "id": "q13",
     "question": "Is the Seventh College student council an official student government?",
     "expect": "answer",
-    "expectedChunks": ["160-8#POLICY-STATEMENT.5", "160-8#REVISION-HISTORY"]
+    "expectedChunks": ["160-8#POLICY-STATEMENT.5", "160-8#REVISION-HISTORY"],
+    "answerQuote": "This policy was updated to include the Seventh College Student Council and to update formal names of Authorized Student Governments."
   },
   {
     "id": "q14",
     "question": "I got a student conduct notice. How many days do I have to set up a meeting with the conduct officer?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.E.2.a"]
+    "expectedChunks": ["160-10#POLICY-STATEMENT.E.2.a"],
+    "answerQuote": "Notice that the Respondent has five Business Days from the date of the notice to contact the Student Conduct Officer to schedule an Administrative Resolution meeting (ARM);"
   },
   {
     "id": "q15",
-    "question": "Can I bring someone with me to my student conduct meeting?",
+    "question": "Can I hire a lawyer for my conduct case?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.B.5", "160-10#POLICY-STATEMENT.B.5.a", "160-10#POLICY-STATEMENT.B.5.e", "160-10#RESPONSIBILITIES.8.a"]
+    "expectedChunks": ["160-10#RESPONSIBILITIES.8.a", "160-10#POLICY-STATEMENT.B.5"],
+    "answerQuote": "However, Students may engage attorneys for legal advice and/or assistance as an Advisor."
   },
   {
     "id": "q16",
     "question": "Can UCSD discipline me for something that happened off campus?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.A.1", "160-10#POLICY-STATEMENT.A.4", "160-10#POLICY-STATEMENT.A.3.a"]
+    "expectedChunks": ["160-10#POLICY-STATEMENT.A.1", "160-10#POLICY-STATEMENT.A.4", "160-10#POLICY-STATEMENT.A.3.a"],
+    "answerQuote": "However, the University has the discretion to exercise jurisdiction over off-campus conduct that would violate the Standards of Conduct or other University Policies if it had occurred on-campus, including but not limited to:"
   },
   {
     "id": "q17",
     "question": "How long does a conduct violation stay on my record?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.J.3", "160-10#POLICY-STATEMENT.J.4"]
+    "expectedChunks": ["160-10#POLICY-STATEMENT.J.3", "160-10#POLICY-STATEMENT.J.4"],
+    "answerQuote": "The conduct record of a Respondent found responsible for violations of the Standards of Conduct will normally be retained by SAGE for seven years from the end of the academic year in which the incident was resolved or as otherwise required by law (whichever is longer), regardless of whether the Student graduated or the Student Organization is no longer registered."
   },
   {
     "id": "q18",
     "question": "Who reviews my appeal if I'm an undergrad?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.I.2.a"]
+    "expectedChunks": ["160-10#POLICY-STATEMENT.I.2.a"],
+    "answerQuote": "An undergraduate Student appeal will be reviewed by the Council of Provosts."
   },
   {
     "id": "q19",
-    "question": "Is wearing a mask on campus a conduct violation?",
+    "question": "Can a fraternity at UCSD only let in guys?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.C.6.c"]
+    "expectedChunks": ["160-9#POLICY-STATEMENT.A.2"],
+    "answerQuote": "Membership in a Registered Campus Organization is open to any student, consistent with the Nondiscrimination Policy Statement for University of California Publications Regarding Student-Related Matters, with the exception that membership in an officially recognized sorority or fraternity may be limited by gender."
   },
   {
     "id": "q20",
-    "question": "Can I ask for a different conduct officer if I think mine is biased against me?",
+    "question": "If I'm an officer of a student org, am I personally on the hook for its debts?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.E.3", "160-10#POLICY-STATEMENT.F.16"]
+    "expectedChunks": ["160-9#POLICY-STATEMENT.B.2", "160-9#DEFINITIONS.B"],
+    "answerQuote": "By signing the Principal Member Agreement, Principal Members of a Registered Student Organization agree to be personally responsible for the organization's debts and all other financial liabilities."
   },
   {
     "id": "q21",
     "question": "How long do I have to file a discrimination grievance against a staff member?",
     "expect": "answer",
-    "expectedChunks": ["160-11#4.B.1", "160-11#4.B"]
+    "expectedChunks": ["160-11#4.B.1", "160-11#4.B"],
+    "answerQuote": "Grievances under this section must be submitted to the Office of Student Conduct via the Student Grievance Report Form (see Section 7 below for link) within 60 business days from the time the student knew or could reasonably be expected to have known of the action being grieved.",
+    "note": "answerQuote is byte-identical in 160-11#4.A.1 (privacy grievances), so a quote-only grader accepts a 4.A.1 retrieval as a false positive; grade on the cited id. 160-11#4.B.3 names the staff-respondent path.",
+    "mustCite": ["160-11#4.B.1"]
   },
   {
     "id": "q22",
     "question": "Who looks into a grievance about my privacy rights being violated?",
     "expect": "answer",
-    "expectedChunks": ["160-11#4.A.2", "160-11#4.A"]
+    "expectedChunks": ["160-11#4.A.2", "160-11#4.A"],
+    "answerQuote": "The Office of the Registrar will review the grievance and, if appropriate, will investigate the alleged violations."
   },
   {
     "id": "q23",
@@ -139,7 +163,7 @@
   },
   {
     "id": "q24",
-    "question": "How do I appeal a parking ticket I got on campus?",
+    "question": "How much is a parking ticket?",
     "expect": "refuse",
     "expectedChunks": []
   },

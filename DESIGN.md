@@ -153,3 +153,12 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   so a safety-classifier decline is re-run server-side instead of surfacing as a refusal. Measured on the real
   corpus: the 7 documents are 74,004 prompt tokens under Opus 5's tokenizer (the ~41k figure above was an
   estimate); the second call reads all 74,004 from cache; ~10 s per answer.
+- 2026-09-17 (evening) — Eval v2: `eval/run.mjs` is end-to-end only (the retrieval tier went with lib/retrieve.js).
+  It POSTs each question to /api/ask (`EVAL_URL` overrides, 3 in flight, 90 s each) and scores answered/refused on
+  all 30, `cited-expected` (a citation id ∈ expectedChunks) and `cited-doc` (partial credit: a citation in the
+  expected policy) on the 22 answerable, plus per-question latency and `grounding.cacheRead`; a GET preflight exits 1
+  when nothing is listening, so no paid call is wasted. Every answerQuote is re-checked verbatim on each run.
+  Refutation fixes: q12's quote is now an actual government (ASUCSD) and its expectedChunks cover the whole authorized
+  list POLICY-STATEMENT.1–.9; q03 adds the exhibit 160-2#DIRECTORY-INFORMATION.1; q21's quote is byte-identical in
+  160-11#4.A.1 (privacy), so a question may carry an optional `note` and `mustCite: [ids]` — cited-expected then also
+  requires every mustCite id to be cited (q21: 160-11#4.B.1), which a quote-only grader could not check.

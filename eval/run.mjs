@@ -1,130 +1,129 @@
-// Evaluation runner — `npm run eval`. Two tiers:
-//   1. Retrieval (key-free): hit@k of expectedChunks for answerable questions, plus the top score
-//      and term coverage of every question — the numbers that calibrate gate 1 in lib/retrieve.js.
-//   2. End-to-end: POST every question to the running /api/ask and score refused-vs-answered and
-//      whether a citation hits an expected chunk. Skipped with a message when no server is up.
-// Writes eval/results.md and prints the same text.
+// Evaluation runner — `npm run eval`. POSTs every question in eval/questions.json to the running
+// /api/ask (EVAL_URL overrides the default), three at a time, and scores:
+//   - answered-vs-refused correctness on all questions
+//   - on answerable ones, whether a citation hits an expected clause ("cited-expected") or at
+//     least the expected policy ("cited-doc", partial credit)
+//   - per-question latency and whether the corpus prefix was served from the prompt cache
+// Writes eval/results.md and prints the same text. Exits 1 when the server is unreachable.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-process.chdir(ROOT); // lib/retrieve.js resolves data/corpus.json from cwd
-const { search, isConfident, THRESHOLD, MIN_COVERAGE } = await import('../lib/retrieve.js');
+const API = process.env.EVAL_URL ?? 'http://localhost:3000/api/ask';
+const CONCURRENCY = 3;
+const TIMEOUT_MS = 90_000;
 
-const K = 6; // same k as app/api/ask/route.js
-const API = process.env.EVAL_API ?? 'http://localhost:3000/api/ask';
+const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
+const questions = read('eval/questions.json');
+const chunkText = new Map(read('data/corpus.json').map((c) => [c.id, c.text]));
 
-const questions = JSON.parse(fs.readFileSync('eval/questions.json', 'utf8'));
-const corpus = JSON.parse(fs.readFileSync('data/corpus.json', 'utf8'));
-const corpusIds = new Set(corpus.map((c) => c.id));
-
-// A typo in expectedChunks would otherwise look like a retrieval miss, so fail loudly instead.
+// ---- Validate the question set, so a typo never looks like a model miss ----------------------
 for (const q of questions) {
-  const unknown = q.expectedChunks.filter((id) => !corpusIds.has(id));
+  const unknown = q.expectedChunks.filter((id) => !chunkText.has(id));
   if (unknown.length) die(`${q.id}: unknown chunk id(s): ${unknown.join(', ')}`);
-  if (q.expect === 'answer' && q.expectedChunks.length === 0) die(`${q.id}: expect=answer needs expectedChunks`);
-  if (q.expect === 'refuse' && q.expectedChunks.length > 0) die(`${q.id}: expect=refuse must have no expectedChunks`);
-}
-
-// ---- Tier 1: retrieval ----------------------------------------------------
-// hit@k = at least one expected chunk appears in the top k. Scores are normScore (BM25 ÷ query
-// term count), the quantity THRESHOLD gates — not MiniSearch's raw score.
-for (const q of questions) {
-  const results = search(q.question, corpus.length); // full ranking, so a miss still reports how far off it was
-  q.topScore = results[0]?.normScore ?? 0;
-  q.coverage = results[0]?.coverage ?? 0;
-  q.confident = isConfident(results); // gate 1 as the route applies it
-  q.topId = results[0]?.chunk.id ?? '';
-  const i = results.findIndex((r) => q.expectedChunks.includes(r.chunk.id));
-  q.rank = i === -1 ? null : i + 1;
-}
-const answerable = questions.filter((q) => q.expect === 'answer');
-const refusable = questions.filter((q) => q.expect === 'refuse');
-const hitAt = (k) => answerable.filter((q) => q.rank !== null && q.rank <= k).length;
-
-const maxRefuse = Math.max(...refusable.map((q) => q.topScore));
-const minAnswer = Math.min(...answerable.map((q) => q.topScore));
-const falseRefusals = answerable.filter((q) => !q.confident);
-const falseAnswers = refusable.filter((q) => q.confident);
-
-// ---- Tier 2: end-to-end ---------------------------------------------------
-async function ask(question) {
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ question }),
-    signal: AbortSignal.timeout(30_000), // first hit compiles the route under `next dev`
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-let e2eSkipped = null; // message when the tier did not run
-for (const q of questions) {
-  try {
-    const r = await ask(q.question);
-    q.e2e = {
-      refused: r.refused,
-      refusedOk: r.refused === (q.expect === 'refuse'),
-      citeOk: q.expect === 'answer' ? r.citations.some((c) => q.expectedChunks.includes(c.id)) : null,
-    };
-  } catch (err) {
-    // fetch() throws TypeError when nothing is listening; on the first question that means no server.
-    if (q === questions[0] && err.name === 'TypeError') {
-      e2eSkipped = `skipped — no server at ${API} (start \`LLM_MOCK=1 npm run dev\` to include it)`;
-      break;
+  if (q.expect === 'answer') {
+    // DESIGN.md: a question is only answerable if its answerQuote is verbatim in an expected chunk.
+    if (!q.expectedChunks.some((id) => chunkText.get(id).includes(q.answerQuote))) {
+      die(`${q.id}: answerQuote not found verbatim in any expected chunk`);
     }
-    q.e2e = { error: err.message };
+    for (const id of q.mustCite ?? []) {
+      if (!q.expectedChunks.includes(id)) die(`${q.id}: mustCite ${id} is not in expectedChunks`);
+    }
+  } else if (q.expectedChunks.length || q.answerQuote) {
+    die(`${q.id}: expect=refuse must have no expectedChunks or answerQuote`);
   }
 }
-const e2eRan = !e2eSkipped;
-const refusedOkCount = e2eRan ? questions.filter((q) => q.e2e?.refusedOk).length : 0;
-const citeOkCount = e2eRan ? answerable.filter((q) => q.e2e?.citeOk).length : 0;
 
-// ---- Report ---------------------------------------------------------------
-function e2eCell(q) {
-  if (!e2eRan) return '—';
-  if (q.e2e?.error) return `error: ${q.e2e.error}`;
-  const verdict = q.e2e.refusedOk ? 'ok' : `WRONG (${q.e2e.refused ? 'refused' : 'answered'})`;
-  return q.expect === 'answer' ? `${verdict}, cite ${q.e2e.citeOk ? 'yes' : 'no'}` : verdict;
+// ---- Reachability, before spending a real answer (~$0.05 each) ------------------------------
+// A GET on the POST-only route answers 405 (and compiles the route under a cold `next dev`); a thrown
+// error means nothing is listening.
+try {
+  await fetch(API, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+} catch (err) {
+  die(`server unreachable at ${API} (${err.cause?.code ?? err.name}). Start it with \`npm run dev\`, or set EVAL_URL.`);
 }
-const pct = (n, d) => `${n}/${d} (${Math.round((100 * n) / d)}%)`;
-const f3 = (x) => x.toFixed(3);
-const docCount = new Set(corpus.map((c) => c.docId)).size;
 
-const rows = questions.map((q) =>
-  `| ${q.id} | ${q.expect} | ${q.question} | ${f3(q.topScore)} | ${q.coverage.toFixed(2)} | \`${q.topId}\` | ${q.rank ?? 'miss'} | ${e2eCell(q)} |`,
-);
-const separation =
-  maxRefuse < minAnswer
-    ? `separable: any THRESHOLD in (${f3(maxRefuse)}, ${f3(minAnswer)}] refuses all 8 and answers all 22; ` +
-      `current ${THRESHOLD} is ${THRESHOLD > maxRefuse && THRESHOLD <= minAnswer ? 'inside' : 'OUTSIDE'} that window`
-    : `overlap: max refusable ${f3(maxRefuse)} ≥ min answerable ${f3(minAnswer)}; no single threshold separates them`;
+// ---- Ask every question, CONCURRENCY at a time -----------------------------------------------
+async function ask(q) {
+  const t0 = performance.now();
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ question: q.question }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const r = await res.json();
+    q.got = r.refused ? 'refuse' : 'answer';
+    q.citations = r.citations ?? [];
+    q.cacheRead = r.grounding?.cacheRead === true;
+  } catch (err) {
+    q.error = err.name === 'TimeoutError' ? `timeout after ${TIMEOUT_MS / 1000} s` : err.message;
+  }
+  q.ms = Math.round(performance.now() - t0);
+  console.error(`${q.id}  ${q.error ? `error: ${q.error}` : q.got}  ${q.ms} ms`); // progress; stdout is the report
+}
+let next = 0;
+const worker = async () => {
+  while (next < questions.length) await ask(questions[next++]);
+};
+await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+
+// ---- Score ----------------------------------------------------------------------------------
+const answerable = questions.filter((q) => q.expect === 'answer');
+for (const q of questions) {
+  q.correct = q.got === q.expect;
+  if (q.expect !== 'answer') continue;
+  const ids = new Set((q.citations ?? []).map((c) => c.id));
+  const docs = new Set(q.expectedChunks.map((id) => id.split('#')[0]));
+  // mustCite: the answerQuote also appears in an unrelated clause, so that exact id has to be cited.
+  q.citedExpected = q.expectedChunks.some((id) => ids.has(id)) && (q.mustCite ?? []).every((id) => ids.has(id));
+  q.citedDoc = (q.citations ?? []).some((c) => docs.has(c.docId));
+}
+const ids = (list) => list.map((q) => q.id).join(', ') || 'none';
+const correct = questions.filter((q) => q.correct);
+const falseRefusals = answerable.filter((q) => q.got === 'refuse');
+const falseAnswers = questions.filter((q) => q.expect === 'refuse' && q.got === 'answer');
+const errors = questions.filter((q) => q.error);
+const citedExpected = answerable.filter((q) => q.citedExpected);
+const citedDoc = answerable.filter((q) => q.citedDoc);
+const cacheReads = questions.filter((q) => q.cacheRead);
+const ms = questions.filter((q) => !q.error).map((q) => q.ms).sort((a, b) => a - b);
+const median = ms[Math.floor(ms.length / 2)] ?? 0;
+const mean = ms.length ? Math.round(ms.reduce((a, b) => a + b, 0) / ms.length) : 0;
+
+// ---- Report ---------------------------------------------------------------------------------
+const pct = (n, d) => `${n}/${d} (${Math.round((100 * n) / d)}%)`;
+const yn = (b) => (b ? 'yes' : 'no');
+const rows = questions.map((q) => {
+  const got = q.error ? `error: ${q.error}` : q.got;
+  const [ce, cd] = q.expect === 'answer' && !q.error ? [yn(q.citedExpected), yn(q.citedDoc)] : ['—', '—'];
+  const top = (q.citations ?? []).slice(0, 3).map((c) => `\`${c.id}\``).join(', ') || '—';
+  return `| ${q.id} | ${q.expect} | ${got} | ${ce} | ${cd} | ${top} | ${q.ms} | ${q.error ? '—' : yn(q.cacheRead)} |`;
+});
 
 const md = `# Eval results — ${new Date().toLocaleDateString('en-CA')}
 
-Corpus: ${corpus.length} chunks over ${docCount} docs. K = ${K}.
-Score = \`normScore\` (BM25 ÷ query-term count); coverage = share of the question's content terms matched anywhere in
-the corpus. Gate 1 passes when score ≥ THRESHOLD (${THRESHOLD}) and coverage ≥ MIN_COVERAGE (${MIN_COVERAGE}). hit@k = at least one
-expected chunk in the top k. "expected rank" is the position of the first expected chunk in the full ranking (miss = not
-matched at all).
+Server: ${API}. ${questions.length} questions (${answerable.length} answerable, ${questions.length - answerable.length} off-corpus), ${CONCURRENCY} at a time.
+cited-expected = a returned citation id is in expectedChunks (q21 additionally requires its mustCite id); cited-doc = a citation
+points into the expected policy (partial credit). "top cited ids" are the first three citations returned. cache = grounding.cacheRead.
 
-| id | expect | question | top score | coverage | top chunk | expected rank | end-to-end |
+| id | expect | got | cited-expected | cited-doc | top cited ids | ms | cache |
 |---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
-**Retrieval (${answerable.length} answerable):** hit@1 ${pct(hitAt(1), answerable.length)}, hit@3 ${pct(hitAt(3), answerable.length)}, hit@6 ${pct(hitAt(6), answerable.length)}.
-**Refusal calibration (${refusable.length} refusable):** top scores ${f3(Math.min(...refusable.map((q) => q.topScore)))}–${f3(maxRefuse)}; answerable top scores ${f3(minAnswer)}–${f3(Math.max(...answerable.map((q) => q.topScore)))}. ${separation}.
-Gate 1 (THRESHOLD ${THRESHOLD}, MIN_COVERAGE ${MIN_COVERAGE}): ${falseRefusals.length} answerable would be refused (${falseRefusals.map((q) => q.id).join(', ') || 'none'}), ${falseAnswers.length} refusable would pass to the LLM (${falseAnswers.map((q) => q.id).join(', ') || 'none'}).
-**End-to-end:** ${e2eRan ? `refused-vs-answered correct ${pct(refusedOkCount, questions.length)}; citation hits an expected chunk ${pct(citeOkCount, answerable.length)}.` : e2eSkipped}
+**Answered/refused correct:** ${pct(correct.length, questions.length)} — false refusals ${falseRefusals.length} (${ids(falseRefusals)}), false answers ${falseAnswers.length} (${ids(falseAnswers)}), errors ${errors.length} (${ids(errors)}).
+**Citations (${answerable.length} answerable):** cited-expected ${pct(citedExpected.length, answerable.length)}, cited-doc ${pct(citedDoc.length, answerable.length)}.
+**Latency:** median ${median} ms, mean ${mean} ms over ${ms.length} completed calls. **Cache:** corpus prefix read from cache on ${pct(cacheReads.length, questions.length)}.
 
 ## Summary
 
-Retrieval alone finds an expected clause at rank 1 for ${hitAt(1)} of ${answerable.length} answerable questions and within the top ${K} for ${hitAt(K)}; the misses (${answerable.filter((q) => q.rank === null || q.rank > K).map((q) => `${q.id}@${q.rank ?? '-'}`).join(', ') || 'none'}; id@rank) are where the paraphrase gap is. The eight off-corpus questions top out at ${f3(maxRefuse)} against a minimum answerable score of ${f3(minAnswer)}, so the score alone is ${maxRefuse < minAnswer ? 'cleanly separable' : 'not cleanly separable'} on this set${maxRefuse < minAnswer ? '' : `; with term coverage, gate 1 puts ${falseRefusals.length + falseAnswers.length} question${falseRefusals.length + falseAnswers.length === 1 ? '' : 's'} on the wrong side`}. ${e2eRan ? `End-to-end, the server answered/refused correctly on ${refusedOkCount}/${questions.length} and cited an expected clause on ${citeOkCount}/${answerable.length} answerable questions (when the server runs in LLM_MOCK mode the citation is only the top chunk, so this tracks hit@1).` : 'The end-to-end tier did not run because no server was listening; start one with LLM_MOCK=1 and re-run to score answered-vs-refused and citations.'}
+The server decided answer-vs-refuse correctly on ${correct.length} of ${questions.length} questions${falseRefusals.length ? `, wrongly refusing ${ids(falseRefusals)}` : ''}${falseAnswers.length ? `, and answered off-corpus ${ids(falseAnswers)} instead of refusing` : ''}. Of the ${answerable.length} answerable questions, ${citedExpected.length} cited an expected clause and ${citedDoc.length} cited at least the right policy; the clause misses are ${ids(answerable.filter((q) => !q.citedExpected))}. Answers took ${median} ms at the median, with the prompt cache serving the corpus on ${cacheReads.length} of ${questions.length} calls${errors.length ? `; ${errors.length} call${errors.length === 1 ? '' : 's'} failed (${ids(errors)})` : ''}.
 `;
 
-fs.writeFileSync('eval/results.md', md);
+fs.writeFileSync(path.join(ROOT, 'eval/results.md'), md);
 process.stdout.write(md);
 
 function die(msg) {
