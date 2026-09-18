@@ -52,3 +52,5 @@
 - Default model is now Claude Sonnet 5 with a 1-hour cache on the policy corpus: about $0.02 per answer instead of $0.05, and no repeated cache rebuilds between sporadic questions. `STANDING_MODEL` switches it back.
 - New look: warm paper background, "Know where you stand." hero, a large search field, six example-question cards, a progress card while the policies are read, a "Short answer" callout with clause pills, sticky source cards that quote the clause with its effective date and a link to the official policy, and honest not-covered / error states. Works at phone width through 2560 px.
 - Answers now open with a one-line bold verdict before the explanation.
+- A citation to a whole list now shows as one source card quoting the items, instead of one card per item.
+- Evaluation re-run on the default Sonnet 5 model: 30/30 decisions, 22/22 citations, 5.1 s median.

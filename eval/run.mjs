@@ -81,7 +81,11 @@ for (const q of questions) {
   const ids = new Set((q.citations ?? []).map((c) => c.id));
   const docs = new Set(q.expectedChunks.map((id) => id.split('#')[0]));
   // mustCite: the answerQuote also appears in an unrelated clause, so that exact id has to be cited.
-  q.citedExpected = q.expectedChunks.some((id) => ids.has(id)) && (q.mustCite ?? []).every((id) => ids.has(id));
+  // A citation to the list that contains the expected item counts when its on-screen quote carries the
+  // answer text (the resolver cites a whole list as its parent clause, quoting the items).
+  const hitsExpected = (id) => ids.has(id)
+    || (q.citations ?? []).some((c) => id.startsWith(c.id + '.') && c.quote.includes(q.answerQuote.slice(0, 40)));
+  q.citedExpected = q.expectedChunks.some(hitsExpected) && (q.mustCite ?? []).every(hitsExpected);
   q.citedDoc = (q.citations ?? []).some((c) => docs.has(c.docId));
 }
 const ids = (list) => list.map((q) => q.id).join(', ') || 'none';

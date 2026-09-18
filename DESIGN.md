@@ -188,3 +188,8 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   re-writing the 74k-token corpus into the cache every few minutes (~$0.19 per cold call on Sonnet 5 at the
   5-minute TTL). Refusal fallbacks are only sent on Opus/Fable models. The 22/22 citation result above was
   measured on Opus 5; the eval is re-run on Sonnet 5 once the API key's usage limit is lifted.
+- 2026-09-18 — List citations. When the API cites a clause together with two or more of its sub-clauses it
+  is citing the list: the resolver keeps the parent and stretches its quote over the items, so one chip
+  and one card carry the actual list text. A citation covering a parent's lead-in plus one sub-clause is
+  citing that sub-clause. The eval counts a list citation as a hit only when its quote contains the
+  expected answer text. Result on Sonnet 5: 30/30 decisions, 22/22 citations, 5.1 s median, $0.57/run.

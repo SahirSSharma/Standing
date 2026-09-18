@@ -62,9 +62,12 @@ capture of UCSD's legacy page for it (the 2023-10-06 revision) and links citatio
 ## Evaluation
 `eval/questions.json` holds 30 student-phrased questions: 22 answerable, each with the clause ids that
 contain the answer and a verbatim `answerQuote` that must appear in one of them (checked on every run),
-and 8 the policies cannot answer. `npm run eval` POSTs all 30 to the running server, three at a time,
-and writes [eval/results.md](eval/results.md). It grades the answer-or-refuse decision and the citation
-ids; it does not grade the prose. Final numbers from 2026-09-17 (real key, `claude-opus-5`):
+and 8 the policies cannot answer. `npm run eval` POSTs all 30 to the running server, one at a time, and
+writes [eval/results.md](eval/results.md). It grades the answer-or-refuse decision and the citations —
+a citation counts when it is the expected clause, or when it cites the list containing that clause and
+its on-screen quote carries the answer text. It does not grade the prose.
+
+Latest run, 2026-09-18, `claude-sonnet-5` (the default), real key, production build:
 
 | Metric | Result |
 |---|---|
@@ -72,24 +75,12 @@ ids; it does not grade the prose. Final numbers from 2026-09-17 (real key, `clau
 | Answerable questions wrongly refused | 0/22 |
 | Off-corpus questions wrongly answered | 0/8 |
 | A citation is an expected clause (`cited-expected`) | 22/22 (100%) |
-| A citation is in the expected policy (`cited-doc`) | 22/22 (100%) |
-| Corpus prefix served from the prompt cache | 30/30 |
-| Latency, median / mean | 12.9 s / 12.0 s |
+| A citation is at least the right policy (`cited-doc`) | 22/22 (100%) |
+| Corpus served from the prompt cache | 30/30 |
+| Latency, median / mean | 5.1 s / 5.1 s |
+| Spend for the whole run (30 questions) | $0.57 (≈1.9¢ per question) |
 
-How we got there: the first real run scored 30/30 on the decision but 18/22 on `cited-expected`. In all
-four misses (q06, q12, q18, q21) the model cited the right passage and the server credited the wrong
-clause — a passage spanning a lead-in and its sub-clause went to whichever was longer, the lead-in.
-Mapping a citation to every clause it substantially covers fixed all four; the question set and the
-prompt were not changed between the two runs. Answers vary run to run (the grades question cites §8.A
-on one run and §3.J.2, the same rule, on another), so `cited-expected` accepts any of a question's
-expected clauses, and q21 additionally requires the exact clause (`mustCite`) because its answering
-sentence appears verbatim in two sections of PPM 160-11.
+The same set on `claude-opus-5` (2026-09-17) also scored 30/30 and 22/22, at 12.9 s median and roughly
+2.5× the cost, which is why Sonnet 5 is the default.
 
-Reproduce (30 real calls, ≈$1.50, ≈3 minutes; the first call pays the cache write):
-```bash
-npm run dev            # terminal 1, ANTHROPIC_API_KEY in .env.local
-npm run eval           # terminal 2 — exits before any paid call if nothing answers on :3000; EVAL_URL overrides
-```
-
-See [DESIGN.md](DESIGN.md) for architecture and data contracts, [CHANGELOG.md](CHANGELOG.md) for
-history.
+Reproduce: `npm run build && npx next start -p 3000` with `ANTHROPIC_API_KEY` set, then `npm run eval`.
