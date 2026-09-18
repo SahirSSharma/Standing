@@ -15,7 +15,8 @@
   project; the two A records it needs at gen.xyz and the Production-key step are in PROGRESS.md.
 - **First production deployment** (Sahir's go: "Point it"), verified with a router refusal (2.6 s) and a
   real grade-appeal answer (15 s, 11 citations) on the production function. Deployment Protection keeps
-  the `.vercel.app` URLs behind a login; https://mystanding.xyz is the public address once DNS settles.
+  the `.vercel.app` URLs behind a login; https://mystanding.xyz is the public address (DNS switched over
+  and the certificate was issued the same afternoon; verified end to end without a login).
 
 ## 2026-09-18 — Quick picks: answers written for your situation
 - Picking a situation card now opens "Tell Pip a bit more" (`app/components/Context.js`): two to four

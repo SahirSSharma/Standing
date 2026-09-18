@@ -59,10 +59,11 @@ request letter, deadline calculator (stretch, last).
   URL** — the one for Devpost. Verified through `vercel curl` on the production deployment: an
   off-corpus question refused by the router in 2.6 s (0.2¢); the grade-appeal preset answered in
   15.0 s with 11 citations from the 9 grades policies, cold cache (20.1¢). Spend for the go-live: ≈20¢.
-- **Domain propagation.** gen.xyz's nameservers (`ns-*.topdns.com`) serve both A records; public
-  resolvers were still returning the old parking answer at 2:25 pm and `vercel domains verify` still
-  said "action_required". Nothing to do but wait (TTL); Vercel issues the certificate on its own once
-  it sees the records. Check: `curl -sI https://mystanding.xyz/ | head -1`.
+- **https://mystanding.xyz is live (2026-09-18, ~3:30 pm PDT).** The .xyz registry published the new
+  delegation about 70 minutes after the nameserver change; Vercel issued the Let's Encrypt certificate on
+  its own and `vercel domains verify` reports "ok". Checked on the public domain with plain curl: `/`,
+  `/policies`, `/policies/SR-515` → 200, http → 308 to https, and an off-corpus question refused by the
+  router in 2.5 s (0.2¢) — the unauthenticated path judges will use, end to end.
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
 Sahir raised the Console limit; every run below happened after that. Kept for the record:
