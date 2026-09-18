@@ -145,7 +145,7 @@
     "expect": "answer",
     "expectedChunks": ["160-11#4.B.1", "160-11#4.B"],
     "answerQuote": "Grievances under this section must be submitted to the Office of Student Conduct via the Student Grievance Report Form (see Section 7 below for link) within 60 business days from the time the student knew or could reasonably be expected to have known of the action being grieved.",
-    "note": "answerQuote is byte-identical in 160-11#4.A.1 (privacy grievances), so a quote-only grader accepts a 4.A.1 retrieval as a false positive; grade on the cited id. 160-11#4.B.3 names the staff-respondent path.",
+    "note": "answerQuote is byte-identical in 160-11#4.A.1 (privacy grievances), so a quote-only grader accepts a 4.A.1 citation as a false positive; grade on the cited id. 160-11#4.B.3 names the staff-respondent path.",
     "mustCite": ["160-11#4.B.1"]
   },
   {

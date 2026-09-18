@@ -33,6 +33,15 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
   (https://standing-6bbczggh5-sss-4bfd.vercel.app) — built from the day-1 retrieval code before the v2
   pivot; the next push rebuilds it on v2.
 
+## Blocker — API usage limit (found 2026-09-17, late)
+- The `ANTHROPIC_API_KEY` in `.env.local` hit its Console usage limit after ~12 real answers: every request
+  now fails with 400 "You have reached your specified API usage limits. You will regain access on 2026-10-01
+  at 00:00 UTC", which `/api/ask` reports as 502. The deadline is 2026-09-27 and the Vercel Preview uses
+  the same key, so the deployed product 502s on every real answer until the limit is raised. Fix: raise the
+  spend limit for this key's workspace in the Anthropic Console (Settings → Limits) or switch to a fresh key,
+  then re-run `npm run eval` (the independent verifier got q01–q07 through, 7/7 correct, before the cap
+  tripped; `eval/results.md` still holds the full day-1 run).
+
 ## Not yet verified
 - The UI in a real browser at 1336–2560 px: chip→card highlight and layout are implemented but unseen.
   A citation over a list emits one chip per item (q12 puts ten chips on one sentence) — needs a look.

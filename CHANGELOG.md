@@ -45,3 +45,7 @@
   median 12.9 s.
 - Docs rewritten for v2 (README, PROGRESS); the v1 retrieval numbers stay in the README as the reason
   retrieval was removed.
+- Repair after the independent verifier pass: DESIGN.md's architecture and contract sections carry the
+  measured figures (74k corpus tokens, a citation resolved to every clause it covers, `inputTokens` 74025)
+  instead of the pre-measurement ~41k / single-clause wording; q21's eval note no longer says "retrieval";
+  PROGRESS.md records the API usage-limit blocker (the key is capped until 2026-10-01).

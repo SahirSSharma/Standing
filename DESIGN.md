@@ -20,22 +20,24 @@ Built for LexHack 2026 (Sept 11–27, 2026). All core code written inside the wi
 ## Architecture (v2 — full-policy reading, decided 2026-09-17 evening)
 ```
 browser ──POST /api/ask {question}──▶ Next.js route
-                                        │ 1. build the request: ONE document block per policy (7 docs, ~41k tokens
+                                        │ 1. build the request: ONE document block per policy (7 docs, ~74k tokens
                                         │    total), native citations enabled, cache_control on the last document
                                         │ 2. Claude (claude-opus-5, adaptive thinking, effort low) answers from the
                                         │    documents; the API returns each cited passage as cited_text + char range
-                                        │ 3. map every char range → the clause chunk that owns it (server-side, from
-                                        │    the corpus) → citations[] with clause id, heading, quote, date, url
+                                        │ 3. map every char range → every clause chunk it covers by at least half of
+                                        │    the clause or of the range (server-side, from the corpus) → one citation
+                                        │    per clause with clause id, heading, quote, date, url
                                         │ 4. gate: NO_ANSWER, or zero citations → refuse
                                         ▼
                     {answer, citations[], refused, reason, grounding}
 ```
-- The whole corpus is ~41k tokens, so the model reads every policy on every question; there is no
+- The whole corpus is ~74k tokens, so the model reads every policy on every question; there is no
   chunk-retrieval step to miss the right clause. The corpus prefix is prompt-cached (first call
   writes it, later calls read it at ~10% price).
 - Citations are produced by the API's citation feature, not typed by the model, so a citation can
-  only point at text that is actually in a document. Every char range is resolved to a clause in
-  data/corpus.json; anything that fails to resolve is dropped, and zero citations means refusal.
+  only point at text that is actually in a document. Every char range is resolved to the clause(s) it
+  covers in data/corpus.json, one citation per clause; anything that fails to resolve is dropped, and
+  zero citations means refusal.
 - `LLM_MOCK=1` (or no key) returns the chunk with the most question-word overlap as the answer,
   cited, so the UI and eval plumbing run without a key.
 
@@ -64,13 +66,15 @@ plain text with whitespace collapsed.
                    "heading": "…", "quote": "≤300 chars from chunk text", "effectiveDate": "2017-10-05",
                    "url": "…" } ],
   "refused": false, "reason": "string, present only when refused",
-  "grounding": { "documents": 7, "inputTokens": 41210, "cacheRead": true, "model": "claude-opus-5" } }
+  "grounding": { "documents": 7, "inputTokens": 74025, "cacheRead": true, "model": "claude-opus-5" } }
 ```
 
 `eval/questions.json` — array of `{ "id", "question", "expect": "answer" | "refuse",
 "expectedChunks": ["160-2#5.A", …], "answerQuote": "verbatim sentence from one expected chunk that
 answers the question" }` (expectedChunks empty and answerQuote absent when expect=refuse). A
-question is only "answerable" if answerQuote is found verbatim in one of its expectedChunks.
+question is only "answerable" if answerQuote is found verbatim in one of its expectedChunks. Optional:
+`"note"` (prose for whoever grades) and `"mustCite": [ids]` — cited-expected then also requires every
+mustCite id among the citations (q21, whose answerQuote appears verbatim in two sections).
 
 ## Stack (all declared for the hackathon)
 Next.js (App Router, JavaScript), Tailwind, @anthropic-ai/sdk (Claude Opus 5, citations + prompt caching), Vercel.
@@ -171,3 +175,7 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   30/30, cited-expected 22/22, with no change to questions.json and no prompt change. Side effects: a citation
   over a list emits one chip per item (q12 shows ten), and a clause whose text is "None" (160-11 §3) is cited
   when a range starts there.
+- 2026-09-17 (evening) — Repair: the Architecture and API-contract sections above now carry the measured
+  figures — ~74k corpus tokens (the ~41k was a pre-measurement estimate, see the 74,004-token entry), a
+  citation resolved to every clause it covers rather than a single owning chunk, and the contract example's
+  `inputTokens` is the 74,025 an answered question actually reports. No behaviour changed.
