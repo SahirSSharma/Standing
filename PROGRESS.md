@@ -50,3 +50,16 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 - Answers vary run to run and the eval grades only the decision and the citation ids, not the prose.
   A second question set nobody tuned against would be a fairer number.
 - Cost and latency: measured ~$0.05 and ~12 s per answer on Opus 5; default is now Sonnet 5 (~$0.02 per answer, faster) with a 1-hour corpus cache — Sonnet eval pending the key's usage limit.
+
+## Budget — $20 of API credit for the rest of the project (from 2026-09-18)
+Rules so it lasts: agents run with `LLM_MOCK=1` only — real-key calls are made by hand; `npm run eval`
+runs once per change to `lib/llm.js` or the prompt (sequential, ~$0.90); answers are capped at 1,500
+output tokens; the corpus cache lives for an hour; every call logs its estimated cost.
+
+| Use | Budget |
+|---|---|
+| Evals (≤4 more full runs) | $4 |
+| Live verification on staging | $1 |
+| Sahir + friends testing, demo video takes | $6 |
+| Judges (Sept 27 onward, ~150 questions) | $4 |
+| Reserve | $5 |

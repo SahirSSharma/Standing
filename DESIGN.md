@@ -66,7 +66,10 @@ plain text with whitespace collapsed.
                    "heading": "…", "quote": "≤300 chars from chunk text", "effectiveDate": "2017-10-05",
                    "url": "…" } ],
   "refused": false, "reason": "string, present only when refused",
-  "grounding": { "documents": 7, "inputTokens": 74025, "cacheRead": true, "model": "claude-opus-5" } }
+  "grounding": { "documents": 7, "inputTokens": 74025, "cacheRead": true, "model": "claude-sonnet-5", "cost": 1.8 } }
+```
+`grounding.cost` is the estimated spend for that call in US cents at Sonnet 5 list prices (0 in mock mode).
+```json
 ```
 
 `eval/questions.json` — array of `{ "id", "question", "expect": "answer" | "refuse",
