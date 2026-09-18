@@ -11,7 +11,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const API = process.env.EVAL_URL ?? 'http://localhost:3000/api/ask';
-const CONCURRENCY = 3;
+// One at a time: the first call writes the 74k-token corpus into the prompt cache and every later call reads it.
+// Running 3 in parallel made the first three calls all pay the cache write.
+const CONCURRENCY = 1;
 const TIMEOUT_MS = 90_000;
 
 const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
