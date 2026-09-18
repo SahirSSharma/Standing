@@ -94,6 +94,18 @@ plain text with whitespace collapsed.
                  "routed": ["records", "conduct"], "retried": false,
                  "inputTokens": 63210, "cacheRead": true, "model": "claude-sonnet-5", "cost": 2.1 } }
 ```
+**Situations and quick picks** (`lib/situations.js`, rendered by `Situations.js` and `Context.js`): each
+of the eight cards has a preset `q` (byte-identical to eval q62–q69) and two to four picks — `choice`
+(chips), `toggle` (yes / no) or `range` (a slider with `phrase(value)`). The question sent is
+`compose(situation, values)` = `q` + `" My situation: "` + the picked first-person phrases joined by `"; "`
++ `"."`, e.g. `Can I organize a protest on campus, and what rules apply? My situation: on Library Walk;
+about 200 people; we'll use amplified sound (a megaphone or speakers); it's just me and some friends, not a
+student org.` The server and the prompt are unchanged — the context is part of the question text after
+the cached document blocks, so the area cache still hits. Nothing is sent when a pick changes: the panel
+turns dirty and "Update answer" sends once; the page keeps a session map of composed question → response,
+so a combination already asked is shown again without a request. `eval/check.mjs` fails if a preset drifts
+from the eval set or any of the 249 combinations exceeds the route's 500 characters.
+
 `sections` is `null` when refused. Every section is optional (empty string / empty array) and keeps the
 inline ` [<chunk id>]` markers. `grounding.cost` is the estimated spend for the whole request (router +
 answer + any retry) in US cents at list prices (0 in mock mode).
@@ -316,3 +328,18 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   refusal names four real offices (Ombuds, Student Legal Services, SAGE, OPHD; URLs curl-checked) instead
   of only saying what Standing can't do. The favicon, apple icon and Open Graph image are rendered from the
   same drawing.
+- 2026-09-18 — Quick picks. Sahir: personalise it — for the protest card the student should answer
+  "super straightforward short questions", with a slider, and quickly change an answer and see a new one;
+  and spend no more money. The money constraint shaped the design: every distinct composed question is one
+  ~2¢ call, so no control fires on its own (the panel goes dirty and "Update answer" sends once), the page
+  caches every answer for the session so flipping back is free and instant, and the context rides in the
+  question text after the cached documents so the area cache is untouched. The picks were chosen from what
+  the corpus actually distinguishes (a grep before writing them): amplified sound, Library Walk, indoor vs
+  outdoor, registered student organisations and non-affiliates for protests; non-academic criteria and the
+  instructor conversation for grade appeals; tax dependents and written releases for records; academic
+  integrity vs alcohol vs residential rules and the days since the notice for conduct; the five-day
+  administrative-review window for parking; who, where and confidential-first for harassment; GPA,
+  quarters on notice and units over three quarters for probation; the week of the quarter, the reason and
+  financial aid for withdrawal. Typing a different question drops the situation. Verified on the mock only
+  (request bodies, dirty state, cache hits, the skip path, 390–2560 px); whether the model uses the context
+  well is unverified until Sahir allows about eight warm calls (~16¢).

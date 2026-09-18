@@ -7,7 +7,10 @@ that apply, and the exact clauses it relied on, each with its effective date and
 the policies don't answer it, Standing says so instead of guessing. One click drafts the request you can
 send; a date picker turns "within ten business days" into a date. Pip, the sea lion, reads along: waves
 hello, reads while the answer loads, points at the answer and speaks it, and on a refusal points you to the
-campus offices that can help.
+campus offices that can help. Pick a situation and Pip asks two to four quick questions first — where
+the protest is, how many people, amplified sound or not, who is organising — as chips and sliders, no
+typing; the answer is written for that situation, and changing a pick and pressing "Update answer" gets a
+new one (a combination already asked comes back instantly).
 
 Built for [LexHack 2026](https://lexhack-2026.devpost.com/) · Track: Access to Justice & Civic Tech
 
@@ -93,7 +96,10 @@ UCSD's legacy page for them and links citations to that capture.
 home-page situations among them), each with the
 clause ids that contain the answer, a verbatim `answerQuote` that must appear in one of them, and the area
 the router should pick; and 15 the policies cannot answer, worded to share vocabulary with them (dining
-prices, grading curves, housing contracts…). `node eval/check.mjs` validates the set offline. `npm run eval`
+prices, grading curves, housing contracts…). `node eval/check.mjs` validates the set offline, and also
+checks the eight situations in `lib/situations.js`: each preset question is verbatim in the set and every
+combination of quick picks composes to a question the route accepts. The composed questions themselves
+(the preset plus "My situation: …") have not been run against the real model yet. `npm run eval`
 POSTs the questions to the running server one at a time, area by area, and writes
 [eval/results.md](eval/results.md): the answer-or-refuse decision, the citations (a citation counts when it
 is an expected clause, or the list containing it with the answer text in its on-screen quote), the router's

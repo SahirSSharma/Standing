@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState, useSyncExternalStore } from "react";
+import { compose, defaults } from "@/lib/situations";
 import Areas from "./Areas";
+import Context from "./Context";
 import { Icon } from "./Icons";
 import Pip from "./Pip";
 import Progress from "./Progress";
@@ -21,15 +23,35 @@ const subscribeNarrow = (cb) => {
 
 export default function Ask({ areas, totals }) {
   const [question, setQuestion] = useState("");
-  const [state, setState] = useState({ phase: "idle" }); // idle | loading | done | error
+  const [state, setState] = useState({ phase: "idle" }); // idle | setup | loading | done | error
+  // A picked situation and its quick picks (lib/situations.js). The box shows the preset question; what
+  // is sent is compose(situation, values). Typing a different question drops the situation.
+  const [situation, setSituation] = useState(null);
+  const [values, setValues] = useState({});
+  // Every distinct question is one model call, so answers are kept for the session: flipping a pick back
+  // to a combination already asked shows that answer again without a request.
+  const cache = useRef(new Map());
   const inputRef = useRef(null);
+  const panelRef = useRef(null);
   const narrow = useSyncExternalStore(subscribeNarrow, () => narrowQuery().matches, () => false);
   const docs = areas.flatMap((a) => a.docs);
+
+  // A situation card (home page or refusal): open its quick picks instead of asking straight away.
+  function pick(s) {
+    setSituation(s);
+    setValues(defaults(s));
+    setQuestion(s.q);
+    setState({ phase: "setup" });
+    requestAnimationFrame(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
 
   async function ask(q) {
     const trimmed = q.trim();
     if (!trimmed || state.phase === "loading") return;
-    setQuestion(trimmed);
+    if (cache.current.has(trimmed)) {
+      setState({ phase: "done", question: trimmed, data: cache.current.get(trimmed) });
+      return;
+    }
     setState({ phase: "loading", question: trimmed });
     try {
       // POST /api/ask per DESIGN.md. Errors are {error} with a 4xx/5xx status; a 404 in dev is HTML.
@@ -44,22 +66,38 @@ export default function Ask({ areas, totals }) {
         setState({ phase: "error", question: trimmed, status: res.status });
         return;
       }
+      cache.current.set(trimmed, body);
       setState({ phase: "done", question: trimmed, data: body });
     } catch {
       setState({ phase: "error", question: trimmed });
     }
   }
 
+  // The form: the preset with its picks when a situation is open and the box still shows the preset;
+  // otherwise whatever was typed, on its own.
+  function submit() {
+    if (situation && question.trim() === situation.q) {
+      ask(compose(situation, values));
+    } else {
+      setSituation(null);
+      ask(question);
+    }
+  }
+
   function reset() {
     setState({ phase: "idle" });
+    setSituation(null);
     setQuestion("");
     window.scrollTo({ top: 0, behavior: "smooth" });
     inputRef.current?.focus();
   }
 
   const idle = state.phase === "idle";
+  const setup = state.phase === "setup";
   const loading = state.phase === "loading";
   const framed = loading || state.phase === "error"; // Result lays out its own grid
+  // The picks differ from the ones the current answer was asked with.
+  const dirty = situation != null && !setup && compose(situation, values) !== state.question;
 
   return (
     <>
@@ -90,7 +128,7 @@ export default function Ask({ areas, totals }) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              ask(question);
+              submit();
             }}
             className={idle ? "rise mt-8 text-left sm:mt-10" : "mt-4 text-left"}
             style={{ "--i": 3 }}
@@ -140,16 +178,44 @@ export default function Ask({ areas, totals }) {
 
       {idle ? (
         <>
-          <Situations onAsk={ask} first={2} />
-          <Areas areas={areas} first={11} />
+          <Situations onPick={pick} first={4} />
+          <Areas areas={areas} first={13} />
         </>
+      ) : setup ? (
+        <div ref={panelRef} className={`mt-8 scroll-mt-6 sm:mt-10 ${grid}`}>
+          <Context
+            situation={situation}
+            values={values}
+            onChange={setValues}
+            onSubmit={() => ask(compose(situation, values))}
+            onSkip={() => ask(situation.q)}
+            mode="setup"
+          />
+        </div>
       ) : (
         <>
-          <section className={framed ? `mt-8 sm:mt-10 ${grid}` : "mt-8 sm:mt-10"} aria-live="polite" aria-busy={loading}>
-            {loading && <Progress documents={totals.docs} question={state.question} />}
+          {situation && (
+            <div ref={panelRef} className={`mt-8 scroll-mt-6 sm:mt-10 ${grid}`}>
+              <Context
+                situation={situation}
+                values={values}
+                onChange={setValues}
+                onSubmit={() => ask(compose(situation, values))}
+                mode="edit"
+                dirty={dirty}
+                loading={loading}
+              />
+            </div>
+          )}
+          <section
+            className={framed ? `${situation ? "mt-6" : "mt-8 sm:mt-10"} ${grid}` : situation ? "mt-6" : "mt-8 sm:mt-10"}
+            aria-live="polite"
+            aria-busy={loading}
+          >
+            {loading && <Progress documents={totals.docs} question={situation ? situation.q : state.question} />}
             {state.phase === "error" && <ErrorNotice status={state.status} onRetry={() => ask(state.question)} />}
             {state.phase === "done" && (
-              <Result data={state.data} docs={docs} onAsk={ask} onReset={reset} question={state.question} />
+              <Result data={state.data} docs={docs} onSituation={pick} onReset={reset} question={state.question} />
             )}
           </section>
 

@@ -28,6 +28,7 @@ request letter, deadline calculator (stretch, last).
 | 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-myfqg8p0x-sss-4bfd.vercel.app (pages, icons, a router refusal in 2 s and a real grade-appeal answer through the Vercel function all verified with `vercel curl`) |
 | 9 | Full 69-question eval once the limit was raised; fix what it finds | done — see "Eval runs" below: "no from silence" fixed in the prompt, `n/a` parsed, router-null refusals without a read |
 | 10 | Pip the sea lion + friendlier, more positive copy (Sahir's call, Sep 18 evening) | done — hero wave, loading read, verdict point-and-talk, refusal with real offices, favicon/OG; verified 390–2560 on the mock, real answers screenshotted |
+| 11 | Quick picks: short questions + sliders per situation, editable above the answer, "Update answer", session cache (Sahir's call, Sep 18 night; no spend) | done on the mock — 28 Playwright assertions (request bodies, dirty state, cache hits, skip path) at 390–2560; real-model behaviour unverified (~16¢ to check) |
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
 Sahir raised the Console limit; every run below happened after that. Kept for the record:
@@ -76,6 +77,9 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
   in Chrome at 390–2560 px (mock content) and with real answers at 1920 and 390.
 - Answers vary run to run and the eval grades only the decision and the citation ids, not the prose.
   A second question set nobody tuned against would be a fairer number.
+- Quick picks with the real model: whether the answer actually changes with "amplified sound" or "week 8"
+  and whether the router keeps the longer question in the same area. About eight warm calls (~16¢); not
+  run, per Sahir's no-more-spend instruction. The eval's q62–q69 grade the presets without picks.
 - Vercel under load: one real answer through the deployed function took 18 s with a warm cache; how the
   per-area cache behaves when many students hit cold functions at once is unmeasured.
 

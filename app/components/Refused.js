@@ -15,7 +15,8 @@ const OFFICES = [
   { name: "OPHD", what: "harassment and discrimination reports", url: "https://ophd.ucsd.edu/" },
 ];
 
-export default function Refused({ docs, onAsk }) {
+// `onSituation` opens a situation's quick picks (the same path as the home-page cards).
+export default function Refused({ docs, onSituation }) {
   return (
     <section className="rounded-2xl border border-line bg-card p-6 shadow-card sm:p-8">
       <div className="flex items-start gap-4 sm:gap-6">
@@ -56,10 +57,10 @@ export default function Refused({ docs, onAsk }) {
       <p className="mt-7 text-sm font-semibold uppercase tracking-wider text-muted">Or try one of these</p>
       <ul className="mt-3 grid gap-2">
         {SITUATIONS.slice(0, 3).map((s) => (
-          <li key={s.title}>
+          <li key={s.id}>
             <button
               type="button"
-              onClick={() => onAsk(s.q)}
+              onClick={() => onSituation(s)}
               className="group flex min-h-11 w-full items-center gap-3 rounded-xl border border-line px-4 py-2.5 text-left font-medium transition-colors hover:border-ink"
             >
               <Icon name={s.icon} className="size-5 shrink-0 text-muted" />

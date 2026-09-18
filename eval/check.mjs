@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SITUATIONS, combinations, compose } from '../lib/situations.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
@@ -59,10 +60,31 @@ export function validate(questions) {
   return failures;
 }
 
+/**
+ * The home-page situations (lib/situations.js): every preset question is byte-identical to a graded eval
+ * question, and every combination of quick picks composes to a question the route accepts (≤ 500 chars).
+ * @returns {string[]} one line per failure
+ */
+export function validateSituations(questions) {
+  const failures = [];
+  const texts = new Set(questions.map((q) => q.question));
+  for (const s of SITUATIONS) {
+    if (!texts.has(s.q)) failures.push(`situation ${s.id}: preset question is not in eval/questions.json verbatim`);
+    if (!s.context?.length) failures.push(`situation ${s.id}: no quick picks`);
+    for (const combo of combinations(s)) {
+      const q = compose(s, combo);
+      if (q.length > MAX_QUESTION) failures.push(`situation ${s.id}: ${q.length} chars for ${JSON.stringify(combo)} (max ${MAX_QUESTION})`);
+      if (/;\s*;|:\s*\./.test(q)) failures.push(`situation ${s.id}: empty phrase for ${JSON.stringify(combo)}`);
+    }
+  }
+  return failures;
+}
+const MAX_QUESTION = 500; // app/api/ask/route.js
+
 // Run as a script: print every failure and exit 1, or print the per-area counts.
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const questions = read('eval/questions.json');
-  const failures = validate(questions);
+  const failures = [...validate(questions), ...validateSituations(questions)];
   if (failures.length) {
     for (const f of failures) console.error(`check: ${f}`);
     console.error(`check: ${failures.length} failure(s) in ${questions.length} questions`);
@@ -70,5 +92,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   const answerable = questions.filter((q) => q.expect === 'answer');
   const perArea = [...areaIds].map((a) => `${a} ${answerable.filter((q) => (Array.isArray(q.area) ? q.area[0] : q.area) === a).length}`).join(', ');
-  console.log(`check: ${questions.length} questions valid — ${answerable.length} answerable (${perArea}), ${questions.length - answerable.length} refuse`);
+  const combos = SITUATIONS.reduce((n, s) => n + combinations(s).length, 0);
+  console.log(`check: ${questions.length} questions valid — ${answerable.length} answerable (${perArea}), ${questions.length - answerable.length} refuse; ${SITUATIONS.length} situations, ${combos} pick combinations compose within ${MAX_QUESTION} chars`);
 }

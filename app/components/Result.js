@@ -17,7 +17,7 @@ export const COLS = "xl:grid-cols-[minmax(0,62fr)_minmax(0,38fr)] xl:gap-10";
 // Verdict and diagram first, text on demand: the short answer beside a mark that draws itself, the
 // steps / rights as a diagram, deadlines with a date calculator, then "Why this answer" and the
 // quoted sources behind expanders. Every section is optional, so a one-line answer still renders.
-export default function Result({ data, docs, onAsk, onReset, question: questionProp }) {
+export default function Result({ data, docs, onSituation, onReset, question: questionProp }) {
   const { answer = "", citations = [], refused, verdict = null } = data;
   const s = data.sections ?? {};
   const steps = s.steps ?? [];
@@ -40,7 +40,7 @@ export default function Result({ data, docs, onAsk, onReset, question: questionP
   if (refused || !answer.trim() || citations.length === 0) {
     return (
       <div className={`grid grid-cols-[minmax(0,1fr)] ${COLS}`}>
-        <Refused docs={docs} onAsk={onAsk} />
+        <Refused docs={docs} onSituation={onSituation} />
       </div>
     );
   }
