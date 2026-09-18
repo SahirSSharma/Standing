@@ -188,7 +188,11 @@ export default function Ask({ areas, totals }) {
             values={values}
             onChange={setValues}
             onSubmit={() => ask(compose(situation, values))}
-            onSkip={() => ask(situation.q)}
+            onSkip={() => {
+              // The plain preset, with no picks panel above the answer.
+              setSituation(null);
+              ask(situation.q);
+            }}
             mode="setup"
           />
         </div>

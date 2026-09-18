@@ -3,8 +3,8 @@
 ## 2026-09-18 — Quick picks: answers written for your situation
 - Picking a situation card now opens "Tell Pip a bit more" (`app/components/Context.js`): two to four
   quick picks per situation as chips, yes/no and sliders — where the protest is, how many people, amplified
-  sound, who is organising; what a grade dispute is about and whether the instructor has been asked; who
-  wants the grades and whether the student is their tax dependent; days since a conduct notice or a parking
+  sound, who is organising; what a grade dispute is about and whether the instructor has been asked; whether
+  the student is their parents' tax dependent and has signed a release; days since a conduct notice or a parking
   citation; GPA and quarters on academic notice; the week of the quarter and financial aid for a withdrawal.
   "Get my answer" sends the preset question plus one "My situation: …" sentence; "Skip, just ask" sends the
   preset alone.
@@ -12,7 +12,7 @@
   answer" appears and sends once, and every answer is kept for the session so a combination already asked
   comes back instantly. Typing a different question drops the situation.
 - `lib/situations.js` holds the data (presets byte-identical to eval q62–q69) and `compose()`;
-  `eval/check.mjs` now fails if a preset drifts from the eval set or any of the 249 pick combinations is
+  `eval/check.mjs` now fails if a preset drifts from the eval set or any of the 204 pick combinations is
   over the route's 500 characters. Server and prompt unchanged; no real-model calls were spent.
 
 ## 2026-09-18 — Pip, and answers that say what the policies don't cover

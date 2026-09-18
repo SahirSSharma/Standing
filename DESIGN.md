@@ -104,7 +104,7 @@ student org.` The server and the prompt are unchanged — the context is part of
 the cached document blocks, so the area cache still hits. Nothing is sent when a pick changes: the panel
 turns dirty and "Update answer" sends once; the page keeps a session map of composed question → response,
 so a combination already asked is shown again without a request. `eval/check.mjs` fails if a preset drifts
-from the eval set or any of the 249 combinations exceeds the route's 500 characters.
+from the eval set or any of the 204 combinations exceeds the route's 500 characters.
 
 `sections` is `null` when refused. Every section is optional (empty string / empty array) and keeps the
 inline ` [<chunk id>]` markers. `grounding.cost` is the estimated spend for the whole request (router +
@@ -338,7 +338,7 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   outdoor, registered student organisations and non-affiliates for protests; non-academic criteria and the
   instructor conversation for grade appeals; tax dependents and written releases for records; academic
   integrity vs alcohol vs residential rules and the days since the notice for conduct; the five-day
-  administrative-review window for parking; who, where and confidential-first for harassment; GPA,
+  administrative-review window for parking; where and confidential-first for harassment; GPA,
   quarters on notice and units over three quarters for probation; the week of the quarter, the reason and
   financial aid for withdrawal. Typing a different question drops the situation. Verified on the mock only
   (request bodies, dirty state, cache hits, the skip path, 390–2560 px); whether the model uses the context
