@@ -17,21 +17,27 @@ Built for LexHack 2026 (Sept 11–27, 2026). All core code written inside the wi
 - Corpus v1 = the 7 "Student Matters" documents: 160-2, 160-3, 160-6, 160-8, 160-9, 160-10, 160-11.
   The ingest script takes any list of PPM numbers; a second institution is a later, separate ingest.
 
-## Architecture
+## Architecture (v2 — full-policy reading, decided 2026-09-17 evening)
 ```
 browser ──POST /api/ask {question}──▶ Next.js route
-                                        │ 1. retrieve: MiniSearch (BM25-style) over clause chunks → top-k
-                                        │ 2. gate: if best normalized score < THRESHOLD → refuse (no LLM call)
-                                        │ 3. answer: Claude, given ONLY the retrieved chunks, must cite chunk ids
-                                        │ 4. gate: answer with zero valid citations → refuse
+                                        │ 1. build the request: ONE document block per policy (7 docs, ~41k tokens
+                                        │    total), native citations enabled, cache_control on the last document
+                                        │ 2. Claude (claude-opus-5, adaptive thinking, effort low) answers from the
+                                        │    documents; the API returns each cited passage as cited_text + char range
+                                        │ 3. map every char range → the clause chunk that owns it (server-side, from
+                                        │    the corpus) → citations[] with clause id, heading, quote, date, url
+                                        │ 4. gate: NO_ANSWER, or zero citations → refuse
                                         ▼
-                    {answer, citations[], refused, reason}
+                    {answer, citations[], refused, reason, grounding}
 ```
-- Retrieval is deterministic and key-free, so the retrieval eval runs without any API key.
-- The LLM is only ever shown retrieved chunks and may only cite their ids. Citations are validated
-  server-side against the corpus; an invalid id is dropped, and zero valid ids means refusal.
-- `LLM_MOCK=1` makes `/api/ask` return the top chunk verbatim as the answer with its citation, so
-  the UI and end-to-end path work with no key.
+- The whole corpus is ~41k tokens, so the model reads every policy on every question; there is no
+  chunk-retrieval step to miss the right clause. The corpus prefix is prompt-cached (first call
+  writes it, later calls read it at ~10% price).
+- Citations are produced by the API's citation feature, not typed by the model, so a citation can
+  only point at text that is actually in a document. Every char range is resolved to a clause in
+  data/corpus.json; anything that fails to resolve is dropped, and zero citations means refusal.
+- `LLM_MOCK=1` (or no key) returns the chunk with the most question-word overlap as the answer,
+  cited, so the UI and eval plumbing run without a key.
 
 ## Data contracts (fixed — every component builds against these)
 `data/docs.json` — array of:
@@ -58,14 +64,16 @@ plain text with whitespace collapsed.
                    "heading": "…", "quote": "≤300 chars from chunk text", "effectiveDate": "2017-10-05",
                    "url": "…" } ],
   "refused": false, "reason": "string, present only when refused",
-  "retrieval": { "topScore": 0.83, "k": 6 } }
+  "grounding": { "documents": 7, "inputTokens": 41210, "cacheRead": true, "model": "claude-opus-5" } }
 ```
 
 `eval/questions.json` — array of `{ "id", "question", "expect": "answer" | "refuse",
-"expectedChunks": ["160-2#5.A", …] }` (expectedChunks empty when expect=refuse).
+"expectedChunks": ["160-2#5.A", …], "answerQuote": "verbatim sentence from one expected chunk that
+answers the question" }` (expectedChunks empty and answerQuote absent when expect=refuse). A
+question is only "answerable" if answerQuote is found verbatim in one of its expectedChunks.
 
 ## Stack (all declared for the hackathon)
-Next.js (App Router, JavaScript), Tailwind, MiniSearch, @anthropic-ai/sdk (Claude), Vercel.
+Next.js (App Router, JavaScript), Tailwind, @anthropic-ai/sdk (Claude Opus 5, citations + prompt caching), Vercel.
 
 ## Deployment
 Vercel. Every push → preview deployment (= staging, reported automatically).
@@ -125,3 +133,23 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   (was 2); THRESHOLD stays 3.5 (answerable 3.76–26.02, off-corpus 1.58–10.13). q24/q25/q27/q28/q30 share
   real vocabulary with the policies and remain gate-2 (NO_ANSWER) territory. The `retrieval` response field is
   unchanged (`topScore`, `k`), so a refusal can show a topScore above THRESHOLD.
+- 2026-09-17 (evening) — Removed chunk retrieval. Measured on our own 30-question eval, BM25 found an
+  expected clause in the top 3 only 73% of the time, and the first live question ("Can UCSD share my
+  grades with my parents?") was refused because the answering clause (160-2 §8.A) ranked outside the
+  top 6. The corpus is ~41k tokens, so the model now reads all 7 policies on every question, with the
+  API's citation feature supplying char-exact passages that we resolve to clauses. A 160-2-only smoke
+  test answered correctly ("not without written consent"), cited §3.D, §3.J.2, §8.A, §9.A.*, §9.B,
+  §10.A, and read 27,748 tokens from cache on the second call.
+- 2026-09-17 (evening) — Model is claude-opus-5 (the Claude API skill default), adaptive thinking at
+  effort "low"; ~12 s per answer, ~$0.05 per question at cached rates. Sonnet 5 is the knob if
+  latency matters more than answer quality.
+- 2026-09-17 (evening) — Eval expectations are being re-derived: three of the day-1 expectations pointed
+  at the wrong document (q07→160-3, q09→160-6, q21→160-11), so every answerable question now carries a
+  verbatim answering quote and is independently refuted before it counts.
+- 2026-09-17 (evening) — Full-policy reading is implemented: `lib/corpus.js` writes each policy as one plain-text
+  document ("[<clause>] <text>" per chunk, spans recorded) and resolves a cited char range to the chunk with the
+  largest overlap, since a citation can straddle clauses. The request goes through `client.beta.messages.create`
+  with `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`, the Claude API skill's default for Opus 5)
+  so a safety-classifier decline is re-run server-side instead of surfacing as a refusal. Measured on the real
+  corpus: the 7 documents are 74,004 prompt tokens under Opus 5's tokenizer (the ~41k figure above was an
+  estimate); the second call reads all 74,004 from cache; ~10 s per answer.
