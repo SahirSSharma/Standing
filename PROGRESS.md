@@ -70,14 +70,14 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
   then re-run `npm run eval` (the independent verifier got q01–q07 through, 7/7 correct, before the cap
   tripped; `eval/results.md` still holds the full day-1 run).
 
-## Not yet verified
-- The UI in a real browser at 1336–2560 px: chip→card highlight and layout are implemented but unseen.
-  A citation over a list emits one chip per item (q12 puts ten chips on one sentence) — needs a look.
-- The v2 build on Vercel: answers take ~12 s against a 60 s function limit, and cache behaviour across
-  cold functions is unmeasured.
+## Not yet verified (updated 2026-09-18, late)
+- Pip's motion by a human eye: the wave in the hero, the point-and-talk at the answer and the reading bob
+  while loading are CSS animations that a screenshot cannot show. Everything else on the page is verified
+  in Chrome at 390–2560 px (mock content) and with real answers at 1920 and 390.
 - Answers vary run to run and the eval grades only the decision and the citation ids, not the prose.
   A second question set nobody tuned against would be a fairer number.
-- Cost and latency: measured ~$0.05 and ~12 s per answer on Opus 5; default is now Sonnet 5 (~$0.02 per answer, faster) with a 1-hour corpus cache — Sonnet eval pending the key's usage limit.
+- Vercel under load: one real answer through the deployed function took 18 s with a warm cache; how the
+  per-area cache behaves when many students hit cold functions at once is unmeasured.
 
 ## Eval runs (v3, 69 questions; full tables in `eval/results.md` for the latest)
 | Run (2026-09-18) | Decisions | Expected clause | Router | Cost | Notes |
@@ -86,13 +86,17 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
 | 2 — prompt rule for silence, router-null refusals | 66/69 (+3 API timeouts) | 51/51 completed | 51/51 | $2.02 | n/a answers still mis-scored (parser), fixed after; the 3 timeouts re-asked by hand: all right |
 | 3 — parser reads n/a, unknown headings folded, max_tokens 2000 | 66/66 completed (+3 API timeouts) | 53/54 | 54/54 | $1.14 | the 3 timeouts were the last three refusers during an API stall; re-asked: refused in < 1 s each |
 
-The stalls (calls hanging 90–170 s while a fresh call answered in 0.6 s) are on the API side; the SDK
-client now times out at 40 s with one retry so a hung connection cannot eat a whole request.
+The stalls (calls hanging 90–170 s while a fresh process reached the same model in 0.6 s) look like a hung
+connection in the long-lived local `next start` process rather than the API itself; the SDK client now
+times out at 40 s with one retry (a fresh connection) so a hung one cannot eat a whole request. Rule for
+the demo takes on Sept 24: restart `next start` right before recording. The committed `eval/results.md`
+for run 3 still prints "false answers 3 (q59, q60, q61)" for those three timeouts; the scorer was fixed
+right after the run to count an error as an error, not a false answer, and a rerun was not worth $1.14.
 
 ## Budget — $20 of API credit for the rest of the project (from 2026-09-18; revised after the v3 eval)
 Rules so it lasts: agents run with `LLM_MOCK=1` only — real-key calls are made by hand; `npm run eval`
-runs once per change to `lib/llm.js`, the prompt or the router summaries (sequential, area by area, ≈$3.00
-for 69 questions of which ≈$1.20 is the six cache writes); answers are capped at 1,600 output tokens; each
+runs once per change to `lib/llm.js`, the prompt or the router summaries (sequential, area by area, ≈$2.46 cold or ≈$1.14 warm
+for 69 questions of which ≈$1.20 is the six cache writes); answers are capped at 2,000 output tokens; each
 area's cache lives for an hour; every call logs its estimated cost and stop reason.
 
 | Use | Budget | Spent so far |

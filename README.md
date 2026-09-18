@@ -17,7 +17,7 @@ _Status: v3 in progress — see PROGRESS.md._
 ```bash
 npm install
 npm run dev           # http://localhost:3000 — data/ is committed, no ingest needed
-npm run eval          # 69 questions against the running server → eval/results.md (≈$3.00)
+npm run eval          # 69 questions against the running server → eval/results.md (≈$2.46 cold, ≈$1.14 with warm caches)
 npm run ingest        # re-fetch every policy in scripts/catalog.mjs → data/ (42 docs, see Corpus)
 ```
 Put `ANTHROPIC_API_KEY` in `.env.local` for real answers. `LLM_MOCK=1` (or no key) runs without the

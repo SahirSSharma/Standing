@@ -26,11 +26,11 @@ browser ──POST /api/ask {question}──▶ Next.js route
                                         │    summaries, ~1.4k tokens) and picks the area most likely to answer + a runner-up
                                         │ 2. answer: ONE document block per policy in that area (5–9 docs, 45–65k tokens,
                                         │    prompt-cached per area for an hour), native citations, cache_control on the
-                                        │    last document; claude-sonnet-5, adaptive thinking, effort low, max 1600 out
+                                        │    last document; claude-sonnet-5, adaptive thinking, effort low, max 2000 out
                                         │ 3. map every cited char range → every clause chunk it covers by at least half
                                         │    (server-side, from the corpus) → one citation per clause
-                                        │ 4. gate: NO_ANSWER → read the runner-up area once; still NO_ANSWER, or zero
-                                        │    citations → refuse
+                                        │ 4. gate: router says no area at all → refuse without a read; NO_ANSWER → read the
+                                        │    runner-up area once; still NO_ANSWER, or zero citations → refuse
                                         │ 5. parse the answer's sections (verdict, short answer, why, they can, you can,
                                         │    steps, deadlines) — lib/sections.js
                                         ▼
@@ -83,7 +83,7 @@ plain text with whitespace collapsed.
 `POST /api/ask` — request `{ "question": string }`; response:
 ```json
 { "answer": "string (markdown in the answer shape below, without the Verdict line; empty when refused)",
-  "verdict": "yes" | "no" | "depends" | null,
+  "verdict": "yes" | "no" | "depends" | "n/a" | null,
   "sections": { "short": "**bold** first line", "why": "markdown", "theyCan": ["markdown item"],
                 "youCan": [], "steps": [], "deadlines": [] },
   "citations": [ { "id": "160-2#5.A", "docId": "160-2", "docTitle": "…", "docName": "Student records & privacy",
@@ -298,9 +298,12 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   (11 of the 15 refusers), the server refuses without a read — 0.2¢ and under a second instead of two
   area reads (~3.5¢, 5 s); a garbled router reply still falls back to keyword routing, and the eval's
   54/54 routing on answerable questions is the evidence that an explicit null is safe. `max_tokens` went to
-  2,000 after one answer in 69 hit 1,600. Runs 2 and 3 each had three calls stall for 90–170 s while a
-  fresh direct call answered in 0.6 s (API-side); the SDK client is now `timeout: 40 s, maxRetries: 1`
-  and the ask route's `maxDuration` is 100 s so one retry fits inside it.
+  2,000 after one answer in 69 hit 1,600. Runs 2 and 3 each had three calls stall for 90–170 s. The
+  evidence points at a hung connection between the long-lived local `next start` process and the API
+  rather than at the API itself: a re-ask inside that process took minutes even though its result was a
+  router-only refusal, while a fresh process reached the same model in 0.6 s at the same minute. Either
+  way the fix is the same — the SDK client is now `timeout: 40 s, maxRetries: 1` (a retry opens a fresh
+  connection) and the ask route's `maxDuration` is 100 s so one retry fits inside it.
 - 2026-09-18 — Pip. Sahir: "friendlier, a logo/mascot, more positive, an animation of them speaking or
   pointing to the answer". Pip is a sea lion (La Jolla's own; King Triton and the trident are UCSD marks),
   drawn as one inline SVG in the three brand colours with a gold scarf, chosen by Sahir from three
