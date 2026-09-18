@@ -22,7 +22,7 @@ so it exercises the UI and the eval plumbing, not the product.
 
 ## Stack
 - **Next.js 16** (App Router, JavaScript) deployed on **Vercel**; **Tailwind CSS 4** for the UI.
-- **@anthropic-ai/sdk** — `claude-opus-5` reads all seven policies on every question (one document
+- **@anthropic-ai/sdk** — `claude-sonnet-5` (default; `STANDING_MODEL` overrides) reads all seven policies on every question (one document
   block each, 74k tokens) with the API's citation feature on, so every cited passage comes back as a
   character range into a policy rather than as text the model typed. The seven documents are
   prompt-cached: the first call writes them, every later call reads them back at cache price.

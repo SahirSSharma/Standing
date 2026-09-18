@@ -49,4 +49,4 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
   cold functions is unmeasured.
 - Answers vary run to run and the eval grades only the decision and the citation ids, not the prose.
   A second question set nobody tuned against would be a fairer number.
-- Cost and latency: ~$0.05 and ~12 s per answer at cached rates, ~2–8 s per refusal.
+- Cost and latency: measured ~$0.05 and ~12 s per answer on Opus 5; default is now Sonnet 5 (~$0.02 per answer, faster) with a 1-hour corpus cache — Sonnet eval pending the key's usage limit.

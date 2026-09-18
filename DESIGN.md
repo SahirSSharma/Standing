@@ -22,7 +22,7 @@ Built for LexHack 2026 (Sept 11–27, 2026). All core code written inside the wi
 browser ──POST /api/ask {question}──▶ Next.js route
                                         │ 1. build the request: ONE document block per policy (7 docs, ~74k tokens
                                         │    total), native citations enabled, cache_control on the last document
-                                        │ 2. Claude (claude-opus-5, adaptive thinking, effort low) answers from the
+                                        │ 2. Claude (claude-sonnet-5 by default, adaptive thinking, effort low) answers from the
                                         │    documents; the API returns each cited passage as cited_text + char range
                                         │ 3. map every char range → every clause chunk it covers by at least half of
                                         │    the clause or of the range (server-side, from the corpus) → one citation
@@ -77,7 +77,7 @@ question is only "answerable" if answerQuote is found verbatim in one of its exp
 mustCite id among the citations (q21, whose answerQuote appears verbatim in two sections).
 
 ## Stack (all declared for the hackathon)
-Next.js (App Router, JavaScript), Tailwind, @anthropic-ai/sdk (Claude Opus 5, citations + prompt caching), Vercel.
+Next.js (App Router, JavaScript), Tailwind, @anthropic-ai/sdk (Claude Sonnet 5 by default, citations + 1-hour prompt caching), Vercel.
 
 ## Deployment
 Vercel. Every push → preview deployment (= staging, reported automatically).
@@ -179,3 +179,9 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   figures — ~74k corpus tokens (the ~41k was a pre-measurement estimate, see the 74,004-token entry), a
   citation resolved to every clause it covers rather than a single owning chunk, and the contract example's
   `inputTokens` is the 74,025 an answered question actually reports. No behaviour changed.
+- 2026-09-17 (night) — Default model switched to claude-sonnet-5 (STANDING_MODEL overrides) and the corpus
+  cache TTL raised from 5 minutes to 1 hour, because this is a low-cost service by nature: at cached rates
+  an answer is ~$0.02 on Sonnet 5 vs ~$0.05 on Opus 5, and with sporadic traffic the dominant cost was
+  re-writing the 74k-token corpus into the cache every few minutes (~$0.19 per cold call on Sonnet 5 at the
+  5-minute TTL). Refusal fallbacks are only sent on Opus/Fable models. The 22/22 citation result above was
+  measured on Opus 5; the eval is re-run on Sonnet 5 once the API key's usage limit is lifted.

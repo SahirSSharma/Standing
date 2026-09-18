@@ -49,3 +49,4 @@
   measured figures (74k corpus tokens, a citation resolved to every clause it covers, `inputTokens` 74025)
   instead of the pre-measurement ~41k / single-clause wording; q21's eval note no longer says "retrieval";
   PROGRESS.md records the API usage-limit blocker (the key is capped until 2026-10-01).
+- Default model is now Claude Sonnet 5 with a 1-hour cache on the policy corpus: about $0.02 per answer instead of $0.05, and no repeated cache rebuilds between sporadic questions. `STANDING_MODEL` switches it back.
