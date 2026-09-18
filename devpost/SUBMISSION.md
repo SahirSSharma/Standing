@@ -113,7 +113,7 @@ Standing is the tool I wanted at those moments: ask in plain words and get an an
 ## What I learned
 
 - Reading whole policies beats retrieving snippets when the corpus is a few hundred thousand tokens and prompt caching makes the read cheap. The hard problem moved from "find the clause" to "pick the area", which is a much easier problem.
-- Every real defect was found by the eval, not by reading answers by eye. A question set with the expected clause ids was the most valuable thing I built.
+- Every defect in the answers themselves was found by the eval, not by reading answers by eye. A question set with the expected clause ids was the most valuable thing I built.
 - An honest "not covered" earns more trust than a confident guess — and it has to be designed, with somewhere for the student to go next.
 
 ## What's next for Standing
