@@ -25,7 +25,7 @@ request letter, deadline calculator (stretch, last).
 | 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | done (verified at 390–2560 on the mock; real answers checked in the eval) |
 | 6 | Policy library `/policies` + `/policies/[docId]` | done (42 static pages) |
 | 7 | Eval: +questions for the new areas, router accuracy, one real run | questions written (61) and validated; real run below |
-| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-h26oqt1or-sss-4bfd.vercel.app (pages verified live; answers blocked by the usage limit below) |
+| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-myfqg8p0x-sss-4bfd.vercel.app (pages verified live; answers blocked by the usage limit below) |
 | 9 | Full 69-question eval once the limit was raised; fix what it finds | done — see "Eval runs" below: "no from silence" fixed in the prompt, `n/a` parsed, router-null refusals without a read |
 | 10 | Pip the sea lion + friendlier, more positive copy (Sahir's call, Sep 18 evening) | done — hero wave, loading read, verdict point-and-talk, refusal with real offices, favicon/OG; verified 390–2560 on the mock, real answers screenshotted |
 
