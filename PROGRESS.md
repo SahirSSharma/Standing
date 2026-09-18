@@ -6,7 +6,7 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 |---|---|---|---|
 | 1 | Sep 17 | Repo, contracts, corpus ingest, cited Q&A end-to-end with the real key, eval harness | done — details below |
 | 2–4 | Sep 18–20 | Cited Q&A end-to-end with real key; eval ≥ target; refusal gate tuned | done on day 1 (30/30, 22/22) — see below |
-| 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | |
+| 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); Sahir testing from Sep 18 |
 | 8 | Sep 24 | Demo video (2–3 min) + README final | |
 | 9 | Sep 25 | Buffer, second-institution ingest if time | |
 | 10 | Sep 26 | Devpost submission complete | |
