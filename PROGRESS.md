@@ -9,7 +9,7 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 | 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); Sahir's verdict Sep 18: "too boring, too few policies" → v3 below |
 | 8 | Sep 24 | Demo video (2–3 min) + README final | |
 | 9 | Sep 25 | Buffer, second-institution ingest if time | |
-| 10 | Sep 26 | Devpost submission complete | |
+| 10 | Sep 26 | Devpost submission complete | copy, thumbnail and gallery ready in `devpost/SUBMISSION.md` (Sep 18) — Sahir pastes them; video (Sep 24) and the live link (production, on his OK) still to add |
 
 ## v3 — 42 policies, visual answers (started 2026-09-18, Sahir's call)
 Sahir: "too boring and has too little policies" + "diagrams / easy / animations, less text at first, then the
@@ -29,6 +29,30 @@ request letter, deadline calculator (stretch, last).
 | 9 | Full 69-question eval once the limit was raised; fix what it finds | done — see "Eval runs" below: "no from silence" fixed in the prompt, `n/a` parsed, router-null refusals without a read |
 | 10 | Pip the sea lion + friendlier, more positive copy (Sahir's call, Sep 18 evening) | done — hero wave, loading read, verdict point-and-talk, refusal with real offices, favicon/OG; verified 390–2560 on the mock, real answers screenshotted |
 | 11 | Quick picks: short questions + sliders per situation, editable above the answer, "Update answer", session cache (Sahir's call, Sep 18 night; no spend) | done on the mock — 30 Playwright assertions (request bodies, dirty state, cache hits, skip path) at 390–2560; real-model behaviour unverified (~16¢ to check) |
+| 12 | Devpost package: paste-ready copy for every form field, 1200×800 thumbnail, nine 3:2 gallery frames (`devpost/`) | done, $0 — the answer frames replay a real answer recorded earlier (`vercel curl` smoke test), the rest is the mock server's real UI; video and live link pending |
+
+## Devpost, production and the .xyz domain (2026-09-18, afternoon)
+- `devpost/SUBMISSION.md` holds every form field in order (name 8 chars, pitch 188 of 200, About in
+  Markdown with a "Tech stack & credits" section because the rules require every API, framework and
+  third-party tool listed, built-with tags, links, a checklist). `devpost/thumbnail.png` is 1200×800;
+  `devpost/gallery/` has nine 3:2 frames. The rules also fix the video at **three minutes or less**
+  (YouTube, Vimeo or Loom) and score impact 25 / technical 25 / UX 20 / originality 15 / presentation 15.
+- **"Try it out" has no live link yet.** Staging is behind Vercel's deployment login, there is no
+  production deployment (`vercel ls --prod` is empty) and `ANTHROPIC_API_KEY` exists only for Preview.
+  The public repo satisfies the rules on its own, but the deployed link is what "functioning
+  prototype" is scored on. On Sahir's go: `vercel env add ANTHROPIC_API_KEY production` (paste the key),
+  `vercel deploy --prod --yes`, then curl `/`, `/policies`, `/policies/SR-515` and one router refusal
+  (0.2¢) and one real answer (2–25¢) on the production URL before reporting; then the domain.
+- **Free .xyz domain (sponsor perk):** promo code `LXH26`, 350 first-come, valid to Oct 31 2026, one
+  year free. Register at gen.xyz/register: search the name → Go to checkout → set the term to **1 year**
+  (3 years voids the code) → Recommended Add-Ons (leave as is) → Information & Checkout → code LXH26 →
+  Apply (total must read $15.00 before and $0.00 after; any other price means the name is premium, pick
+  another) → contact details → PayPal → Submit Order → click the verification email within 15 days or
+  the domain is suspended. Unregistered on Sep 18 per the registry's RDAP: `knowwhereyoustand.xyz`
+  (first choice — the tagline), `askpip.xyz`, `wheredoistand.xyz`, `yourstanding.xyz`,
+  `trystanding.xyz`, `standingucsd.xyz`; `standing.xyz`, `standingapp.xyz` and `whereyoustand.xyz` are
+  taken. Pointing it at Vercel waits for production: `vercel domains add <name>` prints the records to
+  enter under Manage DNS at gen.xyz/account.
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
 Sahir raised the Console limit; every run below happened after that. Kept for the record:
