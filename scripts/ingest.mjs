@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-// Ingest UCSD PPM policy documents into data/docs.json + data/corpus.json (contracts: DESIGN.md).
-// Usage: node scripts/ingest.mjs [--all] [PPM# ...]     default: the 7 "Student Matters" docs
+// Ingest the policies in scripts/catalog.mjs into data/docs.json + data/corpus.json (contracts: DESIGN.md).
+// Usage: node scripts/ingest.mjs [catalog id ...]     default: every catalog entry
+// Sources: UCSD PPM (compliancebridge, Word export) and Academic Senate regulations (senate.ucsd.edu).
 // A document getdoc.php cannot serve (160-9: "2 published documents with the same documentID") is
 // taken from the Internet Archive's newest capture of UCSD's legacy PPM page instead — same Word
 // export, different chrome — and its docs.json url is that capture, so the citation link still works.
 import { mkdir, writeFile } from 'node:fs/promises';
+import { AREAS, DOCS } from './catalog.mjs';
 
 const INDEX_URL = 'https://adminrecords.ucsd.edu/ppm/docs/toc160.html';
-const docUrl = (id) => `https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=${id}`;
+const docUrl = (id) => `https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=${encodeURIComponent(id)}`;
 const legacyUrl = (id) => `https://adminrecords.ucsd.edu/ppm/docs/${id}.html`;
 // `2` = newest capture (the archive redirects to its timestamp), `id_` = the page's original bytes.
 const archiveUrl = (url) => `https://web.archive.org/web/2id_/${url}`;
-const DEFAULT_DOCS = ['160-2', '160-3', '160-6', '160-8', '160-9', '160-10', '160-11'];
 const UA = 'Standing/0.1 (LexHack 2026 student project; sequential polite fetches)';
 const MAX_CHUNK = 1800;
 const OUT_DIR = new URL('../data/', import.meta.url);
@@ -80,6 +81,39 @@ function parseLegacyDoc(html) {
   return { title: '', ...metadata(text(head.split('<div id="ppm_pdf">')[0])), lines: bodyLines(policy.slice(policy.indexOf('</h1>') + 5)) };
 }
 
+// senate.ucsd.edu regulation page: <div class="legislation-wrapper"> holds
+// <div class="legislation-title"><strong>TITLE <span class="legislation-lifecycle">En 5/23/78, Am 1/13/26</span></strong></div>
+// then nested <li class="clause"><div class="clauseIndex">A)</div><div class="clauseBody">own text<ul>…</ul></div></li>.
+// Every clause becomes one "A) text" line (its own text only; nested items follow as their own lines), so the
+// same label parser structures it. Top-level items are short titles ("General"), uppercased to read as headings.
+// The amendment history is the date trail: the newest stamp is the effective date, the one before it "supersedes".
+function parseSenateDoc(html) {
+  const wrap = html.split('<div class="legislation-wrapper">')[1]?.split('<div id="tdr_2_col_nav">')[0];
+  if (!wrap) throw new Error('not a Senate legislation page (no legislation-wrapper)');
+  const titleHtml = wrap.match(/<div class="legislation-title">([\s\S]*?)<\/div>/)?.[1] ?? '';
+  const stamps = (h) => h.replace(/<span class="legislation-lifecycle">[\s\S]*?<\/span>/g, '');
+  // Every amendment stamp in the page ("En 5/23/78, Am 1/13/26", clause stamps included), newest first.
+  const dates = [...new Set([...wrap.matchAll(/<span class="legislation-lifecycle">([\s\S]*?)<\/span>/g)]
+    .flatMap(([, t]) => [...text(t).matchAll(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/g)])
+    .map(([, m, d, y]) => `${y.length === 2 ? (+y > 30 ? '19' : '20') + y : y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`))]
+    .sort().reverse();
+  const title = text(stamps(titleHtml));
+  const lines = [];
+  for (const seg of stamps(wrap).split('<div class="clauseIndex">').slice(1)) {
+    const close = seg.indexOf('</div>');
+    const label = text(seg.slice(0, close));
+    const own = text(seg.slice(close + 6).replace(/^\s*<div class="clauseBody">/, '').split(/<ul>|<\/li>/)[0]);
+    if (!label || !own) continue;
+    lines.push(`${label} ${/^[A-Z]\)$/.test(label) && own.length <= 80 && !own.includes('.') ? own.toUpperCase() : own}`);
+  }
+  if (!lines.length) { // a one-paragraph regulation (516): the title is the heading, the prose is cited as the heading
+    const content = stamps(wrap).split('<div class="legislation-title">')[1]?.split('</div>').slice(1).join('</div>') ?? '';
+    lines.push(title.toUpperCase(), ...bodyLines(content));
+  }
+  if (lines.length < 2) throw new Error('no clauses parsed — page layout changed?');
+  return { title, effectiveDate: dates[0] ?? null, supersedes: dates[1] ?? null, issuingOffice: 'Academic Senate', lines };
+}
+
 // ---------- clause structure ----------
 // A line is a HEADING when its text (after any label) is all caps: "5. INSPECTION AND REVIEW…", "SCOPE",
 // "B. INTERPRETATION OF REGULATIONS". Unlabeled headings (SCOPE, POLICY STATEMENT, EXHIBIT A) open a new
@@ -92,6 +126,10 @@ const romanValue = (s) => [...s.toLowerCase()].reduce((n, c, k, a) => n + (ROMAN
 
 // "A." "1." "a." "(1)" "iv." "E ." and a bare "4" (period missing) → {label, kinds, rest, bare} | null.
 function parseLabel(line) {
+  // Decimal numbering is an absolute path ("3.2.4" sits under "3.2" under "3"); the text must start like a
+  // clause ("3.1.1 Academic Unit"), so "2.0 grade point average" is prose.
+  const dec = line.match(/^(\d{1,2}(?:\.\d{1,2}){1,3})\.?\s+([A-Z(“"].*)$/);
+  if (dec) return { label: dec[1], kinds: [], rest: dec[2], bare: false, decimal: true };
   const m = line.match(/^(\()?([A-Za-z]|[IVXivx]{2,5}|\d{1,3})(\))?(?:\s?([.)]))?(?:\s+(.*))?$/);
   if (!m) return null;
   const [, open, tok, close, punct, rest = ''] = m;
@@ -130,6 +168,23 @@ function chunkDoc(doc) {
   for (const line of doc.lines) {
     if (line.toUpperCase() === doc.title.toUpperCase()) continue; // running title
     const lab = parseLabel(line);
+    if (lab?.decimal) {
+      // Rebuild the stack from the label's components: the first is a numbered top level ("3." continues to "4."),
+      // the rest are decimal levels. A short title ("3.1. Definitions") is the heading for what follows.
+      const parts = lab.label.split('.');
+      const old = stack.splice(0); // levels already open for a prefix of this path keep their heading
+      parts.forEach((p, i) => {
+        const path = parts.slice(0, i + 1).join('.');
+        stack.push(old[i]?.path === path ? old[i] : { kind: i ? 'decimal' : 'numdot', value: +p, label: p, heading: false, path });
+      });
+      const level = stack.at(-1);
+      const heading = lab.rest.length <= 60 && !/[.;:]/.test(lab.rest);
+      if (heading) { level.heading = true; level.headingText = lab.rest; }
+      node = { clause: level.path, ...context(), text: heading ? '' : lab.rest };
+      if (heading) Object.assign(node, { section: level.path, heading: lab.rest });
+      nodes.push(node);
+      continue;
+    }
     const heading = isCaps(lab ? lab.rest : line);
     const k = lab && place(stack, lab, heading);
     if (!k) {
@@ -154,12 +209,15 @@ function chunkDoc(doc) {
   return { nodes: nodes.map((n) => ({ ...n, text: n.text.trim() })).filter((n) => n.text), dropped };
 }
 
-// Split a long clause on sentence boundaries into parts ≤ MAX_CHUNK chars (one over-long sentence stays whole).
+// Split a long clause on sentence boundaries into parts ≤ MAX_CHUNK chars; a single sentence longer than
+// that (a run-on list with no sentence breaks — 510-1 §V.A's permit conditions run 10k chars) is cut at spaces.
 function splitText(t) {
   if (t.length <= MAX_CHUNK) return [t];
   const parts = [];
   let cur = '';
-  for (const s of t.split(/(?<=[.;:?!])\s+(?=[A-Z(“"\d])/)) {
+  const sentences = t.split(/(?<=[.;:?!])\s+(?=[A-Z(“"\d])/)
+    .flatMap((s) => (s.length <= MAX_CHUNK ? [s] : s.match(new RegExp(`\\S[\\s\\S]{0,${MAX_CHUNK - 2}}(?=\\s|$)`, 'g'))));
+  for (const s of sentences) {
     if (cur && cur.length + 1 + s.length > MAX_CHUNK) { parts.push(cur); cur = s; }
     else cur = cur ? `${cur} ${s}` : s;
   }
@@ -167,32 +225,42 @@ function splitText(t) {
 }
 
 // ---------- main ----------
-const args = process.argv.slice(2);
-const index = parseIndex(await (await get(INDEX_URL)).text());
-const ids = args.includes('--all') ? index.map((r) => r.id) : args.filter((a) => !a.startsWith('--'));
-const wanted = ids.length ? ids : DEFAULT_DOCS;
-const unknown = wanted.filter((id) => !index.some((r) => r.id === id));
-if (unknown.length) throw new Error(`not in the PPM index (${index.length} docs): ${unknown.join(', ')}`);
+const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const unknown = args.filter((id) => !DOCS.some((d) => d.id === id));
+if (unknown.length) throw new Error(`not in scripts/catalog.mjs (${DOCS.length} docs): ${unknown.join(', ')}`);
+const wanted = args.length ? DOCS.filter((d) => args.includes(d.id)) : DOCS;
+const index = wanted.some((d) => d.source === 'ppm') ? parseIndex(await (await get(INDEX_URL)).text()) : [];
+const missing = wanted.filter((d) => d.source === 'ppm' && !index.some((r) => r.id === d.ppm));
+if (missing.length) throw new Error(`not in the PPM index (${index.length} docs): ${missing.map((d) => d.ppm).join(', ')}`);
 
 const docs = [], corpus = [], failed = [];
 const fetchedAt = new Date().toISOString().slice(0, 10);
-for (const id of wanted) {
-  const row = index.find((r) => r.id === id);
-  let doc, url = docUrl(id);
-  try { doc = parseDoc(await (await get(url)).text()); }
-  catch (e) {
-    console.error(`WARN  ${id} (${row.title}): ${e.message} — falling back to the archived legacy page`);
-    try {
-      const res = await get(archiveUrl(legacyUrl(id)));
-      doc = parseLegacyDoc(await res.text());
-      url = res.url.replace('id_/', '/'); // the capture as a viewable page, pinned to its timestamp
-      console.error(`WARN  ${id}: ingested from ${url}`);
-    } catch (e2) { console.error(`ERROR ${id} (${row.title}): ${e2.message}`); failed.push(id); continue; }
-  }
+for (const entry of wanted) {
+  const { id } = entry;
+  let doc, url, row = null;
+  try {
+    if (entry.source === 'senate') {
+      url = entry.url;
+      doc = parseSenateDoc(await (await get(url)).text());
+    } else {
+      row = index.find((r) => r.id === entry.ppm);
+      url = docUrl(entry.ppm);
+      try { doc = parseDoc(await (await get(url)).text()); }
+      catch (e) {
+        console.error(`WARN  ${id} (${row.title}): ${e.message} — falling back to the archived legacy page`);
+        const res = await get(archiveUrl(legacyUrl(entry.ppm)));
+        doc = parseLegacyDoc(await res.text());
+        url = res.url.replace('id_/', '/'); // the capture as a viewable page, pinned to its timestamp
+        console.error(`WARN  ${id}: ingested from ${url}`);
+      }
+    }
+  } catch (e) { console.error(`ERROR ${id} (${entry.name}): ${e.message}`); failed.push(id); continue; }
   const { nodes, dropped } = chunkDoc(doc);
-  const title = doc.title || row.title;
-  docs.push({ docId: id, title, effectiveDate: doc.effectiveDate ?? row.date, supersedes: doc.supersedes,
-    issuingOffice: doc.issuingOffice, url, fetchedAt, chars: doc.lines.join('\n').length });
+  const title = doc.title || row?.title || entry.name;
+  const effectiveDate = doc.effectiveDate ?? row?.date ?? null;
+  docs.push({ docId: id, title, source: entry.source, label: entry.label, area: entry.area, name: entry.name,
+    summary: entry.summary, effectiveDate, supersedes: doc.supersedes ?? null, issuingOffice: doc.issuingOffice ?? null,
+    url, fetchedAt, chars: doc.lines.join('\n').length });
   const clauses = new Set(nodes.map((n) => n.clause));
   const before = corpus.length;
   for (const n of nodes) {
@@ -200,10 +268,9 @@ for (const id of wanted) {
     // The split suffix (#5.A.1) could collide with a real sub-clause 5.A.1 — keep such a clause whole instead.
     if (parts.length > 1 && parts.some((_, i) => clauses.has(`${n.clause}.${i + 1}`))) parts = [n.text];
     parts.forEach((t, i) => corpus.push({ id: `${id}#${n.clause}${parts.length > 1 ? `.${i + 1}` : ''}`, docId: id,
-      docTitle: title, section: n.section, heading: n.heading, clause: n.clause, text: t,
-      effectiveDate: doc.effectiveDate ?? row.date, url }));
+      docTitle: title, section: n.section, heading: n.heading, clause: n.clause, text: t, effectiveDate, url }));
   }
-  console.log(`${id.padEnd(7)} ${String(corpus.length - before).padStart(4)} chunks  ${title}${dropped ? `  (dropped ${dropped} uncitable lines)` : ''}`);
+  console.log(`${id.padEnd(10)} ${String(corpus.length - before).padStart(4)} chunks  ${title}${dropped ? `  (dropped ${dropped} uncitable lines)` : ''}`);
 }
 
 const seen = new Set();
@@ -214,9 +281,9 @@ for (const c of corpus) {
 await mkdir(OUT_DIR, { recursive: true });
 await writeFile(new URL('docs.json', OUT_DIR), JSON.stringify(docs, null, 2) + '\n');
 await writeFile(new URL('corpus.json', OUT_DIR), JSON.stringify(corpus, null, 2) + '\n');
+await writeFile(new URL('areas.json', OUT_DIR), JSON.stringify(AREAS, null, 2) + '\n');
 
 const sizes = corpus.map((c) => c.text.length).sort((a, b) => a - b);
-console.log(`\n${docs.length} docs, ${corpus.length} chunks → data/docs.json, data/corpus.json`);
+console.log(`\n${docs.length} docs, ${corpus.length} chunks → data/docs.json, data/corpus.json, data/areas.json`);
 console.log(`chunk chars min/median/max: ${sizes[0]}/${sizes[sizes.length >> 1]}/${sizes.at(-1)}`);
-for (const i of [0, corpus.length >> 1, corpus.length - 1]) console.log(`  sample ${corpus[i].id}  [${corpus[i].heading}]`);
 if (failed.length) { console.error(`\n${failed.length} of ${wanted.length} docs could not be ingested: ${failed.join(', ')}`); process.exitCode = 1; }

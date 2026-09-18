@@ -1,10 +1,12 @@
-// POST /api/ask — see DESIGN.md "API contract". The model reads every policy; the server refuses
-// when it answers NO_ANSWER or when none of its citations resolve to a clause in the corpus.
+// POST /api/ask — see DESIGN.md "API contract". The question is routed to one life area, the model
+// reads every policy in it, and the server refuses when it answers NO_ANSWER or when none of its
+// citations resolve to a clause in the corpus. The answer's sections are parsed here (lib/sections.js).
 import { answer, NO_ANSWER } from '@/lib/llm';
-import { chunkById } from '@/lib/corpus';
+import { citationFor } from '@/lib/corpus';
+import { parseSections } from '@/lib/sections';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60; // Vercel function timeout; an answer takes ~12 s
+export const maxDuration = 60; // Vercel function timeout; an answer takes ~5–15 s, a retry doubles it
 
 const REASON = "The policies Standing knows don't answer this.";
 
@@ -29,21 +31,10 @@ export async function POST(request) {
 
   const { grounding } = llm;
   if (llm.answer === NO_ANSWER || llm.citations.length === 0) {
-    return Response.json({ answer: '', citations: [], refused: true, reason: REASON, grounding });
+    return Response.json({ answer: '', verdict: null, sections: null, citations: [], refused: true, reason: REASON, grounding });
   }
 
-  const citations = llm.citations.map(({ id, quote }) => {
-    const c = chunkById(id);
-    return {
-      id,
-      docId: c.docId,
-      docTitle: c.docTitle,
-      clause: c.clause,
-      heading: c.heading,
-      quote,
-      effectiveDate: c.effectiveDate,
-      url: c.url,
-    };
-  });
-  return Response.json({ answer: llm.answer, citations, refused: false, grounding });
+  const { verdict, answer: text, ...sections } = parseSections(llm.answer);
+  const citations = llm.citations.map(({ id, quote }) => citationFor(id, quote));
+  return Response.json({ answer: text, verdict, sections, citations, refused: false, grounding });
 }

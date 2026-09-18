@@ -67,3 +67,31 @@ html {
   .progress-fill { animation: none; width: 55%; }
   .progress-dot { animation: none; }
 }
+
+/* Entrance motion for the answer page: elements rise in, staggered with --i (0, 1, 2 …). Steps and
+   sections use it so the diagram builds itself in front of the reader instead of appearing all at once. */
+@keyframes standing-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes standing-pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  70%  { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* An SVG path draws itself: set pathLength="1" on the path. */
+@keyframes standing-draw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes standing-grow-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.rise { animation: standing-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.pop  { animation: standing-pop 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: standing-draw 0.6s ease-out forwards; animation-delay: calc(var(--i, 0) * 90ms); }
+.grow-x { transform-origin: left; animation: standing-grow-x 0.5s ease-out both; animation-delay: calc(var(--i, 0) * 90ms); }
+@media (prefers-reduced-motion: reduce) {
+  .rise, .pop, .draw, .grow-x { animation: none; opacity: 1; transform: none; stroke-dashoffset: 0; }
+}

@@ -6,10 +6,26 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 |---|---|---|---|
 | 1 | Sep 17 | Repo, contracts, corpus ingest, cited Q&A end-to-end with the real key, eval harness | done — details below |
 | 2–4 | Sep 18–20 | Cited Q&A end-to-end with real key; eval ≥ target; refusal gate tuned | done on day 1 (30/30, 22/22) — see below |
-| 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); Sahir testing from Sep 18 |
+| 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); Sahir's verdict Sep 18: "too boring, too few policies" → v3 below |
 | 8 | Sep 24 | Demo video (2–3 min) + README final | |
 | 9 | Sep 25 | Buffer, second-institution ingest if time | |
 | 10 | Sep 26 | Devpost submission complete | |
+
+## v3 — 42 policies, visual answers (started 2026-09-18, Sahir's call)
+Sahir: "too boring and has too little policies" + "diagrams / easy / animations, less text at first, then the
+user decides to expand". Chosen (all four): situations → rights sheets, browsable policy library, draft a
+request letter, deadline calculator (stretch, last).
+
+| # | Task | Status |
+|---|---|---|
+| 1 | Catalog of 42 policies in 6 areas (34 PPM + 8 Senate), Senate parser, decimal labels | done — 1,902 chunks |
+| 2 | Area router (Haiku) + per-area cached answer + runner-up retry; structured answer; `/api/draft` | done — live smoke test: grade appeal, 13 clauses, 19.9¢ cold / ~2¢ warm |
+| 3 | DESIGN.md contracts (docs/areas/API/answer format) | done |
+| 4 | Home: situations + areas + fewer words | in progress (agent) |
+| 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | in progress (agent) |
+| 6 | Policy library `/policies` + `/policies/[docId]` | in progress (agent) |
+| 7 | Eval: +questions for the new areas, router accuracy, one real run | in progress (agent writes, real run by hand) |
+| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | |
 
 ## Day 1 — what works (2026-09-17)
 - `npm run ingest`: 7 docs / 638 clause chunks in `data/`; PPM 160-9 comes from the Internet Archive's

@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-09-18 — v3: 42 policies, routed areas, structured answers
+- Corpus v3 (`scripts/catalog.mjs`, `npm run ingest`): 42 policies in six life areas — 34 PPM documents
+  (records, conduct, speech & events, safety & discrimination, money & campus life) and 8 Academic Senate
+  regulations (grading, add/drop/withdrawal, grade appeals, repeats, probation, minimum progress,
+  graduation, the academic integrity policy). New Senate page parser (nested clauses, amendment stamps
+  → effective/supersedes dates, one-paragraph regulations), decimal clause labels ("3.1.1"), and a
+  space-boundary split for a single 10k-char run-on. 1,902 chunks (was 638), max chunk 1,799 chars.
+  `data/areas.json` lists the areas; docs carry `source`, `label`, `area`, `name`, `summary`.
+- Routing at the area level (`lib/llm.js`): claude-haiku-4-5 picks the area (and a runner-up) from the
+  policy names and summaries (~0.1¢); Sonnet 5 reads that area's 5–9 policies from a per-area 1-hour
+  cache; NO_ANSWER re-reads the runner-up once. Keeps an answer at ~2¢ warm on a corpus four times larger.
+  Cache-write cost is now logged at the 1-hour rate (2× input). `grounding` reports `area`, `areaName`,
+  `routed`, `retried`.
+- Structured answers: the model writes Verdict / bold short answer / Why / They can / You can / Steps /
+  Deadlines; `lib/sections.js` parses them and `/api/ask` returns `verdict` + `sections` alongside the
+  markdown. Citations carry `label` ("PPM 160-2", "Senate Regulation 502"), `docName`, `area`.
+- `POST /api/draft`: a request the student can send (records request, grade appeal, grievance), written
+  from the same cached area plus the answer's cited clauses.
+- Mock mode routes by keyword overlap and fills every section, so the UI and eval run without a key.
+
 ## 2026-09-17
 - Project created for LexHack 2026. Next.js scaffold, design doc with fixed data/API contracts.
 - Ingest (`npm run ingest`): fetches the PPM "Student Matters" documents into `data/docs.json` and

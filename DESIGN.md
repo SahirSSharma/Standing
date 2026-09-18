@@ -14,40 +14,61 @@ Built for LexHack 2026 (Sept 11–27, 2026). All core code written inside the wi
 - Every document carries structured metadata (section #, effective date, supersedes date, issuing
   office) and internally numbered clauses. That makes **clause-level citation** possible — the whole
   product rests on it.
-- Corpus v1 = the 7 "Student Matters" documents: 160-2, 160-3, 160-6, 160-8, 160-9, 160-10, 160-11.
-  The ingest script takes any list of PPM numbers; a second institution is a later, separate ingest.
+- Corpus v1 was the 7 "Student Matters" documents. Corpus v3 (2026-09-18) is the 42 policies in
+  `scripts/catalog.mjs`: 34 PPM documents from every section a student can bump into, plus 8 Academic
+  Senate regulations (grading, add/drop, grade appeals, repeats, probation, minimum progress, graduation,
+  the academic integrity policy) — grouped into six life areas. A second institution is a later, separate ingest.
 
-## Architecture (v2 — full-policy reading, decided 2026-09-17 evening)
+## Architecture (v3 — routed areas, decided 2026-09-18)
 ```
 browser ──POST /api/ask {question}──▶ Next.js route
-                                        │ 1. build the request: ONE document block per policy (7 docs, ~74k tokens
-                                        │    total), native citations enabled, cache_control on the last document
-                                        │ 2. Claude (claude-sonnet-5 by default, adaptive thinking, effort low) answers from the
-                                        │    documents; the API returns each cited passage as cited_text + char range
-                                        │ 3. map every char range → every clause chunk it covers by at least half of
-                                        │    the clause or of the range (server-side, from the corpus) → one citation
-                                        │    per clause with clause id, heading, quote, date, url
-                                        │ 4. gate: NO_ANSWER, or zero citations → refuse
+                                        │ 1. route: claude-haiku-4-5 reads the six areas (policy names + one-line
+                                        │    summaries, ~1.4k tokens) and picks the area most likely to answer + a runner-up
+                                        │ 2. answer: ONE document block per policy in that area (5–9 docs, 45–65k tokens,
+                                        │    prompt-cached per area for an hour), native citations, cache_control on the
+                                        │    last document; claude-sonnet-5, adaptive thinking, effort low, max 1200 out
+                                        │ 3. map every cited char range → every clause chunk it covers by at least half
+                                        │    (server-side, from the corpus) → one citation per clause
+                                        │ 4. gate: NO_ANSWER → read the runner-up area once; still NO_ANSWER, or zero
+                                        │    citations → refuse
+                                        │ 5. parse the answer's sections (verdict, short answer, why, they can, you can,
+                                        │    steps, deadlines) — lib/sections.js
                                         ▼
-                    {answer, citations[], refused, reason, grounding}
+        {answer, verdict, sections, citations[], refused, reason, grounding}
 ```
-- The whole corpus is ~74k tokens, so the model reads every policy on every question; there is no
-  chunk-retrieval step to miss the right clause. The corpus prefix is prompt-cached (first call
-  writes it, later calls read it at ~10% price).
+- Full-corpus reading (v2) stopped fitting once the corpus grew from 74k to ~305k tokens: 6¢ a
+  question warm and $1.20 per cold cache write would have broken the $20 budget. An area is the same
+  size the whole v2 corpus was, so an answer still costs ~2¢ warm and a cold area write 18–25¢.
 - Citations are produced by the API's citation feature, not typed by the model, so a citation can
   only point at text that is actually in a document. Every char range is resolved to the clause(s) it
   covers in data/corpus.json, one citation per clause; anything that fails to resolve is dropped, and
   zero citations means refusal.
-- `LLM_MOCK=1` (or no key) returns the chunk with the most question-word overlap as the answer,
-  cited, so the UI and eval plumbing run without a key.
+- `POST /api/draft` writes a request the student can send (records request, grade appeal, grievance)
+  from the same area's cached documents plus the answer they were given — no citation feature, the
+  letter names clauses by label (~1.5¢).
+- `LLM_MOCK=1` (or no key) routes by keyword overlap and answers with the best-matching chunks laid out
+  in every section of the answer shape, cited, so the UI and eval plumbing run without a key.
 
 ## Data contracts (fixed — every component builds against these)
-`data/docs.json` — array of:
+`data/docs.json` — array, catalog order (`scripts/catalog.mjs` is the source of truth for
+`source`/`label`/`area`/`name`/`summary`):
 ```json
 { "docId": "160-2", "title": "Disclosure of Information From Student Records",
+  "source": "ppm", "label": "PPM 160-2", "area": "records", "name": "Student records & privacy",
+  "summary": "FERPA at UCSD: directory information, who may see or receive student records …",
   "effectiveDate": "2017-10-05", "supersedes": "2014-11-13", "issuingOffice": "Registrars Office",
   "url": "https://secure4.compliancebridge.com/ucsd/public/getdoc.php?file=160-2",
-  "fetchedAt": "2026-09-17", "chars": 69253 }
+  "fetchedAt": "2026-09-18", "chars": 67937 }
+```
+`docId` is the catalog id: a PPM number (`160-2`), a PPM section (`510-1-IX`, label `PPM 510-1 §IX`)
+or a Senate regulation (`SR-502`, label `Senate Regulation 502`; `SR-APPX2`, `Senate Appendix 2`).
+For Senate documents `effectiveDate` is the newest amendment stamp on the page and `supersedes` the one
+before it. Always show `label`, never "PPM " + docId.
+
+`data/areas.json` — the six life areas, in display order:
+```json
+{ "id": "academics", "name": "Grades & academic standing",
+  "blurb": "Grading, grade appeals, drops, retakes, probation, graduating", "icon": "cap" }
 ```
 `data/corpus.json` — array of clause chunks:
 ```json
@@ -61,16 +82,37 @@ plain text with whitespace collapsed.
 
 `POST /api/ask` — request `{ "question": string }`; response:
 ```json
-{ "answer": "string (markdown, empty when refused)",
-  "citations": [ { "id": "160-2#5.A", "docId": "160-2", "docTitle": "…", "clause": "5.A",
-                   "heading": "…", "quote": "≤300 chars from chunk text", "effectiveDate": "2017-10-05",
-                   "url": "…" } ],
+{ "answer": "string (markdown in the answer shape below, without the Verdict line; empty when refused)",
+  "verdict": "yes" | "no" | "depends" | null,
+  "sections": { "short": "**bold** first line", "why": "markdown", "theyCan": ["markdown item"],
+                "youCan": [], "steps": [], "deadlines": [] },
+  "citations": [ { "id": "160-2#5.A", "docId": "160-2", "docTitle": "…", "docName": "Student records & privacy",
+                   "label": "PPM 160-2", "area": "records", "clause": "5.A", "heading": "…",
+                   "quote": "≤300 chars from chunk text", "effectiveDate": "2017-10-05", "url": "…" } ],
   "refused": false, "reason": "string, present only when refused",
-  "grounding": { "documents": 7, "inputTokens": 74025, "cacheRead": true, "model": "claude-sonnet-5", "cost": 1.8 } }
+  "grounding": { "area": "records", "areaName": "Records & privacy", "documents": 5,
+                 "routed": ["records", "conduct"], "retried": false,
+                 "inputTokens": 63210, "cacheRead": true, "model": "claude-sonnet-5", "cost": 2.1 } }
 ```
-`grounding.cost` is the estimated spend for that call in US cents at Sonnet 5 list prices (0 in mock mode).
-```json
+`sections` is `null` when refused. Every section is optional (empty string / empty array) and keeps the
+inline ` [<chunk id>]` markers. `grounding.cost` is the estimated spend for the whole request (router +
+answer + any retry) in US cents at list prices (0 in mock mode).
+
+**Answer format** (what the model writes; `lib/sections.js` parses it, the mock emits it):
 ```
+Verdict: yes | no | depends | n/a
+**One bold line that answers the question as asked.**
+## Why            one to three sentences
+## They can       - bullets: what the university / office / instructor may do
+## You can        - bullets: what the student may do or is entitled to
+## Steps          1. the process in order, naming who does it
+## Deadlines      - "<what>: within <time> of <event>"
+```
+Every bullet is one sentence of ≤ 20 words; sections that don't apply are left out.
+
+`POST /api/draft` — request `{ "question", "answer", "citations": ["160-2#8.A", …] }` (the answer
+and citation ids from a `/api/ask` response); response `{ "letter": "To: …\nSubject: …\n\n…", "grounding" }`.
+400 when a field is missing or no citation id is known; LLM errors → 502/503 `{error}` as for /api/ask.
 
 `eval/questions.json` — array of `{ "id", "question", "expect": "answer" | "refuse",
 "expectedChunks": ["160-2#5.A", …], "answerQuote": "verbatim sentence from one expected chunk that
@@ -193,3 +235,24 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   and one card carry the actual list text. A citation covering a parent's lead-in plus one sub-clause is
   citing that sub-clause. The eval counts a list citation as a hit only when its quote contains the
   expected answer text. Result on Sonnet 5: 30/30 decisions, 22/22 citations, 5.1 s median, $0.57/run.
+- 2026-09-18 — Corpus v3. "Too few policies" was the product's real ceiling: 7 documents covered records,
+  conduct and student orgs and nothing a student asks about grades, protests, harassment, money or parking.
+  `scripts/catalog.mjs` now lists 42 policies in six life areas (34 PPM + 8 Senate). Ingest gained a Senate
+  page parser (nested `li.clause` → "A) text" lines; amendment stamps → dates; one-paragraph regulations
+  cited as their title), decimal clause labels ("3.1.1 Academic Unit" is an absolute path — 510-1 §V.A was
+  one 10k-char chunk without them), and a space-boundary fallback for a single 10k-char "sentence". 1,902
+  chunks, max 1,799 chars. Two 1981 sections of 510-1 (IV, VIII) parse to nothing (scans) and are left out.
+- 2026-09-18 — Routing came back, at the area level. Clause-level BM25 failed (73% hit@3) because the
+  answering clause is hard to find; picking one of six areas from policy names and summaries is easy, and a
+  wrong pick shows up in the eval as a cited-doc miss or a false refusal. The router is claude-haiku-4-5
+  (~0.1¢); the answer reads the area's 5–9 documents from a per-area 1-hour cache; NO_ANSWER re-reads the
+  runner-up area once. Cache-write price corrected to the 1-hour rate (2× input, was billed as 1.25× in the
+  log). First live question (grade appeal): routed academics/conduct, 13 clauses of Senate Regulation 502
+  cited, 15 s cold, 19.9¢ with the area's cache write, ~2¢ warm.
+- 2026-09-18 — Sahir's direction: "too boring", "diagrams / easy / animations, less text at first, then the
+  user decides to expand". The answer is now structured (verdict, short answer, why, they can / you can,
+  steps, deadlines) so the UI can open with a verdict and a diagram — a numbered timeline when the policy is a
+  process, a two-column "they can / you can" otherwise — and keep the explanation and sources behind
+  expanders. Deadlines with a parseable "within N days/weeks/months" get a date calculator, client-side.
+  "Draft a request" adds one ~1.5¢ call. Chosen over free-form prose because a diagram needs structure the
+  model can only supply if asked for it; every part stays optional so a one-line answer still renders.
