@@ -105,9 +105,11 @@ function parseSenateDoc(html) {
     const ownHtml = seg.slice(close + 6).replace(/^\s*<div class="clauseBody">/, '').split(/<ul>|<\/li>/)[0];
     const bold = ownHtml.match(/^\s*(?:<p[^>]*>)?\s*<strong>([\s\S]*?)<\/strong>\s*(?:<\/p>)?([\s\S]*)$/);
     const own = text(bold ? bold[1] : ownHtml);
-    if (!label || !own) continue;
+    if (!label) continue;
+    // A clause with no text of its own (515's "A)" is just a container for 1)–6)) still opens its level, so the
+    // items nest under it and the following "B)" continues the letters instead of gluing onto item 6.
     const isTitle = /^[A-Z]\)$/.test(label) && own.length <= 60 && !/[.:,]/.test(own);
-    lines.push(`${label} ${isTitle ? own.toUpperCase() : own}`);
+    lines.push(own ? `${label} ${isTitle ? own.toUpperCase() : own}` : label);
     if (bold && text(bold[2])) lines.push(text(bold[2])); // the rest of the clause continues under the title
   }
   if (!lines.length) { // a one-paragraph regulation (516): its prose is cited as "POLICY STATEMENT", like a PPM document

@@ -26,7 +26,7 @@ browser ──POST /api/ask {question}──▶ Next.js route
                                         │    summaries, ~1.4k tokens) and picks the area most likely to answer + a runner-up
                                         │ 2. answer: ONE document block per policy in that area (5–9 docs, 45–65k tokens,
                                         │    prompt-cached per area for an hour), native citations, cache_control on the
-                                        │    last document; claude-sonnet-5, adaptive thinking, effort low, max 1200 out
+                                        │    last document; claude-sonnet-5, adaptive thinking, effort low, max 1600 out
                                         │ 3. map every cited char range → every clause chunk it covers by at least half
                                         │    (server-side, from the corpus) → one citation per clause
                                         │ 4. gate: NO_ANSWER → read the runner-up area once; still NO_ANSWER, or zero
@@ -270,3 +270,14 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   15 refusers), `eval/check.mjs`. Ingest repairs found by the library: a one-paragraph Senate regulation
   (516) is cited as POLICY-STATEMENT, Word tables of contents are dropped (135-5), a Senate clause opening
   with a bold title takes it as its heading (Appendix 2), an issuing office that is a date is absent (135-9).
+- 2026-09-18 — First v3 eval run: 18 answers in, then the key's Console usage limit tripped (the same cap
+  as the day-1 blocker, not the credit balance). Of the 18: 18/18 decisions, 15/18 expected clause; the three
+  misses were two questions that two policies now both answer (q22: Student Grievances §4.A vs FERPA complaints
+  160-2 §13.C — the eval's `area` may now be a list) and one router miss (q21, the grievance filing deadline, read
+  from the complaint-procedure policy 200-23; the router summaries now separate "how a student files a grievance"
+  from "how the university processes a complaint"). Two things the run could not verify and the rerun must:
+  refusals under the structured prompt (all 15 refusers were behind the cap) and the runner-up retry. As
+  insurance the NO_ANSWER rule now also opens the system prompt, `max_tokens` is 1600 (answers ran ~1,000 tokens
+  against a 1,200 cap and Deadlines is the last section, so a cut-off would silently drop the calculator), and
+  `stop_reason` is logged and reported as `grounding.stopReason`. The eight home-page situations are graded as
+  eval questions q62–q69 so a demo card can never lead to an ungraded refusal.

@@ -15,7 +15,7 @@ _Status: v3 in progress — see PROGRESS.md._
 ```bash
 npm install
 npm run dev           # http://localhost:3000 — data/ is committed, no ingest needed
-npm run eval          # the question set against the running server → eval/results.md (≈$1.60)
+npm run eval          # 69 questions against the running server → eval/results.md (≈$3.00)
 npm run ingest        # re-fetch every policy in scripts/catalog.mjs → data/ (42 docs, see Corpus)
 ```
 Put `ANTHROPIC_API_KEY` in `.env.local` for real answers. `LLM_MOCK=1` (or no key) runs without the
@@ -84,7 +84,8 @@ documents with the same id — so `npm run ingest` falls back to the Internet Ar
 UCSD's legacy page for them and links citations to that capture.
 
 ## Evaluation
-`eval/questions.json` holds 61 student-phrased questions: 46 answerable across the six areas, each with the
+`eval/questions.json` holds 69 student-phrased questions: 54 answerable across the six areas (the eight
+home-page situations among them), each with the
 clause ids that contain the answer, a verbatim `answerQuote` that must appear in one of them, and the area
 the router should pick; and 15 the policies cannot answer, worded to share vocabulary with them (dining
 prices, grading curves, housing contracts…). `node eval/check.mjs` validates the set offline. `npm run eval`
@@ -94,7 +95,7 @@ is an expected clause, or the list containing it with the answer text in its on-
 area, and the cost. It does not grade the prose.
 
 Latest complete run (v2, 7 policies, 30 questions, 2026-09-18, `claude-sonnet-5`): 30/30 decisions,
-22/22 cited the expected clause, 5.1 s median, $0.57. The v3 run (42 policies, 61 questions) is pending the
+22/22 cited the expected clause, 5.1 s median, $0.57. The v3 run (42 policies, 69 questions) is pending the
 API key's usage limit: its first 18 answers were 18/18 on the decision and 15/18 on the expected clause,
 the three misses being two questions that two policies now both answer (accepted since) and one router miss
 (the discrimination-grievance deadline, read from the complaint-procedure policy instead of the student

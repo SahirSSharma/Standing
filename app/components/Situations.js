@@ -10,7 +10,7 @@ export const SITUATIONS = [
   { icon: "megaphone", title: "I want to hold a protest", hint: "Where, when, and the rules", q: "Can I organize a protest on campus, and what rules apply?" },
   { icon: "car", title: "I got a parking ticket", hint: "How to appeal a citation", q: "How do I appeal a campus parking citation?" },
   { icon: "hand", title: "I'm being harassed", hint: "Where to report, what happens", q: "What can I do if I am being sexually harassed by another student?" },
-  { icon: "alert", title: "I'm on academic probation", hint: "What it means, how to get off it", q: "What does academic probation mean and how do I get off it?" },
+  { icon: "alert", title: "I'm on academic probation", hint: "What it means, how to get off it", q: "I'm on academic probation (academic notice). What does it mean and how do I get off it?" },
   { icon: "wallet", title: "I need to withdraw", hint: "Refunds and what you owe", q: "If I withdraw from the quarter, do I get my fees refunded?" },
 ];
 

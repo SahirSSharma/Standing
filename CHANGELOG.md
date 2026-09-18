@@ -31,6 +31,10 @@
   SiteFooter shared with the home page; `sentenceCase` shared.
 - Eval: 61 questions (46 answerable across the six areas, 15 refusers) with an `area` field, `eval/check.mjs`
   offline validator, `npm run eval` grouped by area with router accuracy and total cost.
+- After the first v3 eval (18 answers, then the key's usage limit): the refusal rule opens the system prompt,
+  `max_tokens` 1,600, `grounding.stopReason` reported and logged; the eval's `area` may be a list where two
+  policies both answer; the eight home-page situations are eval questions q62–q69; router summaries separate
+  filing a grievance (160-11) from how a complaint is processed (200-23).
 - Ingest repairs: SR-516 is cited as POLICY-STATEMENT (was empty), Word tables of contents dropped (135-5),
   a Senate clause's bold opening title is its heading (Appendix 2), a date in "Issuing Office" is absent
   (135-9). Areas: shorter blurbs so the cards fit three across on wide screens.

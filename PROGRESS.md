@@ -33,7 +33,7 @@ every call failed with 400 "You have reached your specified API usage limits. Yo
 2026-10-01" — the Console **monthly spend limit** for the key's workspace, not the credit balance. The $20
 credit is untouched by this; the limit is a separate cap. Until it is raised, staging and the eval 502 on
 every real question. Fix (Sahir): Console → Settings → Limits → the workspace's monthly spend limit → set
-it to at least the credit balance (or remove it). Then `npm run eval` once (≈$2.70 for 61 questions).
+it to at least the credit balance (or remove it). Then `npm run eval` once (≈$3.00 for 69 questions).
 Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 18 v3 answers).
 
 ## Day 1 — what works (2026-09-17)
@@ -76,15 +76,16 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
   A second question set nobody tuned against would be a fairer number.
 - Cost and latency: measured ~$0.05 and ~12 s per answer on Opus 5; default is now Sonnet 5 (~$0.02 per answer, faster) with a 1-hour corpus cache — Sonnet eval pending the key's usage limit.
 
-## Budget — $20 of API credit for the rest of the project (from 2026-09-18)
+## Budget — $20 of API credit for the rest of the project (from 2026-09-18; revised after the v3 eval)
 Rules so it lasts: agents run with `LLM_MOCK=1` only — real-key calls are made by hand; `npm run eval`
-runs once per change to `lib/llm.js` or the prompt (sequential, ~$0.90); answers are capped at 1,500
-output tokens; the corpus cache lives for an hour; every call logs its estimated cost.
+runs once per change to `lib/llm.js`, the prompt or the router summaries (sequential, area by area, ≈$3.00
+for 69 questions of which ≈$1.20 is the six cache writes); answers are capped at 1,600 output tokens; each
+area's cache lives for an hour; every call logs its estimated cost and stop reason.
 
-| Use | Budget |
-|---|---|
-| Evals (≤4 more full runs) | $4 |
-| Live verification on staging | $1 |
-| Sahir + friends testing, demo video takes | $6 |
-| Judges (Sept 27 onward, ~150 questions) | $4 |
-| Reserve | $5 |
+| Use | Budget | Spent so far |
+|---|---|---|
+| Evals (v2 ×2 + one crashed run + v3 partial; one full v3 run still to come) | $6 | $2.25 |
+| Live verification on staging (smoke tests, one screenshot pass on real answers) | $1 | $0.30 |
+| Sahir + friends testing, demo video takes | $5 | $0 |
+| Judges (Sept 27 onward, ~150 questions ≈ $3 + cache writes) | $4 | $0 |
+| Reserve | $4 | — |

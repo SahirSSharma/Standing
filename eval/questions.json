@@ -372,7 +372,7 @@
     "expect": "answer",
     "area": "academics",
     "expectedChunks": [
-      "SR-515#6"
+      "SR-515#B"
     ],
     "answerQuote": "An undergraduate student is subject to academic notice if at the end of any term their GPA for that term or the cumulative GPA is less than 2.0. An undergraduate student is subject to academic disqualification from further registration if at the end of any term their GPA for that term is less than 1.5 or if they have completed two successive terms on academic notice without achieving a cumulative GPA of 2.0.",
     "note": "SR 515 calls it 'academic notice' now, and the answering paragraph B) is fused onto chunk #6 by the Senate page's markup; the question uses the word students actually say."
@@ -383,9 +383,7 @@
     "expect": "answer",
     "area": "academics",
     "expectedChunks": [
-      "SR-600#A.4.4.C.1",
-      "SR-600#A.4.4.C.2",
-      "SR-600#A.4.4.C.3"
+      "SR-600#B.4.C.1"
     ],
     "answerQuote": "An undergraduate student who enrolls at UC San Diego as a freshman in Fall 2019 or thereafter will be allowed to enroll for 12 quarters to complete all requirements for a degree; if a student reaches this quarter limit and needs additional time to complete those requirements, they will be required to submit a completion plan and have it approved by their college prior to enrolling for additional quarters to continue work towards the degree."
   },
@@ -622,5 +620,102 @@
     "expect": "refuse",
     "expectedChunks": [],
     "note": "UC residency for tuition is a Regents/UCOP policy the corpus lacks; 300-70 lists 'Residency Reclassification' as a waiver basis without stating the rule."
+  },
+  {
+    "id": "q62",
+    "question": "What happens after a conduct complaint is filed against me, and what are my rights?",
+    "area": "conduct",
+    "expectedChunks": [
+      "160-10#POLICY-STATEMENT.B.5.a",
+      "160-10#POLICY-STATEMENT.B.5",
+      "160-10#POLICY-STATEMENT.D.5"
+    ],
+    "answerQuote": "The initial allegation letter that is received by the Student shall include a clause informing the Student of their right to select an Advisor of their choice",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
+  },
+  {
+    "id": "q63",
+    "question": "My professor graded me unfairly. Can I appeal my grade and how?",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-502#A.1",
+      "SR-502#B.1",
+      "SR-502#B.2"
+    ],
+    "answerQuote": "If a student can provide evidence indicating that non‑academic criteria have been used in determining their grade in a course, they may follow the procedures described in this Regulation.",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
+  },
+  {
+    "id": "q64",
+    "question": "Can UCSD share my grades with my parents without my permission?",
+    "area": "records",
+    "expectedChunks": [
+      "160-2#8.A",
+      "160-2#8.B.2",
+      "160-2#3.D",
+      "160-2#DIRECTORY-INFORMATION.1"
+    ],
+    "answerQuote": "Directory Information may be released without a student's written consent unless the student has notified the UC San Diego Registrar's Office in writing or via electronic procedure established by the UC San Diego Registrar, that any or all of such information is not to be disclosed.",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
+  },
+  {
+    "id": "q65",
+    "question": "Can I organize a protest on campus, and what rules apply?",
+    "area": "speech",
+    "expectedChunks": [
+      "510-1-IX#POLICY-STATEMENT.B.1",
+      "510-1-IX#POLICY-STATEMENT"
+    ],
+    "answerQuote": "between the hours of 7:00 a.m. and 11 p.m., Public Expressive Activity is permitted in Public Spaces",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
+  },
+  {
+    "id": "q66",
+    "question": "How do I appeal a campus parking citation?",
+    "area": "money",
+    "expectedChunks": [
+      "545-2#PROCEDURES.5"
+    ],
+    "answerQuote": "The request for either a court appearance or administrative review must be made by the vehicle driver only.",
+    "note": "PPM 545-2 (1991) only says a citation can go to administrative review or a court appearance; the current Parking & Transportation appeal process is not in the manual. Home-page situation card preset.",
+    "expect": "answer"
+  },
+  {
+    "id": "q67",
+    "question": "What can I do if I am being sexually harassed by another student?",
+    "area": "safety",
+    "expectedChunks": [
+      "200-19#II.B.1",
+      "200-19#II.A"
+    ],
+    "answerQuote": "Any person may make a report, including anonymously, to any Responsible Employee",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
+  },
+  {
+    "id": "q68",
+    "question": "I'm on academic probation (academic notice). What does it mean and how do I get off it?",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-515#B"
+    ],
+    "answerQuote": "An undergraduate student is subject to academic notice if at the end of any term their GPA for that term or the cumulative GPA is less than 2.0.",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
+  },
+  {
+    "id": "q69",
+    "question": "If I withdraw from the quarter, do I get my fees refunded?",
+    "area": "money",
+    "expectedChunks": [
+      "300-70#III.E"
+    ],
+    "answerQuote": "Other refunds based upon part-time attendance or the withdrawal of a student from the University are made within the terms of the refund schedules",
+    "expect": "answer",
+    "note": "Home-page situation card preset."
   }
 ]
