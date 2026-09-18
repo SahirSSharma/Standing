@@ -12,10 +12,10 @@ the protest is, how many people, amplified sound or not, who is organising — a
 typing; the answer is written for that situation, and changing a pick and pressing "Update answer" gets a
 new one (a combination already asked comes back instantly).
 
-Built for [LexHack 2026](https://lexhack-2026.devpost.com/) · Track: Access to Justice & Civic Tech ·
+Live at **[mystanding.xyz](https://mystanding.xyz)** · Built for [LexHack 2026](https://lexhack-2026.devpost.com/) · Track: Access to Justice & Civic Tech ·
 Submission copy and images in [devpost/SUBMISSION.md](devpost/SUBMISSION.md)
 
-_Status: v3 in progress — see PROGRESS.md._
+_Status: v3 in production — see PROGRESS.md._
 
 ## Run locally
 ```bash

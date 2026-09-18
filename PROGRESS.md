@@ -7,7 +7,7 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 | 1 | Sep 17 | Repo, contracts, corpus ingest, cited Q&A end-to-end with the real key, eval harness | done — details below |
 | 2–4 | Sep 18–20 | Cited Q&A end-to-end with real key; eval ≥ target; refusal gate tuned | done on day 1 (30/30, 22/22) — see below |
 | 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); Sahir's verdict Sep 18: "too boring, too few policies" → v3 below |
-| 8 | Sep 24 | Demo video (2–3 min) + README final | |
+| 8 | Sep 24 | Demo video (≤ 3 min per the rules) + README final | record on https://mystanding.xyz (production) |
 | 9 | Sep 25 | Buffer, second-institution ingest if time | |
 | 10 | Sep 26 | Devpost submission complete | copy, thumbnail and gallery ready in `devpost/SUBMISSION.md` (Sep 18) — Sahir pastes them; video (Sep 24) and the live link (production, on his OK) still to add |
 
@@ -50,13 +50,19 @@ request letter, deadline calculator (stretch, last).
   `76.76.21.21` is the older fallback). `vercel domains verify mystanding.xyz` reports "action_required"
   until then. A custom domain serves the **production** deployment, so the domain shows nothing until
   production exists.
-- **Production is blocked on the key.** `ANTHROPIC_API_KEY` (id U4SRjkaZP6snovAJ, type sensitive) targets
-  Preview only. Copying it with `vercel env add … production` and extending its target with
-  `vercel api … -X PATCH` were both refused by this session's permission classifier (it blocks any
-  command that handles the key). Sahir ticks **Production** on that variable in the dashboard
-  (Settings → Environment Variables → edit → Save); then `vercel deploy --prod --yes`, curl `/`,
-  `/policies`, `/policies/SR-515`, one router refusal (0.2¢) and one real answer (≈20¢ cold) on the
-  production URL, then `vercel domains verify` once the A records propagate.
+- **Production is live (2026-09-18, 2:20 pm PDT).** Sahir ticked Production on `ANTHROPIC_API_KEY` in the
+  dashboard and ran `vercel deploy --prod --yes` himself (this session's permission classifier refuses
+  both the key copy and a production deploy from the assistant — he types the deploy with the `!`
+  prefix). Deployment `standing-2tqstpv0k`, aliases `mystanding.xyz`, `standing-sage.vercel.app`,
+  `standing-sss-4bfd.vercel.app`. Deployment Protection is "all except custom domains", so the two
+  `.vercel.app` production URLs redirect to a Vercel login and **mystanding.xyz is the only public
+  URL** — the one for Devpost. Verified through `vercel curl` on the production deployment: an
+  off-corpus question refused by the router in 2.6 s (0.2¢); the grade-appeal preset answered in
+  15.0 s with 11 citations from the 9 grades policies, cold cache (20.1¢). Spend for the go-live: ≈20¢.
+- **Domain propagation.** gen.xyz's nameservers (`ns-*.topdns.com`) serve both A records; public
+  resolvers were still returning the old parking answer at 2:25 pm and `vercel domains verify` still
+  said "action_required". Nothing to do but wait (TTL); Vercel issues the certificate on its own once
+  it sees the records. Check: `curl -sI https://mystanding.xyz/ | head -1`.
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
 Sahir raised the Console limit; every run below happened after that. Kept for the record:
@@ -136,8 +142,8 @@ area's cache lives for an hour; every call logs its estimated cost and stop reas
 | Use | Budget | Spent so far |
 |---|---|---|
 | Evals (v2 ×2 + one crashed run + v3 partial $2.25; three full v3 runs $2.46 + $2.02 + $1.14) | $8 | $7.87 — no more full runs unless the prompt or router changes |
-| Live verification (smoke tests, hand re-asks of eval misses, real-answer screenshot passes) | $1 | $0.75 |
+| Live verification (smoke tests, hand re-asks of eval misses, real-answer screenshot passes, production go-live) | $1 | $0.95 |
 | Sahir + friends testing, demo video takes | $5 | $0 |
 | Judges (Sept 27 onward, ~150 questions ≈ $3 + cache writes) | $4 | $0 |
 | Reserve | $2 | — |
-Total spent ≈ $8.60 of $20 (2026-09-18, late evening).
+Total spent ≈ $8.80 of $20 (2026-09-18, mid-afternoon; the evening figure above was written first).

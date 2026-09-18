@@ -152,13 +152,14 @@ next.js, react, javascript, tailwind-css, node.js, vercel, anthropic, claude, cl
 ## 8. "Try it out" links
 
 ```
+https://mystanding.xyz
 https://github.com/SahirSSharma/Standing
 ```
 
-Live link: none yet. The staging deployment is protected by Vercel's deployment login, so a judge
-cannot open it. A production deployment needs the API key added to the Production environment first
-and is waiting on Sahir's go (steps in PROGRESS.md). Add the URL here once it exists, and the .xyz
-domain once it points there.
+`mystanding.xyz` is the production deployment (verified Sept 18 with a real answer and a refusal on the
+production function). The project's `.vercel.app` addresses redirect to a Vercel login, so only the
+domain goes on Devpost. If the domain does not load yet, DNS is still propagating — wait, don't change
+anything.
 
 ## Before submitting
 
@@ -168,5 +169,5 @@ domain once it points there.
 - [ ] Video link added (≤ 3 min).
 - [ ] About pasted from the markers; decide on the optional disclosure line.
 - [ ] Built-with tags added.
-- [ ] GitHub link, then the live link when production exists.
+- [ ] https://mystanding.xyz and the GitHub link.
 - [ ] Track: Access to Justice & Civic Tech.
