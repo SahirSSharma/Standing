@@ -3,156 +3,257 @@
     "id": "q01",
     "question": "How long does UCSD have to let me see my student records after I ask?",
     "expect": "answer",
-    "expectedChunks": ["160-2#5.A", "160-2#5.G.3", "160-2#EXHIBIT-A.1"],
+    "area": "records",
+    "expectedChunks": [
+      "160-2#5.A",
+      "160-2#5.G.3",
+      "160-2#EXHIBIT-A.1"
+    ],
     "answerQuote": "With the exception of the records listed in Section V.F., below, students shall be permitted to inspect and review their Student Records within a reasonable period of time, but in no case longer than forty-five (45) days after receipt of the student's request."
   },
   {
     "id": "q02",
     "question": "Can UCSD charge me for copies of my own records?",
     "expect": "answer",
-    "expectedChunks": ["160-2#5.D", "160-2#5.G.4", "160-2#REPRODUCTION-OF-STUDENT-RECORDS"],
+    "area": "records",
+    "expectedChunks": [
+      "160-2#5.D",
+      "160-2#5.G.4",
+      "160-2#REPRODUCTION-OF-STUDENT-RECORDS"
+    ],
     "answerQuote": "A fee of $0.10 per page may be assessed and collected for copies of records requested by a student, unless the imposition of the fee effectively prevents a student from exercising the right to inspect and review the student's own records."
   },
   {
     "id": "q03",
     "question": "How do I stop UCSD from giving out my phone number?",
     "expect": "answer",
-    "expectedChunks": ["160-2#8.A", "160-2#8.B.2", "160-2#3.D", "160-2#DIRECTORY-INFORMATION.1"],
+    "area": "records",
+    "expectedChunks": [
+      "160-2#8.A",
+      "160-2#8.B.2",
+      "160-2#3.D",
+      "160-2#DIRECTORY-INFORMATION.1"
+    ],
     "answerQuote": "Directory Information may be released without a student's written consent unless the student has notified the UC San Diego Registrar's Office in writing or via electronic procedure established by the UC San Diego Registrar, that any or all of such information is not to be disclosed."
   },
   {
     "id": "q04",
     "question": "Can UCSD share my grades with my parents?",
     "expect": "answer",
-    "expectedChunks": ["160-2#9.A", "160-2#3.J.2", "160-2#8.A"],
+    "area": "records",
+    "expectedChunks": [
+      "160-2#9.A",
+      "160-2#3.J.2",
+      "160-2#8.A"
+    ],
     "answerQuote": "Except for the disclosure of Directory Information under conditions specified in Section VIII of this Policy, Personally Identifiable Information from Student Records may not be disclosed without the prior written consent of the student, other than to the following parties and under the following circumstances:"
   },
   {
     "id": "q05",
     "question": "If UCSD gets a subpoena for my records, do they have to tell me?",
     "expect": "answer",
-    "expectedChunks": ["160-2#9.A.7"],
+    "area": "records",
+    "expectedChunks": [
+      "160-2#9.A.7"
+    ],
     "answerQuote": "A reasonable effort shall be made to notify the student in advance of the disclosure of the record unless responding to a judicial order or grand jury or other subpoena that specifies that the student not be informed of the order or subpoena."
   },
   {
     "id": "q06",
     "question": "Where do I file a complaint if UCSD violates my FERPA rights?",
     "expect": "answer",
-    "expectedChunks": ["160-2#15.A.1", "160-2#15.A.2", "160-2#4.B.6"],
+    "area": "records",
+    "expectedChunks": [
+      "160-2#15.A.1",
+      "160-2#15.A.2",
+      "160-2#4.B.6"
+    ],
     "answerQuote": "Students may file complaints with the U.S. Department of Education concerning alleged violations of FERPA."
   },
   {
     "id": "q07",
     "question": "Am I required to check my UCSD email?",
     "expect": "answer",
-    "expectedChunks": ["160-3#V.4", "160-3#V.5", "160-3#V"],
+    "area": "records",
+    "expectedChunks": [
+      "160-3#V.4",
+      "160-3#V.5",
+      "160-3#V"
+    ],
     "answerQuote": "Attending to delivered and posted messages on a frequent and consistent basis."
   },
   {
     "id": "q08",
     "question": "Can I have my @ucsd.edu email forwarded to my personal Gmail?",
     "expect": "answer",
-    "expectedChunks": ["160-3#IV.A"],
+    "area": "records",
+    "expectedChunks": [
+      "160-3#IV.A"
+    ],
     "answerQuote": "The @ucsd.edu alias has an associated delivery destination address that may either be provided by ACMS, or forwarded to another email account designated by the student."
   },
   {
     "id": "q09",
     "question": "If a student dies, who at UCSD gets notified first?",
     "expect": "answer",
-    "expectedChunks": ["160-6#PROCEDURES.I.B", "160-6#POLICY-STATEMENT.III.B.1", "160-6#POLICY-STATEMENT.III.B"],
+    "area": "safety",
+    "expectedChunks": [
+      "160-6#PROCEDURES.I.B",
+      "160-6#POLICY-STATEMENT.III.B.1",
+      "160-6#POLICY-STATEMENT.III.B"
+    ],
     "answerQuote": "As soon as possible following receipt of the notice of death, VCSA will notify the Dean of Student Affairs and the Dean of Academic Advising of the college or professional school or academic program where the student was enrolled or had been accepted for enrollment; the Director of Counseling and Psychological Services, if the nature of the death was determined to be by suicide or homicide; and the Director, Environment, Health & Safety, if the cause of death was work- related."
   },
   {
     "id": "q10",
     "question": "When a student dies, does the campus-wide notice say how they died?",
     "expect": "answer",
-    "expectedChunks": ["160-6#POLICY-STATEMENT.III.A", "160-6#PROCEDURES.I.D"],
+    "area": "safety",
+    "expectedChunks": [
+      "160-6#POLICY-STATEMENT.III.A",
+      "160-6#PROCEDURES.I.D"
+    ],
     "answerQuote": "The nature of the death is confidential and should not be included in the administrative notification."
   },
   {
     "id": "q11",
     "question": "If a student dies right before graduating, can they still get their diploma?",
     "expect": "answer",
-    "expectedChunks": ["160-6#RESPONSIBILITIES.I.I"],
+    "area": "safety",
+    "expectedChunks": [
+      "160-6#RESPONSIBILITIES.I.I"
+    ],
     "answerQuote": "College Dean of Academic Advising – verify student's academic standing at time of death to determine if a posthumous degree or certificate will be awarded; alert Academic Records to confer appropriate recognition."
   },
   {
     "id": "q12",
     "question": "Which student governments does UCSD officially recognize?",
     "expect": "answer",
-    "expectedChunks": ["160-8#POLICY-STATEMENT", "160-8#POLICY-STATEMENT.1", "160-8#POLICY-STATEMENT.2", "160-8#POLICY-STATEMENT.3", "160-8#POLICY-STATEMENT.4", "160-8#POLICY-STATEMENT.5", "160-8#POLICY-STATEMENT.6", "160-8#POLICY-STATEMENT.7", "160-8#POLICY-STATEMENT.8", "160-8#POLICY-STATEMENT.9"],
+    "area": "speech",
+    "expectedChunks": [
+      "160-8#POLICY-STATEMENT",
+      "160-8#POLICY-STATEMENT.1",
+      "160-8#POLICY-STATEMENT.2",
+      "160-8#POLICY-STATEMENT.3",
+      "160-8#POLICY-STATEMENT.4",
+      "160-8#POLICY-STATEMENT.5",
+      "160-8#POLICY-STATEMENT.6",
+      "160-8#POLICY-STATEMENT.7",
+      "160-8#POLICY-STATEMENT.8",
+      "160-8#POLICY-STATEMENT.9"
+    ],
     "answerQuote": "Associated Students of the University of California, San Diego (ASUCSD)"
   },
   {
     "id": "q13",
     "question": "Is the Seventh College student council an official student government?",
     "expect": "answer",
-    "expectedChunks": ["160-8#POLICY-STATEMENT.5", "160-8#REVISION-HISTORY"],
+    "area": "speech",
+    "expectedChunks": [
+      "160-8#POLICY-STATEMENT.5",
+      "160-8#REVISION-HISTORY"
+    ],
     "answerQuote": "This policy was updated to include the Seventh College Student Council and to update formal names of Authorized Student Governments."
   },
   {
     "id": "q14",
     "question": "I got a student conduct notice. How many days do I have to set up a meeting with the conduct officer?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.E.2.a"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-10#POLICY-STATEMENT.E.2.a"
+    ],
     "answerQuote": "Notice that the Respondent has five Business Days from the date of the notice to contact the Student Conduct Officer to schedule an Administrative Resolution meeting (ARM);"
   },
   {
     "id": "q15",
     "question": "Can I hire a lawyer for my conduct case?",
     "expect": "answer",
-    "expectedChunks": ["160-10#RESPONSIBILITIES.8.a", "160-10#POLICY-STATEMENT.B.5"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-10#RESPONSIBILITIES.8.a",
+      "160-10#POLICY-STATEMENT.B.5"
+    ],
     "answerQuote": "However, Students may engage attorneys for legal advice and/or assistance as an Advisor."
   },
   {
     "id": "q16",
     "question": "Can UCSD discipline me for something that happened off campus?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.A.1", "160-10#POLICY-STATEMENT.A.4", "160-10#POLICY-STATEMENT.A.3.a"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-10#POLICY-STATEMENT.A.1",
+      "160-10#POLICY-STATEMENT.A.4",
+      "160-10#POLICY-STATEMENT.A.3.a"
+    ],
     "answerQuote": "However, the University has the discretion to exercise jurisdiction over off-campus conduct that would violate the Standards of Conduct or other University Policies if it had occurred on-campus, including but not limited to:"
   },
   {
     "id": "q17",
     "question": "How long does a conduct violation stay on my record?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.J.3", "160-10#POLICY-STATEMENT.J.4"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-10#POLICY-STATEMENT.J.3",
+      "160-10#POLICY-STATEMENT.J.4"
+    ],
     "answerQuote": "The conduct record of a Respondent found responsible for violations of the Standards of Conduct will normally be retained by SAGE for seven years from the end of the academic year in which the incident was resolved or as otherwise required by law (whichever is longer), regardless of whether the Student graduated or the Student Organization is no longer registered."
   },
   {
     "id": "q18",
     "question": "Who reviews my appeal if I'm an undergrad?",
     "expect": "answer",
-    "expectedChunks": ["160-10#POLICY-STATEMENT.I.2.a"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-10#POLICY-STATEMENT.I.2.a"
+    ],
     "answerQuote": "An undergraduate Student appeal will be reviewed by the Council of Provosts."
   },
   {
     "id": "q19",
     "question": "Can a fraternity at UCSD only let in guys?",
     "expect": "answer",
-    "expectedChunks": ["160-9#POLICY-STATEMENT.A.2"],
+    "area": "speech",
+    "expectedChunks": [
+      "160-9#POLICY-STATEMENT.A.2"
+    ],
     "answerQuote": "Membership in a Registered Campus Organization is open to any student, consistent with the Nondiscrimination Policy Statement for University of California Publications Regarding Student-Related Matters, with the exception that membership in an officially recognized sorority or fraternity may be limited by gender."
   },
   {
     "id": "q20",
     "question": "If I'm an officer of a student org, am I personally on the hook for its debts?",
     "expect": "answer",
-    "expectedChunks": ["160-9#POLICY-STATEMENT.B.2", "160-9#DEFINITIONS.B"],
+    "area": "speech",
+    "expectedChunks": [
+      "160-9#POLICY-STATEMENT.B.2",
+      "160-9#DEFINITIONS.B"
+    ],
     "answerQuote": "By signing the Principal Member Agreement, Principal Members of a Registered Student Organization agree to be personally responsible for the organization's debts and all other financial liabilities."
   },
   {
     "id": "q21",
     "question": "How long do I have to file a discrimination grievance against a staff member?",
     "expect": "answer",
-    "expectedChunks": ["160-11#4.B.1", "160-11#4.B"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-11#4.B.1",
+      "160-11#4.B"
+    ],
     "answerQuote": "Grievances under this section must be submitted to the Office of Student Conduct via the Student Grievance Report Form (see Section 7 below for link) within 60 business days from the time the student knew or could reasonably be expected to have known of the action being grieved.",
     "note": "answerQuote is byte-identical in 160-11#4.A.1 (privacy grievances), so a quote-only grader accepts a 4.A.1 citation as a false positive; grade on the cited id. 160-11#4.B.3 names the staff-respondent path.",
-    "mustCite": ["160-11#4.B.1"]
+    "mustCite": [
+      "160-11#4.B.1"
+    ]
   },
   {
     "id": "q22",
     "question": "Who looks into a grievance about my privacy rights being violated?",
     "expect": "answer",
-    "expectedChunks": ["160-11#4.A.2", "160-11#4.A"],
+    "area": "conduct",
+    "expectedChunks": [
+      "160-11#4.A.2",
+      "160-11#4.A"
+    ],
     "answerQuote": "The Office of the Registrar will review the grievance and, if appropriate, will investigate the alleged violations."
   },
   {
@@ -202,5 +303,318 @@
     "question": "Can I change my dining plan halfway through the quarter?",
     "expect": "refuse",
     "expectedChunks": []
+  },
+  {
+    "id": "q31",
+    "question": "I got an Incomplete in a class. How long do I have to finish the work before it turns into an F?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-500#B.2",
+      "SR-500#B.1"
+    ],
+    "answerQuote": "The instructor shall make arrangements with the student for completion of the work required at the earliest possible date, but no later than the last day of the finals week in the following quarter, with the exception of compulsory U.S. military service. If not replaced by this date, the I grade will lapse into a failing grade."
+  },
+  {
+    "id": "q32",
+    "question": "Is there a limit on how many of my classes I can take Pass/No Pass?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-500#D.1",
+      "SR-500#D.2"
+    ],
+    "answerQuote": "With the exception of units earned in independent study courses (numbered 199), no more than one fourth of an undergraduate student's total UCSD course units may be in courses taken on a P/NP basis."
+  },
+  {
+    "id": "q33",
+    "question": "If I drop a class in week 5, will it show up on my transcript?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-501#B.2",
+      "SR-501#B.1",
+      "SR-500#F.F.1"
+    ],
+    "answerQuote": "If a student drops a course after the end of the fourth week of instruction, unless permitted to do so by paragraph (D)(1), the Registrar shall assign a final grade of W to the student for that course."
+  },
+  {
+    "id": "q34",
+    "question": "My professor graded my essay way too harshly and I think it's unfair. Can I appeal the grade?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-502#A.1",
+      "SR-502#A.2"
+    ],
+    "answerQuote": "If a student can provide evidence indicating that non‑academic criteria have been used in determining their grade in a course, they may follow the procedures described in this Regulation.",
+    "note": "Grounds under SR 502 are non-academic criteria only (A.2 defines them); 'too harsh' alone is not appealable, so the right verdict is depends/no."
+  },
+  {
+    "id": "q35",
+    "question": "I got a C- in a class. Can I retake it to bring up my GPA?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-505#A"
+    ],
+    "answerQuote": "A student may not repeat a course for which a grade of A+, A, A‑, B+, B, B‑, C+, C, C‑, I, P, or S is recorded on his or her transcript, with the exception that a student who receives a grade of C- in a course that is approved to satisfy the Entry Level Writing Requirement may repeat the course as provided in Regulation 600(L)."
+  },
+  {
+    "id": "q36",
+    "question": "What GPA gets me put on academic probation?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-515#6"
+    ],
+    "answerQuote": "An undergraduate student is subject to academic notice if at the end of any term their GPA for that term or the cumulative GPA is less than 2.0. An undergraduate student is subject to academic disqualification from further registration if at the end of any term their GPA for that term is less than 1.5 or if they have completed two successive terms on academic notice without achieving a cumulative GPA of 2.0.",
+    "note": "SR 515 calls it 'academic notice' now, and the answering paragraph B) is fused onto chunk #6 by the Senate page's markup; the question uses the word students actually say."
+  },
+  {
+    "id": "q37",
+    "question": "Is there a limit on how many quarters I can be enrolled as an undergrad?",
+    "expect": "answer",
+    "area": "academics",
+    "expectedChunks": [
+      "SR-600#A.4.4.C.1",
+      "SR-600#A.4.4.C.2",
+      "SR-600#A.4.4.C.3"
+    ],
+    "answerQuote": "An undergraduate student who enrolls at UC San Diego as a freshman in Fall 2019 or thereafter will be allowed to enroll for 12 quarters to complete all requirements for a degree; if a student reaches this quarter limit and needs additional time to complete those requirements, they will be required to submit a completion plan and have it approved by their college prior to enrolling for additional quarters to continue work towards the degree."
+  },
+  {
+    "id": "q38",
+    "question": "Do I need permission to use a bullhorn at a protest on Library Walk?",
+    "expect": "answer",
+    "area": "speech",
+    "expectedChunks": [
+      "510-1-IX#POLICY-STATEMENT.E.1.a",
+      "510-1-IX#POLICY-STATEMENT.E.1.b"
+    ],
+    "answerQuote": "No permission is required to use handheld Amplified Sound (e.g., a bullhorn)."
+  },
+  {
+    "id": "q39",
+    "question": "Can we have speakers at a rally during finals week?",
+    "expect": "answer",
+    "area": "speech",
+    "expectedChunks": [
+      "510-1-IX#POLICY-STATEMENT.E.1.e"
+    ],
+    "answerQuote": "Notwithstanding any other provision of this Policy, no Amplified Sound is permitted during Finals Weeks."
+  },
+  {
+    "id": "q40",
+    "question": "My org wants to serve beer at our end-of-year event. How far ahead do we have to submit the alcohol form?",
+    "expect": "answer",
+    "area": "speech",
+    "expectedChunks": [
+      "510-1-XIII#PROCEDURES.A",
+      "510-1-XIII#PROCEDURES.C"
+    ],
+    "answerQuote": "Event Sponsors must submit the Campus Events with Alcoholic Beverages Form (Form) for review and approval at least four weeks before the Event is held."
+  },
+  {
+    "id": "q41",
+    "question": "Can my registered club put 'UC San Diego' in its name without asking permission?",
+    "expect": "answer",
+    "area": "speech",
+    "expectedChunks": [
+      "510-10#POLICY-STATEMENT.E.2.a",
+      "510-10#POLICY-STATEMENT.E.2.b",
+      "510-10#POLICY-STATEMENT.E.2"
+    ],
+    "answerQuote": "Non-commercial use of the Campus Name by Registered Campus Organizations (but only if/when such organizations are in good standing), Registered Student Organizations (but only if/when such organizations are in good standing), or entities that have a valid current lease with UC San Diego when the use is limited to the phrase “at UC San Diego” and the use solely designates the geographic location of the organization or the entity’s leased location. The phrase “at UC San Diego” may not incorporate or be designed to resemble any university logos or marks."
+  },
+  {
+    "id": "q42",
+    "question": "I have accommodations through OSD. When do I have to tell my professor?",
+    "expect": "answer",
+    "area": "safety",
+    "expectedChunks": [
+      "200-9#IV.B.7.2",
+      "200-9#IV.B.7.1"
+    ],
+    "answerQuote": "In order to implement an OSD-approved accommodation in examinations or assignments, students must meet with the course instructor within the first two weeks of instruction (or upon late registration) and present a certificate from OSD recommending accommodation in testing, note taking and the like."
+  },
+  {
+    "id": "q43",
+    "question": "If I tell a CAPS counselor I was sexually assaulted, does that count as reporting it to the university?",
+    "expect": "answer",
+    "area": "safety",
+    "expectedChunks": [
+      "200-19#II.C.1"
+    ],
+    "answerQuote": "Individuals who consult with such Confidential Resources will be advised that their discussions in these settings are not considered actual reports of Prohibited Conduct and that without any additional action by the individual, these discussions will not result in any formal action by the University to resolve their concerns.",
+    "note": "answerQuote is byte-identical in 200-23#V (discrimination complaints); CAPS is only listed in 200-19 §II.C.1, so grade on the cited id.",
+    "mustCite": [
+      "200-19#II.C.1"
+    ]
+  },
+  {
+    "id": "q44",
+    "question": "I filed a discrimination complaint with OPHD. Do I have to go through a full investigation, or can it be settled informally?",
+    "expect": "answer",
+    "area": "safety",
+    "expectedChunks": [
+      "200-23#IV.C"
+    ],
+    "answerQuote": "At any time before the resolution of a report, OPHD, a Complainant, or a Respondent may propose that a report be resolved by Alternative Resolution. Parties are never required to participate in any resolution activity that is not supervised by the University. Both parties and OPHD must agree to Alternative Resolution. Either party may withdraw from Alternative Resolution at any time and request a formal investigation."
+  },
+  {
+    "id": "q45",
+    "question": "My professor is dating an undergrad in his class. Who do I report that to?",
+    "expect": "answer",
+    "area": "safety",
+    "expectedChunks": [
+      "230-017#b.3",
+      "230-017#b.1"
+    ],
+    "answerQuote": "Suspected violations of this policy should be reported to the UC San Diego Office for the Prevention of Harassment and Discrimination for investigation."
+  },
+  {
+    "id": "q46",
+    "question": "I paid my registration fees and then my fee waiver got approved. Do I get that money back?",
+    "expect": "answer",
+    "area": "money",
+    "expectedChunks": [
+      "300-70#III.E",
+      "300-70#IV.D"
+    ],
+    "answerQuote": "A refund for purposes of this PPM Section is a disbursement made by the University to return to a student all or a portion of the amount of registration fees that he/she paid in cash for a particular quarter when it is subsequently determined that he/she is entitled to a fee deferment or fee waiver for that quarter.",
+    "note": "300-70 has no withdrawal refund schedule (III.E defers to the 'Student Fees and Deposits' booklet); this asks the case it does cover."
+  },
+  {
+    "id": "q47",
+    "question": "I got a parking ticket on campus. How long do I have to contest it?",
+    "expect": "answer",
+    "area": "money",
+    "expectedChunks": [
+      "545-2#PROCEDURES.4",
+      "545-2#PROCEDURES.5"
+    ],
+    "answerQuote": "Within five days of citation issue date, one may request an administrative review of the citation by appearing in person at the UCSD Parking Office on campus or at the Parking & Transportation Services Office at the Medical Center and completing the necessary form.",
+    "note": "545-2 covers citations and the five-day administrative review but never states a fine amount, so q24 ('How much is a parking ticket?') stays a refuser."
+  },
+  {
+    "id": "q48",
+    "question": "My e-scooter got impounded by campus police. How much does it cost to get it back?",
+    "expect": "answer",
+    "area": "money",
+    "expectedChunks": [
+      "270-11#POLICY-STATEMENT.3",
+      "270-11#POLICY-STATEMENT.4"
+    ],
+    "answerQuote": "Micromobility Devices parked or stored in violation of this policy are subject to impound and the assessment of impound and storage fees not to exceed $25 for impound and $2 per day for storage."
+  },
+  {
+    "id": "q49",
+    "question": "Can I vape in a campus parking lot?",
+    "expect": "answer",
+    "area": "money",
+    "expectedChunks": [
+      "270-7#POLICY-STATEMENT"
+    ],
+    "answerQuote": "As an institution committed to providing a safe and healthful environment and in compliance with California State law, the University prohibits the sale, advertising, use and or Smoking/ Vaping of, Tobacco or Marijuana/ Cannabis on University Controlled Property, including parking lots."
+  },
+  {
+    "id": "q50",
+    "question": "Can UCSD read my student email without my permission?",
+    "expect": "answer",
+    "area": "records",
+    "expectedChunks": [
+      "135-5#III.A.2.a"
+    ],
+    "answerQuote": "The University may examine or disclose Electronic Communications Records if authorized in advance and in writing by the Authorizing Official."
+  },
+  {
+    "id": "q51",
+    "question": "Can I give my roommate my UCSD login so they can use the campus network?",
+    "expect": "answer",
+    "area": "records",
+    "expectedChunks": [
+      "135-9#POLICY-STATEMENT.2.d",
+      "135-9#APPENDIX-A-DISALLOWED-ACTIVITIES.2",
+      "135-9#APPENDIX-A-DISALLOWED-ACTIVITIES.5"
+    ],
+    "answerQuote": "Every User bears responsibility for all activities, including violations of policy, conducted using their credentials. Accordingly, sharing passwords or other login credentials is prohibited."
+  },
+  {
+    "id": "q52",
+    "question": "My professor gave me a zero for cheating but never reported it to the Academic Integrity Office. Can he do that?",
+    "expect": "answer",
+    "area": "conduct",
+    "expectedChunks": [
+      "SR-APPX2#I.C.A.1"
+    ],
+    "answerQuote": "An instructor shall not assign an academic sanction for an academic integrity violation unless they have submitted an Allegation Report[i] to the AIO and there is an acceptance or final finding of responsibility."
+  },
+  {
+    "id": "q53",
+    "question": "Can I report hazing in my fraternity without giving my name?",
+    "expect": "answer",
+    "area": "conduct",
+    "expectedChunks": [
+      "200-28#RESPONSIBILITIES.A",
+      "200-28#RESPONSIBILITIES.A.1",
+      "200-28#RESPONSIBILITIES.A.1.a",
+      "200-28#RESPONSIBILITIES.A.1.b"
+    ],
+    "answerQuote": "Reporting Acts of Hazing: Any person may report alleged Hazing, including anonymously, as follows:"
+  },
+  {
+    "id": "q54",
+    "question": "Our club got accused of hazing at an off-campus retreat. Does UCSD still investigate?",
+    "expect": "answer",
+    "area": "conduct",
+    "expectedChunks": [
+      "200-28#RESPONSIBILITIES.B.1",
+      "200-28#RESPONSIBILITIES.C"
+    ],
+    "answerQuote": "Allegations of Hazing by Student(s) and Student Group(s), regardless of location, will be investigated through the student conduct process."
+  },
+  {
+    "id": "q55",
+    "question": "How much does a meal swipe cost at the dining halls this year?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q56",
+    "question": "Does UCSD require professors to grade on a curve?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q57",
+    "question": "What's the penalty for breaking my on-campus housing contract early?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q58",
+    "question": "How much financial aid will I get if my family makes $60,000 a year?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q59",
+    "question": "Why does the campus Wi-Fi keep dropping in Geisel, and when will it be fixed?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q60",
+    "question": "What are the CAPE evaluations for the professor teaching CSE 100 this quarter?",
+    "expect": "refuse",
+    "expectedChunks": []
+  },
+  {
+    "id": "q61",
+    "question": "How long do I have to live in California before I qualify for in-state tuition?",
+    "expect": "refuse",
+    "expectedChunks": [],
+    "note": "UC residency for tuition is a Regents/UCOP policy the corpus lacks; 300-70 lists 'Residency Reclassification' as a waiver basis without stating the rule."
   }
 ]

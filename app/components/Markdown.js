@@ -2,10 +2,10 @@
 import CiteChip from "./CiteChip";
 
 // Just enough markdown for a policy answer: paragraphs, ### headings, - / 1. lists, **bold**, and
-// a bare citation id in the text (e.g. "160-2#5.A", with or without brackets) becomes a clickable
-// pill. No HTML is ever injected.
+// a bare citation id in the text (e.g. "160-2#5.A", "SR-502#B.2", "510-1-IX#3.A", with or without
+// brackets) becomes a clickable pill. No HTML is ever injected.
 
-const MARKER = /\s*\[?\b\d{3}-\d+#[A-Za-z0-9.\-]+\]?/g;
+const MARKER = /\s*\[?\b[A-Za-z0-9-]+#[A-Za-z0-9.\-]+\]?/g;
 
 // If the answer opens with a bold line, that line is the short answer; the rest is the explanation.
 export function splitLead(text) {

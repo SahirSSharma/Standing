@@ -116,10 +116,13 @@ and citation ids from a `/api/ask` response); response `{ "letter": "To: …\nSu
 
 `eval/questions.json` — array of `{ "id", "question", "expect": "answer" | "refuse",
 "expectedChunks": ["160-2#5.A", …], "answerQuote": "verbatim sentence from one expected chunk that
-answers the question" }` (expectedChunks empty and answerQuote absent when expect=refuse). A
-question is only "answerable" if answerQuote is found verbatim in one of its expectedChunks. Optional:
-`"note"` (prose for whoever grades) and `"mustCite": [ids]` — cited-expected then also requires every
-mustCite id among the citations (q21, whose answerQuote appears verbatim in two sections).
+answers the question", "area": "records" }` (expectedChunks empty, answerQuote and area absent when
+expect=refuse). A question is only "answerable" if answerQuote is found verbatim in one of its
+expectedChunks; `area` is the area of the expected policy (docs.json) and is what the router is graded
+against. Optional: `"note"` (prose for whoever grades) and `"mustCite": [ids]` — cited-expected then also
+requires every mustCite id among the citations (q21, whose answerQuote appears verbatim in two sections).
+`node eval/check.mjs` validates all of this offline; `npm run eval` runs the questions area by area
+(refusers last) so each area's cache is written once, and reports router accuracy and total cost.
 
 ## Stack (all declared for the hackathon)
 Next.js (App Router, JavaScript), Tailwind, @anthropic-ai/sdk (Claude Sonnet 5 by default, citations + 1-hour prompt caching), Vercel.
@@ -256,3 +259,14 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   expanders. Deadlines with a parseable "within N days/weeks/months" get a date calculator, client-side.
   "Draft a request" adds one ~1.5¢ call. Chosen over free-form prose because a diagram needs structure the
   model can only supply if asked for it; every part stays optional so a one-line answer still renders.
+- 2026-09-18 — UI v3 (built by four agents against the mock, verified independently at 390–2560 px). Home:
+  hero + "Something happened?" (eight situation cards, each a preset question) + "Browse by area" (six
+  cards into the library); no example questions, no policy chip strip. Answer page: verdict mark that draws
+  itself, the short answer, a numbered timeline (steps) or "They can / You can" columns, deadlines with a
+  date calculator (business days skip weekends), then "Why this answer" and the sources behind expanders;
+  "Draft a request" calls /api/draft. Library: /policies grouped by area with date badges ("Updated Jan
+  2026", "Not updated since 1991"), /policies/[docId] with the clauses under the manual's own headings, a
+  find-in-policy filter and a closed-section preview line. Eval: 61 questions (46 answerable with `area`,
+  15 refusers), `eval/check.mjs`. Ingest repairs found by the library: a one-paragraph Senate regulation
+  (516) is cited as POLICY-STATEMENT, Word tables of contents are dropped (135-5), a Senate clause opening
+  with a bold title takes it as its heading (Appendix 2), an issuing office that is a date is absent (135-9).

@@ -3,12 +3,12 @@
 // summary = one line the router reads to pick an area; name = the short label the UI shows.
 
 export const AREAS = [
-  { id: 'records', name: 'Records & privacy', blurb: 'Your grades, records, email and data — who can see them', icon: 'lock' },
-  { id: 'conduct', name: 'Conduct, integrity & grievances', blurb: 'Conduct notices, hearings, cheating allegations, filing a complaint', icon: 'scale' },
-  { id: 'academics', name: 'Grades & academic standing', blurb: 'Grading, grade appeals, drops, retakes, probation, graduating', icon: 'cap' },
-  { id: 'speech', name: 'Speech, events & organizations', blurb: 'Protests, events, alcohol at events, student orgs and governments', icon: 'megaphone' },
-  { id: 'safety', name: 'Safety, discrimination & accommodations', blurb: 'Harassment, discrimination, disability access, emergencies, visas', icon: 'shield' },
-  { id: 'money', name: 'Money, parking & campus life', blurb: 'Fees and refunds, billing holds, parking, scooters, smoking, dogs', icon: 'wallet' },
+  { id: 'records', name: 'Records & privacy', blurb: 'Who can see your grades, records and email', icon: 'lock' },
+  { id: 'conduct', name: 'Conduct, integrity & grievances', blurb: 'Notices, hearings, cheating, complaints', icon: 'scale' },
+  { id: 'academics', name: 'Grades & academic standing', blurb: 'Grades, appeals, drops, retakes, probation', icon: 'cap' },
+  { id: 'speech', name: 'Speech, events & organizations', blurb: 'Protests, events, alcohol, student orgs', icon: 'megaphone' },
+  { id: 'safety', name: 'Safety, discrimination & accommodations', blurb: 'Harassment, disability access, emergencies', icon: 'shield' },
+  { id: 'money', name: 'Money, parking & campus life', blurb: 'Refunds, billing holds, parking, scooters', icon: 'wallet' },
 ];
 
 const ppm = (id, area, name, summary, extra = {}) => ({ id, source: 'ppm', ppm: extra.ppm ?? id, label: extra.label ?? `PPM ${id}`, area, name, summary });

@@ -20,6 +20,21 @@
   from the same cached area plus the answer's cited clauses.
 - Mock mode routes by keyword overlap and fills every section, so the UI and eval run without a key.
 
+- UI v3 — home page: hero, "Something happened?" (eight situation cards with preset questions), "Browse by
+  area" (six cards into the library); Examples.js and Knows.js removed. Answer page: Verdict (mark that
+  draws itself + short answer), Diagram (numbered timeline for steps, "They can / You can" columns),
+  Deadlines with a date calculator, "Why this answer" and Sources behind expanders (chips still highlight
+  and scroll to a card), Draft a request (`/api/draft`), Copy answer. Refused card suggests situations
+  and links to the library. Progress steps renamed for routing. Chips and cards show the policy label.
+- Policy library: `/policies` (areas, cards with date badges) and `/policies/[docId]` (metadata, clauses
+  under the manual's headings, find-in-policy filter, closed-section previews), all static; SiteHeader /
+  SiteFooter shared with the home page; `sentenceCase` shared.
+- Eval: 61 questions (46 answerable across the six areas, 15 refusers) with an `area` field, `eval/check.mjs`
+  offline validator, `npm run eval` grouped by area with router accuracy and total cost.
+- Ingest repairs: SR-516 is cited as POLICY-STATEMENT (was empty), Word tables of contents dropped (135-5),
+  a Senate clause's bold opening title is its heading (Appendix 2), a date in "Issuing Office" is absent
+  (135-9). Areas: shorter blurbs so the cards fit three across on wide screens.
+
 ## 2026-09-17
 - Project created for LexHack 2026. Next.js scaffold, design doc with fixed data/API contracts.
 - Ingest (`npm run ingest`): fetches the PPM "Student Matters" documents into `data/docs.json` and

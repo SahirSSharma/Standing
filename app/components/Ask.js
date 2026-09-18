@@ -1,10 +1,11 @@
 "use client";
+import Link from "next/link";
 import { useRef, useState, useSyncExternalStore } from "react";
-import Examples from "./Examples";
+import Areas from "./Areas";
 import { Icon } from "./Icons";
-import Knows from "./Knows";
 import Progress from "./Progress";
 import Result, { COLS } from "./Result";
+import Situations from "./Situations";
 
 // Once a question is asked, the form and every card below it sit in the answer's left column.
 const grid = `grid grid-cols-[minmax(0,1fr)] ${COLS}`;
@@ -17,11 +18,12 @@ const subscribeNarrow = (cb) => {
   return () => mq.removeEventListener("change", cb);
 };
 
-export default function Ask({ docs, clauses }) {
+export default function Ask({ areas, totals }) {
   const [question, setQuestion] = useState("");
   const [state, setState] = useState({ phase: "idle" }); // idle | loading | done | error
   const inputRef = useRef(null);
   const narrow = useSyncExternalStore(subscribeNarrow, () => narrowQuery().matches, () => false);
+  const docs = areas.flatMap((a) => a.docs);
 
   async function ask(q) {
     const trimmed = q.trim();
@@ -60,21 +62,21 @@ export default function Ask({ docs, clauses }) {
 
   return (
     <>
-      <section className={idle ? "mx-auto max-w-3xl text-center" : grid}>
+      <section className={idle ? "mx-auto max-w-3xl text-center 2xl:max-w-4xl" : grid}>
         <div>
           <h1
             className={
               idle
-                ? "text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
+                ? "rise text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
                 : "text-2xl font-semibold tracking-tight"
             }
+            style={{ "--i": 0 }}
           >
             Know where you stand.
           </h1>
           {idle && (
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">
-              Ask a question about your rights as a UCSD student. Standing reads the official policies
-              and shows you the exact clause — or tells you when they don’t answer.
+            <p className="rise mx-auto mt-5 text-lg leading-relaxed text-muted sm:text-xl" style={{ "--i": 1 }}>
+              Your rights as a UCSD student, answered from the exact policy clause.
             </p>
           )}
 
@@ -83,16 +85,18 @@ export default function Ask({ docs, clauses }) {
               e.preventDefault();
               ask(question);
             }}
-            className={idle ? "mt-8 text-left sm:mt-10" : "mt-4 text-left"}
+            className={idle ? "rise mt-8 text-left sm:mt-10" : "mt-4 text-left"}
+            style={{ "--i": 1 }}
           >
             <label htmlFor="question" className="sr-only">
               Your question
             </label>
+            {/* Once asked, the field shrinks with the button so the whole question stays readable at 1336. */}
             <div className="relative">
               <div className="relative">
                 <Icon
                   name="search"
-                  className="pointer-events-none absolute left-5 top-1/2 size-6 -translate-y-1/2 text-muted"
+                  className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted ${idle ? "left-5 size-6" : "left-4 size-5"}`}
                 />
                 <input
                   ref={inputRef}
@@ -105,37 +109,56 @@ export default function Ask({ docs, clauses }) {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder={narrow ? "Can UCSD share my grades?" : "e.g. Can UCSD share my grades with my parents?"}
-                  className="h-16 w-full rounded-2xl border border-line bg-card pl-14 pr-5 text-lg shadow-field placeholder:text-soft sm:h-[4.5rem] sm:pr-36 sm:text-xl"
+                  className={`w-full rounded-2xl border border-line bg-card shadow-field placeholder:text-soft ${
+                    idle
+                      ? "h-16 pl-14 pr-5 text-lg sm:h-[4.5rem] sm:pr-36 sm:text-xl"
+                      : "h-14 pl-12 pr-5 text-base sm:pr-32 sm:text-lg"
+                  }`}
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-3 inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-ink px-6 text-lg font-semibold text-white transition-colors hover:bg-ink-hover disabled:opacity-60 sm:absolute sm:right-2.5 sm:top-2.5 sm:mt-0 sm:h-[3.25rem] sm:w-auto"
+                className={`mt-3 inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-ink font-semibold text-white transition-colors hover:bg-ink-hover disabled:opacity-60 sm:absolute sm:mt-0 sm:w-auto ${
+                  idle ? "px-6 text-lg sm:right-2.5 sm:top-2.5 sm:h-[3.25rem]" : "px-5 text-base sm:right-1.5 sm:top-1.5 sm:h-11"
+                }`}
               >
                 Ask
                 <Icon name="arrow" className="size-5" />
               </button>
             </div>
-            {idle && (
-              <p className="mt-2.5 hidden text-sm text-muted sm:block">
-                <kbd className="rounded border border-line bg-card px-1.5 py-0.5 font-sans text-xs">Enter</kbd> to
-                ask
-              </p>
-            )}
           </form>
         </div>
       </section>
 
-      {idle && <Examples onAsk={ask} />}
+      {idle ? (
+        <>
+          <Situations onAsk={ask} first={2} />
+          <Areas areas={areas} first={11} />
+        </>
+      ) : (
+        <>
+          <section className={framed ? `mt-8 sm:mt-10 ${grid}` : "mt-8 sm:mt-10"} aria-live="polite" aria-busy={loading}>
+            {loading && <Progress documents={totals.docs} question={state.question} />}
+            {state.phase === "error" && <ErrorNotice status={state.status} onRetry={() => ask(state.question)} />}
+            {state.phase === "done" && (
+              <Result data={state.data} docs={docs} onAsk={ask} onReset={reset} question={state.question} />
+            )}
+          </section>
 
-      <section className={framed ? `mt-8 sm:mt-10 ${grid}` : "mt-8 sm:mt-10"} aria-live="polite" aria-busy={loading}>
-        {loading && <Progress documents={docs.length} question={state.question} />}
-        {state.phase === "error" && <ErrorNotice status={state.status} onRetry={() => ask(state.question)} />}
-        {state.phase === "done" && <Result data={state.data} docs={docs} onAsk={ask} onReset={reset} />}
-      </section>
-
-      <Knows docs={docs} clauses={clauses} wide={!idle} />
+          <div className={`mt-10 ${grid}`}>
+            <p className="text-sm text-muted">
+              Standing reads {totals.docs} official policies ·{" "}
+              <Link
+                href="/policies"
+                className="inline-flex min-h-11 items-center rounded font-medium text-ink underline decoration-gold decoration-2 underline-offset-4 hover:decoration-ink"
+              >
+                see the list
+              </Link>
+            </p>
+          </div>
+        </>
+      )}
     </>
   );
 }

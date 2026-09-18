@@ -1,9 +1,10 @@
 "use client";
 
-// "PPM 160-2 §8.A" — hovering or focusing one highlights its source card while it lasts; clicking
+// "PPM 160-2 §8.A" / "Senate Regulation 502 §B.2" — hovering or focusing one highlights its source card while it lasts; clicking
 // keeps it highlighted and scrolls to it. The invisible ::before pad gives the pill a 44 px tap
 // target without growing the visual box.
 export default function CiteChip({ citation, active, onSelect, onHover }) {
+  const label = citation.label || `PPM ${citation.docId}`;
   const base =
     "relative inline-flex items-center rounded-full border px-2.5 py-0.5 text-[0.8125rem] font-medium leading-5 tabular-nums transition-colors " +
     "before:absolute before:-inset-x-1 before:-inset-y-3 before:content-['']";
@@ -19,9 +20,9 @@ export default function CiteChip({ citation, active, onSelect, onHover }) {
       onFocus={() => onHover?.(citation.id)}
       onBlur={() => onHover?.(null)}
       className={`${base} ${look}`}
-      aria-label={`Policy ${citation.docId}, clause ${citation.clause}`}
+      aria-label={`${label}, clause ${citation.clause}`}
     >
-      PPM {citation.docId} §{citation.clause}
+      {label} §{citation.clause}
     </button>
   );
 }

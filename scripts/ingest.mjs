@@ -53,7 +53,7 @@ function metadata(meta) { // "Effective: 10/05/2017 Supersedes: 11/13/2014 ... I
   return {
     effectiveDate: toIso(grab(/Effective:\s*(\d\d\/\d\d\/\d{4})/)),
     supersedes: toIso(grab(/Supersedes\s*:\s*(\d\d\/\d\d\/\d{4})/)),
-    issuingOffice: grab(/Issuing Office:\s*(.*)$/),
+    issuingOffice: ((o) => (o && !/^\d\d\/\d\d\/\d{4}$/.test(o) ? o : null))(grab(/Issuing Office:\s*(.*\S)/)), // 135-9's field upstream holds a date: absent
   };
 }
 const bodyLines = (body) => body
@@ -102,13 +102,17 @@ function parseSenateDoc(html) {
   for (const seg of stamps(wrap).split('<div class="clauseIndex">').slice(1)) {
     const close = seg.indexOf('</div>');
     const label = text(seg.slice(0, close));
-    const own = text(seg.slice(close + 6).replace(/^\s*<div class="clauseBody">/, '').split(/<ul>|<\/li>/)[0]);
+    const ownHtml = seg.slice(close + 6).replace(/^\s*<div class="clauseBody">/, '').split(/<ul>|<\/li>/)[0];
+    const bold = ownHtml.match(/^\s*(?:<p[^>]*>)?\s*<strong>([\s\S]*?)<\/strong>\s*(?:<\/p>)?([\s\S]*)$/);
+    const own = text(bold ? bold[1] : ownHtml);
     if (!label || !own) continue;
-    lines.push(`${label} ${/^[A-Z]\)$/.test(label) && own.length <= 80 && !own.includes('.') ? own.toUpperCase() : own}`);
+    const isTitle = /^[A-Z]\)$/.test(label) && own.length <= 60 && !/[.:,]/.test(own);
+    lines.push(`${label} ${isTitle ? own.toUpperCase() : own}`);
+    if (bold && text(bold[2])) lines.push(text(bold[2])); // the rest of the clause continues under the title
   }
-  if (!lines.length) { // a one-paragraph regulation (516): the title is the heading, the prose is cited as the heading
+  if (!lines.length) { // a one-paragraph regulation (516): its prose is cited as "POLICY STATEMENT", like a PPM document
     const content = stamps(wrap).split('<div class="legislation-title">')[1]?.split('</div>').slice(1).join('</div>') ?? '';
-    lines.push(title.toUpperCase(), ...bodyLines(content));
+    lines.push('POLICY STATEMENT', ...bodyLines(content));
   }
   if (lines.length < 2) throw new Error('no clauses parsed — page layout changed?');
   return { title, effectiveDate: dates[0] ?? null, supersedes: dates[1] ?? null, issuingOffice: 'Academic Senate', lines };
@@ -153,6 +157,25 @@ function place(stack, lab, heading) {
   return lab.kinds.find((k) => k.value === 1) ?? (heading ? lab.kinds[0] : null);
 }
 
+// A Word table of contents ("Table of Contents", then "I. Introduction", "II. Definitions" …) is not policy
+// text: drop the block, which ends at the first unlabeled line or the first label already listed (the body
+// restarting at "I."). 135-5's six entries were otherwise chunked as clauses I–VI, nesting the real ones under VI.
+function stripToc(lines) {
+  const out = [];
+  let toc = null; // Set of "kind:value" seen since the heading, while inside a table of contents
+  for (const line of lines) {
+    if (!toc && /^table of contents$/i.test(line)) { toc = new Set(); continue; }
+    if (toc) {
+      const lab = parseLabel(line);
+      const key = lab && !lab.decimal && lab.kinds[0] ? `${lab.kinds[0].kind}:${lab.kinds[0].value}` : null;
+      if (key && !toc.has(key)) { toc.add(key); continue; }
+      toc = null; // body starts here
+    }
+    out.push(line);
+  }
+  return out;
+}
+
 function chunkDoc(doc) {
   const nodes = [];   // every heading / clause, in order; text = own paragraph + unlabeled continuations
   const stack = [];   // open label levels: {kind, value, label, heading, path, headingText, section}
@@ -165,7 +188,7 @@ function chunkDoc(doc) {
     const h = stack.findLast((l) => l.heading);
     return h ? { section: h.path, heading: h.headingText } : { section: scope?.slug ?? '', heading: scope?.text ?? '' };
   };
-  for (const line of doc.lines) {
+  for (const line of stripToc(doc.lines)) {
     if (line.toUpperCase() === doc.title.toUpperCase()) continue; // running title
     const lab = parseLabel(line);
     if (lab?.decimal) {

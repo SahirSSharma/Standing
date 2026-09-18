@@ -5,9 +5,9 @@ import { Icon } from "./Icons";
 // Timer-driven feedback for the 5–15 s wait. The step labels advance on timers; the bar is a CSS
 // animation, so the page keeps moving even while nothing has come back yet.
 const STEPS = [
-  { at: 0, label: (n) => `Reading all ${n} policies` },
-  { at: 3000, label: () => "Finding the clauses that apply" },
-  { at: 7000, label: () => "Writing a plain-language answer" },
+  { at: 0, label: (n) => `Choosing which of the ${n} policies to read` },
+  { at: 3000, label: () => "Reading them clause by clause" },
+  { at: 7000, label: () => "Checking every citation" },
 ];
 const SLOW_AT = 20000; // past the usual range: say so instead of sitting still
 

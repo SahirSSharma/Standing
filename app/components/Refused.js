@@ -1,5 +1,6 @@
 "use client";
-import { EXAMPLES } from "./Examples";
+import Link from "next/link";
+import { SITUATIONS } from "./Situations";
 import { Icon } from "./Icons";
 
 // The manual's own index (sections 100–551); the legacy adminrecords.ucsd.edu URL only redirects here.
@@ -22,33 +23,42 @@ export default function Refused({ docs, onAsk }) {
         </div>
       </div>
 
-      <p className="mt-7 text-sm font-semibold uppercase tracking-wider text-muted">Questions Standing can answer</p>
+      <p className="mt-7 text-sm font-semibold uppercase tracking-wider text-muted">Situations Standing can help with</p>
       <ul className="mt-3 grid gap-2">
-        {EXAMPLES.slice(0, 3).map((ex) => (
-          <li key={ex.q}>
+        {SITUATIONS.slice(0, 3).map((s) => (
+          <li key={s.title}>
             <button
               type="button"
-              onClick={() => onAsk(ex.q)}
+              onClick={() => onAsk(s.q)}
               className="group flex min-h-11 w-full items-center gap-3 rounded-xl border border-line px-4 py-2.5 text-left font-medium transition-colors hover:border-ink"
             >
-              <Icon name={ex.icon} className="size-5 shrink-0 text-muted" />
+              <Icon name={s.icon} className="size-5 shrink-0 text-muted" />
               <span className="group-hover:underline group-hover:decoration-gold group-hover:decoration-2 group-hover:underline-offset-4">
-                {ex.q}
+                {s.title}
               </span>
             </button>
           </li>
         ))}
       </ul>
 
-      <a
-        href={INDEX_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-6 inline-flex min-h-11 items-center gap-1.5 rounded font-medium text-ink underline decoration-gold decoration-2 underline-offset-4 hover:decoration-ink"
-      >
-        Browse the full UCSD policy manual
-        <Icon name="external" className="size-4" />
-      </a>
+      <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1">
+        <Link
+          href="/policies"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded font-medium text-ink underline decoration-gold decoration-2 underline-offset-4 hover:decoration-ink"
+        >
+          <Icon name="list" className="size-4" />
+          See every policy Standing knows
+        </Link>
+        <a
+          href={INDEX_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded font-medium text-ink underline decoration-gold decoration-2 underline-offset-4 hover:decoration-ink"
+        >
+          Browse the full UCSD policy manual
+          <Icon name="external" className="size-4" />
+        </a>
+      </div>
     </section>
   );
 }

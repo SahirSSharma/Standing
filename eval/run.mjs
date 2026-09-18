@@ -1,41 +1,35 @@
 // Evaluation runner — `npm run eval`. POSTs every question in eval/questions.json to the running
-// /api/ask (EVAL_URL overrides the default), three at a time, and scores:
+// /api/ask (EVAL_URL overrides the default), one at a time, area by area, and scores:
 //   - answered-vs-refused correctness on all questions
 //   - on answerable ones, whether a citation hits an expected clause ("cited-expected") or at
 //     least the expected policy ("cited-doc", partial credit)
-//   - per-question latency and whether the corpus prefix was served from the prompt cache
+//   - router accuracy (grounding.area === the question's area), how often the runner-up area was
+//     read (grounding.retried), and the total estimated spend (grounding.cost)
+//   - per-question latency and whether the area's prefix was served from the prompt cache
 // Writes eval/results.md and prints the same text. Exits 1 when the server is unreachable.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validate } from './check.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const API = process.env.EVAL_URL ?? 'http://localhost:3000/api/ask';
-// One at a time: the first call writes the 74k-token corpus into the prompt cache and every later call reads it.
-// Running 3 in parallel made the first three calls all pay the cache write.
+// One at a time: the first call into an area writes its 45–65k-token prefix into the prompt cache and
+// every later call reads it. Running 3 in parallel made the first three calls all pay the cache write.
 const CONCURRENCY = 1;
 const TIMEOUT_MS = 90_000;
 
 const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 const questions = read('eval/questions.json');
-const chunkText = new Map(read('data/corpus.json').map((c) => [c.id, c.text]));
 
 // ---- Validate the question set, so a typo never looks like a model miss ----------------------
-for (const q of questions) {
-  const unknown = q.expectedChunks.filter((id) => !chunkText.has(id));
-  if (unknown.length) die(`${q.id}: unknown chunk id(s): ${unknown.join(', ')}`);
-  if (q.expect === 'answer') {
-    // DESIGN.md: a question is only answerable if its answerQuote is verbatim in an expected chunk.
-    if (!q.expectedChunks.some((id) => chunkText.get(id).includes(q.answerQuote))) {
-      die(`${q.id}: answerQuote not found verbatim in any expected chunk`);
-    }
-    for (const id of q.mustCite ?? []) {
-      if (!q.expectedChunks.includes(id)) die(`${q.id}: mustCite ${id} is not in expectedChunks`);
-    }
-  } else if (q.expectedChunks.length || q.answerQuote) {
-    die(`${q.id}: expect=refuse must have no expectedChunks or answerQuote`);
-  }
-}
+const failures = validate(questions);
+if (failures.length) die(failures.join('\n      '));
+
+// Area by area (areas.json order), refusers last, so each area's cache is written once per run rather
+// than on every switch. A refuser is routed wherever the router sends it, hence last.
+const areaOrder = new Map(read('data/areas.json').map((a, i) => [a.id, i]));
+questions.sort((a, b) => (areaOrder.get(a.area) ?? Infinity) - (areaOrder.get(b.area) ?? Infinity) || a.id.localeCompare(b.id));
 
 // ---- Reachability, before spending a real answer (~$0.05 each) ------------------------------
 // A GET on the POST-only route answers 405 (and compiles the route under a cold `next dev`); a thrown
@@ -61,6 +55,9 @@ async function ask(q) {
     q.got = r.refused ? 'refuse' : 'answer';
     q.citations = r.citations ?? [];
     q.cacheRead = r.grounding?.cacheRead === true;
+    q.routedArea = r.grounding?.area;
+    q.retried = r.grounding?.retried === true;
+    q.cost = r.grounding?.cost ?? 0;
   } catch (err) {
     q.error = err.name === 'TimeoutError' ? `timeout after ${TIMEOUT_MS / 1000} s` : err.message;
   }
@@ -87,6 +84,8 @@ for (const q of questions) {
     || (q.citations ?? []).some((c) => id.startsWith(c.id + '.') && c.quote.includes(q.answerQuote.slice(0, 40)));
   q.citedExpected = q.expectedChunks.some(hitsExpected) && (q.mustCite ?? []).every(hitsExpected);
   q.citedDoc = (q.citations ?? []).some((c) => docs.has(c.docId));
+  // Router accuracy: the area the answer was read from is the area the expected clauses live in.
+  q.routedRight = !q.error && q.routedArea === q.area;
 }
 const ids = (list) => list.map((q) => q.id).join(', ') || 'none';
 const correct = questions.filter((q) => q.correct);
@@ -95,6 +94,9 @@ const falseAnswers = questions.filter((q) => q.expect === 'refuse' && q.got === 
 const errors = questions.filter((q) => q.error);
 const citedExpected = answerable.filter((q) => q.citedExpected);
 const citedDoc = answerable.filter((q) => q.citedDoc);
+const routedRight = answerable.filter((q) => q.routedRight);
+const retried = questions.filter((q) => q.retried);
+const totalCost = Math.round(questions.reduce((sum, q) => sum + (q.cost ?? 0), 0) * 10) / 10;
 const cacheReads = questions.filter((q) => q.cacheRead);
 const ms = questions.filter((q) => !q.error).map((q) => q.ms).sort((a, b) => a - b);
 const median = ms[Math.floor(ms.length / 2)] ?? 0;
@@ -106,27 +108,32 @@ const yn = (b) => (b ? 'yes' : 'no');
 const rows = questions.map((q) => {
   const got = q.error ? `error: ${q.error}` : q.got;
   const [ce, cd] = q.expect === 'answer' && !q.error ? [yn(q.citedExpected), yn(q.citedDoc)] : ['—', '—'];
+  const routed = q.error ? '—' : `${q.routedArea ?? '—'}${q.retried ? ' (via runner-up)' : ''}`;
   const top = (q.citations ?? []).slice(0, 3).map((c) => `\`${c.id}\``).join(', ') || '—';
-  return `| ${q.id} | ${q.expect} | ${got} | ${ce} | ${cd} | ${top} | ${q.ms} | ${q.error ? '—' : yn(q.cacheRead)} |`;
+  return `| ${q.id} | ${q.area ?? '—'} | ${q.expect} | ${got} | ${routed} | ${ce} | ${cd} | ${top} | ${q.ms} | ${q.error ? '—' : yn(q.cacheRead)} |`;
 });
 
 const md = `# Eval results — ${new Date().toLocaleDateString('en-CA')}
 
-Server: ${API}. ${questions.length} questions (${answerable.length} answerable, ${questions.length - answerable.length} off-corpus), ${CONCURRENCY} at a time.
-cited-expected = a returned citation id is in expectedChunks (q21 additionally requires its mustCite id); cited-doc = a citation
-points into the expected policy (partial credit). "top cited ids" are the first three citations returned. cache = grounding.cacheRead.
+Server: ${API}. ${questions.length} questions (${answerable.length} answerable, ${questions.length - answerable.length} off-corpus), ${CONCURRENCY} at a time, sorted by area with refusers last.
+area = where the expected clauses live; routed = grounding.area the answer was read from, "(via runner-up)" when the first area
+answered NO_ANSWER and the runner-up was read (grounding.retried). cited-expected = a returned citation id is in expectedChunks (a question
+with mustCite additionally requires those ids); cited-doc = a citation points into the expected policy (partial credit). "top cited ids"
+are the first three citations returned. cache = grounding.cacheRead.
 
-| id | expect | got | cited-expected | cited-doc | top cited ids | ms | cache |
-|---|---|---|---|---|---|---|---|
+| id | area | expect | got | routed | cited-expected | cited-doc | top cited ids | ms | cache |
+|---|---|---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
 **Answered/refused correct:** ${pct(correct.length, questions.length)} — false refusals ${falseRefusals.length} (${ids(falseRefusals)}), false answers ${falseAnswers.length} (${ids(falseAnswers)}), errors ${errors.length} (${ids(errors)}).
 **Citations (${answerable.length} answerable):** cited-expected ${pct(citedExpected.length, answerable.length)}, cited-doc ${pct(citedDoc.length, answerable.length)}.
-**Latency:** median ${median} ms, mean ${mean} ms over ${ms.length} completed calls. **Cache:** corpus prefix read from cache on ${pct(cacheReads.length, questions.length)}.
+**Router (${answerable.length} answerable):** right area ${pct(routedRight.length, answerable.length)}, misses ${ids(answerable.filter((q) => !q.routedRight))}; routed via runner-up on ${retried.length} of ${questions.length} questions (${ids(retried)}).
+**Cost:** ${totalCost}¢ total (grounding.cost summed over ${questions.length} questions).
+**Latency:** median ${median} ms, mean ${mean} ms over ${ms.length} completed calls. **Cache:** area prefix read from cache on ${pct(cacheReads.length, questions.length)}.
 
 ## Summary
 
-The server decided answer-vs-refuse correctly on ${correct.length} of ${questions.length} questions${falseRefusals.length ? `, wrongly refusing ${ids(falseRefusals)}` : ''}${falseAnswers.length ? `, and answered off-corpus ${ids(falseAnswers)} instead of refusing` : ''}. Of the ${answerable.length} answerable questions, ${citedExpected.length} cited an expected clause and ${citedDoc.length} cited at least the right policy; the clause misses are ${ids(answerable.filter((q) => !q.citedExpected))}. Answers took ${median} ms at the median, with the prompt cache serving the corpus on ${cacheReads.length} of ${questions.length} calls${errors.length ? `; ${errors.length} call${errors.length === 1 ? '' : 's'} failed (${ids(errors)})` : ''}.
+The server decided answer-vs-refuse correctly on ${correct.length} of ${questions.length} questions${falseRefusals.length ? `, wrongly refusing ${ids(falseRefusals)}` : ''}${falseAnswers.length ? `, and answered off-corpus ${ids(falseAnswers)} instead of refusing` : ''}. Of the ${answerable.length} answerable questions, ${citedExpected.length} cited an expected clause and ${citedDoc.length} cited at least the right policy; the clause misses are ${ids(answerable.filter((q) => !q.citedExpected))}. The router read the right area on ${routedRight.length} of ${answerable.length} answerable questions and fell back to the runner-up area ${retried.length} time${retried.length === 1 ? '' : 's'}; the run cost about ${totalCost}¢. Answers took ${median} ms at the median, with the prompt cache serving the area on ${cacheReads.length} of ${questions.length} calls${errors.length ? `; ${errors.length} call${errors.length === 1 ? '' : 's'} failed (${ids(errors)})` : ''}.
 `;
 
 fs.writeFileSync(path.join(ROOT, 'eval/results.md'), md);

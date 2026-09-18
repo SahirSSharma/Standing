@@ -21,10 +21,10 @@ request letter, deadline calculator (stretch, last).
 | 1 | Catalog of 42 policies in 6 areas (34 PPM + 8 Senate), Senate parser, decimal labels | done — 1,902 chunks |
 | 2 | Area router (Haiku) + per-area cached answer + runner-up retry; structured answer; `/api/draft` | done — live smoke test: grade appeal, 13 clauses, 19.9¢ cold / ~2¢ warm |
 | 3 | DESIGN.md contracts (docs/areas/API/answer format) | done |
-| 4 | Home: situations + areas + fewer words | in progress (agent) |
-| 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | in progress (agent) |
-| 6 | Policy library `/policies` + `/policies/[docId]` | in progress (agent) |
-| 7 | Eval: +questions for the new areas, router accuracy, one real run | in progress (agent writes, real run by hand) |
+| 4 | Home: situations + areas + fewer words | done (agent built, verifier passed, my fixes: wide-screen 3-column areas, card hints) |
+| 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | done (verified at 390–2560 on the mock; real answers checked in the eval) |
+| 6 | Policy library `/policies` + `/policies/[docId]` | done (42 static pages) |
+| 7 | Eval: +questions for the new areas, router accuracy, one real run | questions written (61) and validated; real run below |
 | 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | |
 
 ## Day 1 — what works (2026-09-17)

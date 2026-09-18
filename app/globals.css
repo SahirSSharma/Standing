@@ -34,14 +34,17 @@ html {
 }
 
 @layer base {
-  /* One focus style everywhere: navy outline (3:1 non-text contrast) with a gold halo. */
+  ::selection {
+    background: var(--color-gold-tint);
+  }
+}
+/* One focus style everywhere: navy outline (3:1 non-text contrast) with a gold halo. In the utilities
+   layer so the halo also shows on cards that carry a shadow-* utility (utilities beat @layer base). */
+@layer utilities {
   :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
     box-shadow: 0 0 0 6px var(--color-gold);
-  }
-  ::selection {
-    background: var(--color-gold-tint);
   }
 }
 
