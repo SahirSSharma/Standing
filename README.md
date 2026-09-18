@@ -84,27 +84,20 @@ documents with the same id — so `npm run ingest` falls back to the Internet Ar
 UCSD's legacy page for them and links citations to that capture.
 
 ## Evaluation
-`eval/questions.json` holds 30 student-phrased questions: 22 answerable, each with the clause ids that
-contain the answer and a verbatim `answerQuote` that must appear in one of them (checked on every run),
-and 8 the policies cannot answer. `npm run eval` POSTs all 30 to the running server, one at a time, and
-writes [eval/results.md](eval/results.md). It grades the answer-or-refuse decision and the citations —
-a citation counts when it is the expected clause, or when it cites the list containing that clause and
-its on-screen quote carries the answer text. It does not grade the prose.
+`eval/questions.json` holds 61 student-phrased questions: 46 answerable across the six areas, each with the
+clause ids that contain the answer, a verbatim `answerQuote` that must appear in one of them, and the area
+the router should pick; and 15 the policies cannot answer, worded to share vocabulary with them (dining
+prices, grading curves, housing contracts…). `node eval/check.mjs` validates the set offline. `npm run eval`
+POSTs the questions to the running server one at a time, area by area, and writes
+[eval/results.md](eval/results.md): the answer-or-refuse decision, the citations (a citation counts when it
+is an expected clause, or the list containing it with the answer text in its on-screen quote), the router's
+area, and the cost. It does not grade the prose.
 
-Latest run, 2026-09-18, `claude-sonnet-5` (the default), real key, production build:
-
-| Metric | Result |
-|---|---|
-| Answer-vs-refuse decision correct (all 30) | 30/30 (100%) |
-| Answerable questions wrongly refused | 0/22 |
-| Off-corpus questions wrongly answered | 0/8 |
-| A citation is an expected clause (`cited-expected`) | 22/22 (100%) |
-| A citation is at least the right policy (`cited-doc`) | 22/22 (100%) |
-| Corpus served from the prompt cache | 30/30 |
-| Latency, median / mean | 5.1 s / 5.1 s |
-| Spend for the whole run (30 questions) | $0.57 (≈1.9¢ per question) |
-
-The same set on `claude-opus-5` (2026-09-17) also scored 30/30 and 22/22, at 12.9 s median and roughly
-2.5× the cost, which is why Sonnet 5 is the default.
+Latest complete run (v2, 7 policies, 30 questions, 2026-09-18, `claude-sonnet-5`): 30/30 decisions,
+22/22 cited the expected clause, 5.1 s median, $0.57. The v3 run (42 policies, 61 questions) is pending the
+API key's usage limit: its first 18 answers were 18/18 on the decision and 15/18 on the expected clause,
+the three misses being two questions that two policies now both answer (accepted since) and one router miss
+(the discrimination-grievance deadline, read from the complaint-procedure policy instead of the student
+grievance policy — the router summaries were sharpened).
 
 Reproduce: `npm run build && npx next start -p 3000` with `ANTHROPIC_API_KEY` set, then `npm run eval`.

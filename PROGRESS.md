@@ -25,7 +25,16 @@ request letter, deadline calculator (stretch, last).
 | 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | done (verified at 390–2560 on the mock; real answers checked in the eval) |
 | 6 | Policy library `/policies` + `/policies/[docId]` | done (42 static pages) |
 | 7 | Eval: +questions for the new areas, router accuracy, one real run | questions written (61) and validated; real run below |
-| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | |
+| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-ixp7ven97-sss-4bfd.vercel.app (pages verified live; answers blocked by the usage limit below) |
+
+## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval)
+The first v3 eval run got 18 answers in (all 18 decisions right, 15/18 cited the expected clause) and then
+every call failed with 400 "You have reached your specified API usage limits. You will regain access on
+2026-10-01" — the Console **monthly spend limit** for the key's workspace, not the credit balance. The $20
+credit is untouched by this; the limit is a separate cap. Until it is raised, staging and the eval 502 on
+every real question. Fix (Sahir): Console → Settings → Limits → the workspace's monthly spend limit → set
+it to at least the credit balance (or remove it). Then `npm run eval` once (≈$2.70 for 61 questions).
+Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 18 v3 answers).
 
 ## Day 1 — what works (2026-09-17)
 - `npm run ingest`: 7 docs / 638 clause chunks in `data/`; PPM 160-9 comes from the Internet Archive's

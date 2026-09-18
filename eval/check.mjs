@@ -36,11 +36,13 @@ export function validate(questions) {
 
     if (q.expect === 'answer') {
       if (!expected.length) fail('answerable question has no expectedChunks');
-      if (!areaIds.has(q.area)) fail(`area must be one of ${[...areaIds].join(', ')}, got ${JSON.stringify(q.area)}`);
-      for (const id of expected) {
-        const area = docArea.get(id.split('#')[0]);
-        if (area && q.area && area !== q.area) fail(`${id} is in area "${area}", question says "${q.area}"`);
-      }
+      // area: one id, or an array when policies in two areas both answer the question (every listed area
+      // must hold an expected chunk, and every expected chunk must be in a listed area)
+      const areas = Array.isArray(q.area) ? q.area : [q.area];
+      for (const a of areas) if (!areaIds.has(a)) fail(`area must be one of ${[...areaIds].join(', ')}, got ${JSON.stringify(a)}`);
+      const chunkAreas = new Set(expected.map((id) => docArea.get(id.split('#')[0])).filter(Boolean));
+      for (const a of chunkAreas) if (!areas.includes(a)) fail(`an expected chunk is in area "${a}", question says ${JSON.stringify(q.area)}`);
+      for (const a of areas) if (!chunkAreas.has(a)) fail(`area "${a}" has no expected chunk`);
       if (typeof q.answerQuote !== 'string' || q.answerQuote.length < MIN_QUOTE) {
         fail(`answerQuote must be a string of at least ${MIN_QUOTE} chars`);
       } else if (!expected.some((id) => chunkText.get(id)?.includes(q.answerQuote))) {
@@ -67,6 +69,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     process.exit(1);
   }
   const answerable = questions.filter((q) => q.expect === 'answer');
-  const perArea = [...areaIds].map((a) => `${a} ${answerable.filter((q) => q.area === a).length}`).join(', ');
+  const perArea = [...areaIds].map((a) => `${a} ${answerable.filter((q) => (Array.isArray(q.area) ? q.area[0] : q.area) === a).length}`).join(', ');
   console.log(`check: ${questions.length} questions valid — ${answerable.length} answerable (${perArea}), ${questions.length - answerable.length} refuse`);
 }

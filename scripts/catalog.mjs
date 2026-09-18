@@ -17,14 +17,14 @@ const senate = (n, area, name, summary) => ({ id: `SR-${n}`, source: 'senate', l
 
 export const DOCS = [
   // Records & privacy
-  ppm('160-2', 'records', 'Student records & privacy', 'FERPA at UCSD: directory information, who may see or receive student records and grades, parents, written consent, subpoenas, holds on disclosure'),
+  ppm('160-2', 'records', 'Student records & privacy', 'FERPA at UCSD: directory information, who may see or receive student records and grades, parents, written consent, subpoenas, holds on disclosure, correcting a record, FERPA complaints'),
   ppm('480-3', 'records', 'Records about individuals', 'How offices must handle records containing information about individuals: access, accuracy, retention, disclosure limits'),
   ppm('135-5', 'records', 'Electronic communications privacy', 'Privacy of UCSD email, network and computer accounts; when the university may read, monitor or disclose electronic communications'),
   ppm('160-3', 'records', 'Official email', 'UCSD may send official notices to student email; students are responsible for reading it; forwarding and delivery rules'),
   ppm('135-9', 'records', 'IT acceptable use', 'Acceptable use of UCSD computers, networks and accounts: prohibited activities, sharing passwords, copyright, consequences'),
   // Conduct, integrity & grievances
   ppm('160-10', 'conduct', 'Student conduct procedures', 'Student conduct process: notice of alleged violation, meetings, hearings, evidence, sanctions, interim measures, appeals, records'),
-  ppm('160-11', 'conduct', 'Student grievances', 'How a student files a grievance against a university office or employee, confidentiality, retaliation, timelines'),
+  ppm('160-11', 'conduct', 'Student grievances', 'How a student files a grievance against a UCSD employee or office — privacy or discrimination grievances: where to file, the 60-business-day deadline, who investigates (Registrar, OPHD), retaliation'),
   { id: 'SR-APPX2', source: 'senate', label: 'Senate Appendix 2', url: 'https://senate.ucsd.edu/operating-procedures/senate-manual/appendices/2/', area: 'conduct', name: 'Academic integrity policy',
     summary: 'Policy on Integrity of Scholarship: cheating and plagiarism, how allegations are reported, the review process, sanctions, appeals, records' },
   ppm('200-28', 'conduct', 'Hazing prevention', 'Interim hazing prevention procedures: definition of hazing, reporting, investigation, consequences for students and organizations'),
@@ -48,7 +48,7 @@ export const DOCS = [
   ppm('510-10', 'speech', 'University name & logos', 'Use of the UC San Diego name, seals and trademarks by students, organizations and outside parties'),
   // Safety, discrimination & accommodations
   ppm('200-19', 'safety', 'Sexual violence & harassment', 'Reporting and responding to sexual violence and sexual harassment: reporting options, Title IX office, supportive measures, confidentiality'),
-  ppm('200-23', 'safety', 'Discrimination complaints', 'Procedures for discrimination and harassment complaint resolution: filing, investigation, timelines, outcomes, retaliation'),
+  ppm('200-23', 'safety', 'Discrimination complaints', 'How the university handles a discrimination or harassment complaint once received: intake, investigation, findings, corrective action, the timelines the university must meet'),
   ppm('200-9', 'safety', 'Disability access', 'Disability access guidelines: accommodations, accessible facilities, service animals, complaints'),
   ppm('230-017', 'safety', 'Faculty–student relationships', 'Romantic, dating or sexual relationships between academic appointees and undergraduate students are prohibited; reporting and consequences'),
   ppm('270-9', 'safety', 'Lactation accommodation', 'Lactation accommodation: break time and private space for students and employees who are nursing'),

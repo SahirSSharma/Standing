@@ -201,7 +201,7 @@
   },
   {
     "id": "q18",
-    "question": "Who reviews my appeal if I'm an undergrad?",
+    "question": "Who reviews my appeal of a student conduct decision if I'm an undergrad?",
     "expect": "answer",
     "area": "conduct",
     "expectedChunks": [
@@ -249,12 +249,18 @@
     "id": "q22",
     "question": "Who looks into a grievance about my privacy rights being violated?",
     "expect": "answer",
-    "area": "conduct",
+    "area": [
+      "conduct",
+      "records"
+    ],
     "expectedChunks": [
       "160-11#4.A.2",
-      "160-11#4.A"
+      "160-11#4.A",
+      "160-2#13.C.1",
+      "160-2#13.C.2"
     ],
-    "answerQuote": "The Office of the Registrar will review the grievance and, if appropriate, will investigate the alleged violations."
+    "answerQuote": "The Office of the Registrar will review the grievance and, if appropriate, will investigate the alleged violations.",
+    "note": "Two procedures exist: the Student Grievance route (160-11 §4.A, the Registrar investigates) and the FERPA complaint route in 160-2 §13.C (informal resolution, then a formal complaint to the department head). Either policy answers it."
   },
   {
     "id": "q23",

@@ -29,7 +29,9 @@ if (failures.length) die(failures.join('\n      '));
 // Area by area (areas.json order), refusers last, so each area's cache is written once per run rather
 // than on every switch. A refuser is routed wherever the router sends it, hence last.
 const areaOrder = new Map(read('data/areas.json').map((a, i) => [a.id, i]));
-questions.sort((a, b) => (areaOrder.get(a.area) ?? Infinity) - (areaOrder.get(b.area) ?? Infinity) || a.id.localeCompare(b.id));
+// `area` is a string or, when two policies in different areas both answer the question, an array.
+const areasOf = (q) => (Array.isArray(q.area) ? q.area : q.area ? [q.area] : []);
+questions.sort((a, b) => (areaOrder.get(areasOf(a)[0]) ?? Infinity) - (areaOrder.get(areasOf(b)[0]) ?? Infinity) || a.id.localeCompare(b.id));
 
 // ---- Reachability, before spending a real answer (~$0.05 each) ------------------------------
 // A GET on the POST-only route answers 405 (and compiles the route under a cold `next dev`); a thrown
@@ -84,8 +86,8 @@ for (const q of questions) {
     || (q.citations ?? []).some((c) => id.startsWith(c.id + '.') && c.quote.includes(q.answerQuote.slice(0, 40)));
   q.citedExpected = q.expectedChunks.some(hitsExpected) && (q.mustCite ?? []).every(hitsExpected);
   q.citedDoc = (q.citations ?? []).some((c) => docs.has(c.docId));
-  // Router accuracy: the area the answer was read from is the area the expected clauses live in.
-  q.routedRight = !q.error && q.routedArea === q.area;
+  // Router accuracy: the area the answer was read from is one the expected clauses live in.
+  q.routedRight = !q.error && areasOf(q).includes(q.routedArea);
 }
 const ids = (list) => list.map((q) => q.id).join(', ') || 'none';
 const correct = questions.filter((q) => q.correct);
@@ -110,7 +112,7 @@ const rows = questions.map((q) => {
   const [ce, cd] = q.expect === 'answer' && !q.error ? [yn(q.citedExpected), yn(q.citedDoc)] : ['—', '—'];
   const routed = q.error ? '—' : `${q.routedArea ?? '—'}${q.retried ? ' (via runner-up)' : ''}`;
   const top = (q.citations ?? []).slice(0, 3).map((c) => `\`${c.id}\``).join(', ') || '—';
-  return `| ${q.id} | ${q.area ?? '—'} | ${q.expect} | ${got} | ${routed} | ${ce} | ${cd} | ${top} | ${q.ms} | ${q.error ? '—' : yn(q.cacheRead)} |`;
+  return `| ${q.id} | ${areasOf(q).join('/') || '—'} | ${q.expect} | ${got} | ${routed} | ${ce} | ${cd} | ${top} | ${q.ms} | ${q.error ? '—' : yn(q.cacheRead)} |`;
 });
 
 const md = `# Eval results — ${new Date().toLocaleDateString('en-CA')}
