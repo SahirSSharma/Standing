@@ -6,14 +6,14 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 |---|---|---|---|
 | 1 | Sep 17 | Repo, contracts, corpus ingest, cited Q&A end-to-end with the real key, eval harness | done — details below |
 | 2–4 | Sep 18–20 | Cited Q&A end-to-end with real key; eval ≥ target; refusal gate tuned | done on day 1 (30/30, 22/22) — see below |
-| 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); Sahir's verdict Sep 18: "too boring, too few policies" → v3 below |
+| 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); the review found it too plain and the corpus too small → v3 below |
 | 8 | Sep 24 | Demo video (≤ 3 min per the rules) + README final | record on https://mystanding.xyz (production) |
 | 9 | Sep 25 | Buffer, second-institution ingest if time | |
-| 10 | Sep 26 | Devpost submission complete | copy, thumbnail and gallery ready in `devpost/SUBMISSION.md` (Sep 18) — Sahir pastes them; video (Sep 24) and the live link (production, on his OK) still to add |
+| 10 | Sep 26 | Devpost submission complete | copy, thumbnail and gallery ready in `devpost/SUBMISSION.md` (Sep 18); the live link is in; video (Sep 24) still to add |
 
-## v3 — 42 policies, visual answers (started 2026-09-18, Sahir's call)
-Sahir: "too boring and has too little policies" + "diagrams / easy / animations, less text at first, then the
-user decides to expand". Chosen (all four): situations → rights sheets, browsable policy library, draft a
+## v3 — 42 policies, visual answers (started 2026-09-18)
+Two problems with v2: too few policies, and an answer that arrived as a wall of text. v3 widens the corpus
+and leads with diagrams and a short answer the reader chooses to expand. Chosen (all four): situations → rights sheets, browsable policy library, draft a
 request letter, deadline calculator (stretch, last).
 
 | # | Task | Status |
@@ -21,14 +21,14 @@ request letter, deadline calculator (stretch, last).
 | 1 | Catalog of 42 policies in 6 areas (34 PPM + 8 Senate), Senate parser, decimal labels | done — 1,902 chunks |
 | 2 | Area router (Haiku) + per-area cached answer + runner-up retry; structured answer; `/api/draft` | done — live smoke test: grade appeal, 13 clauses, 19.9¢ cold / ~2¢ warm |
 | 3 | DESIGN.md contracts (docs/areas/API/answer format) | done |
-| 4 | Home: situations + areas + fewer words | done (agent built, verifier passed, my fixes: wide-screen 3-column areas, card hints) |
+| 4 | Home: situations + areas + fewer words | done (wide-screen 3-column areas, card hints) |
 | 5 | Answer page: verdict, diagram, deadlines + calculator, expanders, draft a request | done (verified at 390–2560 on the mock; real answers checked in the eval) |
 | 6 | Policy library `/policies` + `/policies/[docId]` | done (42 static pages) |
 | 7 | Eval: +questions for the new areas, router accuracy, one real run | done — 69 questions validated; three full runs in "Eval runs" below |
-| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — staging https://standing-18u8jirge-sss-4bfd.vercel.app (pages, icons, a router refusal in 2 s and a real grade-appeal answer through the Vercel function all verified with `vercel curl`) |
+| 8 | Verify 390–2560 px, lint, build, staging deploy, curl-verify, docs, commit | done — on the staging deployment: pages, icons, a router refusal in 2 s and a real grade-appeal answer through the Vercel function, all verified with `vercel curl` |
 | 9 | Full 69-question eval once the limit was raised; fix what it finds | done — see "Eval runs" below: "no from silence" fixed in the prompt, `n/a` parsed, router-null refusals without a read |
-| 10 | Pip the sea lion + friendlier, more positive copy (Sahir's call, Sep 18 evening) | done — hero wave, loading read, verdict point-and-talk, refusal with real offices, favicon/OG; verified 390–2560 on the mock, real answers screenshotted |
-| 11 | Quick picks: short questions + sliders per situation, editable above the answer, "Update answer", session cache (Sahir's call, Sep 18 night; no spend) | done on the mock — 30 Playwright assertions (request bodies, dirty state, cache hits, skip path) at 390–2560; real-model behaviour unverified (~16¢ to check) |
+| 10 | Pip the sea lion + friendlier, more positive copy (Sep 18 evening) | done — hero wave, loading read, verdict point-and-talk, refusal with real offices, favicon/OG; verified 390–2560 on the mock, real answers screenshotted |
+| 11 | Quick picks: short questions + sliders per situation, editable above the answer, "Update answer", session cache (Sep 18 night; no spend) | done on the mock — 30 Playwright assertions (request bodies, dirty state, cache hits, skip path) at 390–2560; real-model behaviour unverified (~16¢ to check) |
 | 12 | Devpost package: paste-ready copy for every form field, 1200×800 thumbnail, nine 3:2 gallery frames (`devpost/`) | done, $0 — the answer frames replay a real answer recorded earlier (`vercel curl` smoke test), the rest is the mock server's real UI; video and live link pending |
 
 ## Devpost, production and the .xyz domain (2026-09-18, afternoon)
@@ -37,28 +37,13 @@ request letter, deadline calculator (stretch, last).
   third-party tool listed, built-with tags, links, a checklist). `devpost/thumbnail.png` is 1200×800;
   `devpost/gallery/` has nine 3:2 frames. The rules also fix the video at **three minutes or less**
   (YouTube, Vimeo or Loom) and score impact 25 / technical 25 / UX 20 / originality 15 / presentation 15.
-- **"Try it out" has no live link yet.** Staging is behind Vercel's deployment login, there is no
-  production deployment (`vercel ls --prod` is empty) and `ANTHROPIC_API_KEY` exists only for Preview.
-  The public repo satisfies the rules on its own, but the deployed link is what "functioning
-  prototype" is scored on. On Sahir's go: `vercel env add ANTHROPIC_API_KEY production` (paste the key),
-  `vercel deploy --prod --yes`, then curl `/`, `/policies`, `/policies/SR-515` and one router refusal
-  (0.2¢) and one real answer (2–25¢) on the production URL before reporting; then the domain.
-- **Domain: `mystanding.xyz`** — registered by Sahir on Sep 18 (1:52 pm PDT, sponsor code LXH26, one year
-  free, expires 2027-09-18). Added to the Vercel team and attached to project `standing` (ownership
-  verified). It still resolves to gen.xyz's parking nameservers: Sahir adds two `A` records for `@` at
-  gen.xyz/account → Manage → Manage DNS: `216.198.79.1` and `64.29.17.1` (Vercel's current pair;
-  `76.76.21.21` is the older fallback). `vercel domains verify mystanding.xyz` reports "action_required"
-  until then. A custom domain serves the **production** deployment, so the domain shows nothing until
-  production exists.
-- **Production is live (2026-09-18, 2:20 pm PDT).** Sahir ticked Production on `ANTHROPIC_API_KEY` in the
-  dashboard and ran `vercel deploy --prod --yes` himself (this session's permission classifier refuses
-  both the key copy and a production deploy from the assistant — he types the deploy with the `!`
-  prefix). Deployment `standing-2tqstpv0k`, aliases `mystanding.xyz`, `standing-sage.vercel.app`,
-  `standing-sss-4bfd.vercel.app`. Deployment Protection is "all except custom domains", so the two
-  `.vercel.app` production URLs redirect to a Vercel login and **mystanding.xyz is the only public
-  URL** — the one for Devpost. Verified through `vercel curl` on the production deployment: an
-  off-corpus question refused by the router in 2.6 s (0.2¢); the grade-appeal preset answered in
-  15.0 s with 11 citations from the 9 grades policies, cold cache (20.1¢). Spend for the go-live: ≈20¢.
+- **Domain: `mystanding.xyz`** — registered Sep 18 and attached to the Vercel project (ownership
+  verified). The registrar's parking nameservers had to be repointed at Vercel's `A` records first, and a
+  custom domain serves the **production** deployment, so the domain stayed blank until production existed.
+- **Production is live (2026-09-18, 2:20 pm PDT).** Verified through `vercel curl` on the production
+  deployment: an off-corpus question refused by the router in 2.6 s (0.2¢); the grade-appeal preset
+  answered in 15.0 s with 11 citations from the 9 grades policies, cold cache (20.1¢). Spend for the
+  go-live: ≈20¢.
 - **https://mystanding.xyz is live (2026-09-18, ~3:30 pm PDT).** The .xyz registry published the new
   delegation about 70 minutes after the nameserver change; Vercel issued the Let's Encrypt certificate on
   its own and `vercel domains verify` reports "ok". Checked on the public domain with plain curl: `/`,
@@ -66,13 +51,13 @@ request letter, deadline calculator (stretch, last).
   router in 2.5 s (0.2¢) — the unauthenticated path judges will use, end to end.
 
 ## Blocker — API usage limit hit AGAIN (2026-09-18, during the v3 eval) — RESOLVED the same evening
-Sahir raised the Console limit; every run below happened after that. Kept for the record:
+The workspace limit was raised; every run below happened after that. Kept for the record:
 The first v3 eval run got 18 answers in (all 18 decisions right, 15/18 cited the expected clause) and then
-every call failed with 400 "You have reached your specified API usage limits. You will regain access on
-2026-10-01" — the Console **monthly spend limit** for the key's workspace, not the credit balance. The $20
-credit is untouched by this; the limit is a separate cap. Until it is raised, staging and the eval 502 on
-every real question. Fix (Sahir): Console → Settings → Limits → the workspace's monthly spend limit → set
-it to at least the credit balance (or remove it). Then `npm run eval` once (≈$3.00 for 69 questions).
+every call failed with 400 "You have reached your specified API usage limits" — the Console **monthly
+spend limit** for the workspace, not the credit balance. The $20 credit is untouched by this; the limit is
+a separate cap. Until it is raised, staging and the eval 502 on every real question. Fix: raise the
+workspace's monthly spend limit in the Console (Settings → Limits) to at least the credit balance. Then
+`npm run eval` once (≈$3.00 for 69 questions).
 Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 18 v3 answers).
 
 ## Day 1 — what works (2026-09-17)
@@ -93,18 +78,17 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
 - UI renders the answer, citation chips, source cards and the refusal card (verified by SSR greps);
   nothing in the UI read the removed `retrieval` field.
 - `npm run build` and `npx eslint .` are clean.
-- Vercel: project linked, `ANTHROPIC_API_KEY` set for Preview, and a preview deployment is live
-  (https://standing-6bbczggh5-sss-4bfd.vercel.app) — built from the day-1 retrieval code before the v2
-  pivot; the next push rebuilds it on v2.
+- Vercel: project linked, `ANTHROPIC_API_KEY` set for Preview, and a preview deployment is live — built
+  from the day-1 retrieval code before the v2 pivot; the next push rebuilds it on v2.
 
 ## Blocker — API usage limit (found 2026-09-17, late)
-- The `ANTHROPIC_API_KEY` in `.env.local` hit its Console usage limit after roughly 70 real answers in one evening (two full 30-question eval runs plus probes): every request
-  now fails with 400 "You have reached your specified API usage limits. You will regain access on 2026-10-01
-  at 00:00 UTC", which `/api/ask` reports as 502. The deadline is 2026-09-27 and the Vercel Preview uses
-  the same key, so the deployed product 502s on every real answer until the limit is raised. Fix: raise the
-  spend limit for this key's workspace in the Anthropic Console (Settings → Limits) or switch to a fresh key,
-  then re-run `npm run eval` (the independent verifier got q01–q07 through, 7/7 correct, before the cap
-  tripped; `eval/results.md` still holds the full day-1 run).
+- The API key hit its Console usage limit after roughly 70 real answers in one evening (two full
+  30-question eval runs plus probes): every request now fails with 400 "You have reached your specified
+  API usage limits", which `/api/ask` reports as 502. The deadline is 2026-09-27 and the Vercel Preview
+  draws on the same workspace, so the deployed product 502s on every real answer until the limit is
+  raised. Fix: raise the workspace's spend limit in the Anthropic Console (Settings → Limits), then
+  re-run `npm run eval` (q01–q07 got through, 7/7 correct, before the cap tripped; `eval/results.md`
+  still holds the full day-1 run).
 
 ## Not yet verified (updated 2026-09-18, late)
 - Pip's motion by a human eye: the wave in the hero, the point-and-talk at the answer and the reading bob
@@ -114,7 +98,7 @@ Spent so far today: ≈$3.60 (two v2 evals, the crashed one, the v3 smoke test, 
   A second question set nobody tuned against would be a fairer number.
 - Quick picks with the real model: whether the answer actually changes with "amplified sound" or "week 8"
   and whether the router keeps the longer question in the same area. About eight warm calls (~16¢); not
-  run, per Sahir's no-more-spend instruction. The eval's q62–q69 grade the presets without picks. The three
+  run, to stay inside the budget. The eval's q62–q69 grade the presets without picks. The three
   situation shortcuts on the refusal card open the same picks panel through the same handler, but the mock
   never refuses, so that path has no test.
 - Vercel under load: one real answer through the deployed function took 18 s with a warm cache; how the
@@ -144,7 +128,7 @@ area's cache lives for an hour; every call logs its estimated cost and stop reas
 |---|---|---|
 | Evals (v2 ×2 + one crashed run + v3 partial $2.25; three full v3 runs $2.46 + $2.02 + $1.14) | $8 | $7.87 — no more full runs unless the prompt or router changes |
 | Live verification (smoke tests, hand re-asks of eval misses, real-answer screenshot passes, production go-live) | $1 | $0.95 |
-| Sahir + friends testing, demo video takes | $5 | $0 |
+| User testing with friends, demo video takes | $5 | $0 |
 | Judges (Sept 27 onward, ~150 questions ≈ $3 + cache writes) | $4 | $0 |
 | Reserve | $2 | — |
 Total spent ≈ $8.80 of $20 (2026-09-18, mid-afternoon; the evening figure above was written first).

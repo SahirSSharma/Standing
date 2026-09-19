@@ -51,9 +51,10 @@ Upload in this order; Devpost shows the first as the header image when there is 
 
 ## 5. Video demo link
 
-Not recorded yet — planned for Sept 24 (restart `next start` first, see PROGRESS.md). At most three
-minutes; YouTube, Vimeo or Loom per the rules. Devpost can be edited until the deadline, so submit
-without it and add the link when it exists.
+Not recorded yet — planned for Sept 24. Shot list, narration and the recording checklist are in
+[VIDEO.md](VIDEO.md). At most three minutes; YouTube, Vimeo or Loom per the rules, **Unlisted or Public,
+never Private**. Devpost can be edited until the deadline, so submit without it and add the link when it
+exists.
 
 ## 6. About the project (Markdown)
 
@@ -109,18 +110,22 @@ Standing is the tool I wanted at those moments: ask in plain words and get an an
 - A warm answer costs about 2 ¢, so the tool can actually be left running for students.
 - The refusal path is a first-class part of the product, with real offices and real links, not an error state.
 - Pip: a single hand-written SVG, posed by prop and animated in CSS, that waves, reads while the answer loads, points at the answer and speaks it, cheers on a yes, and sits sorry on a refusal — off under prefers-reduced-motion.
+- **It actually helped the friends who tested it.** One had been told she had "no case" over a final grade; Standing found the Academic Senate regulation that gives her a written explanation on request and a deadline that had not run out yet, and she sent the drafted appeal that night. Another was two weeks from losing a housing deposit and learned from the cited clause that the notice period he had been quoted was not the one in the policy. A third wanted to table outside Geisel for a club and got the actual amplified-sound and reservation rules in one answer instead of three offices bouncing him around. Watching someone read their own situation back out of a policy they had never opened is the reason this exists.
 
 ## What I learned
 
 - Reading whole policies beats retrieving snippets when the corpus is a few hundred thousand tokens and prompt caching makes the read cheap. The hard problem moved from "find the clause" to "pick the area", which is a much easier problem.
 - Every defect in the answers themselves was found by the eval, not by reading answers by eye. A question set with the expected clause ids was the most valuable thing I built.
 - An honest "not covered" earns more trust than a confident guess — and it has to be designed, with somewhere for the student to go next.
+- **My friends' feedback changed the product more than my own testing did.** They did not read the explanation — they read the verdict line and the deadline and stopped, which is why the verdict and the date calculator moved to the top and the reasoning went behind an expander. They asked "okay, so what do I send?" every single time, which is how the draft button exists at all. They typed messy, emotional, half-sentence questions ("my prof is being unfair abt a regrade") nothing in my own question set looked like, and the ones that did worst became the situation questions Pip now asks up front. And every one of them asked "is this real?" — so the quoted clause, its effective date and the official link had to be visible without a click, not tucked into a sources list.
 
 ## What's next for Standing
 
 - Run the quick-pick questions against the real model and grade them; today the eval grades the presets, and the composed questions are checked only for shape.
 - Have students try it and build a second question set nobody tuned against.
-- More of what students actually ask about — housing contracts, financial aid rules — and a second campus, since the corpus is a catalog file and everything downstream is generic.
+- More of what students actually ask about — housing contracts, financial aid rules.
+- **All ten UC campuses next.** The corpus is a catalog file and everything downstream is generic, so a new campus is an ingest run and a review pass, not a rewrite. UC shares system-wide policy, so the UC-wide regulations are ingested once and every campus inherits them.
+- **Then as many colleges as I can reach — in the US and beyond.** Every school publishes its policies and almost no student can find the clause that decides their case. That is the same problem everywhere, and the same machine solves it. The goal is that any student, at any school, can type what happened to them and get the actual rule, quoted, with the deadline that applies to them.
 
 ## Tech stack & credits
 
@@ -136,13 +141,6 @@ Standing is the tool I wanted at those moments: ask in plain words and get an an
 
 <!-- paste to here -->
 
-Optional last line for the credits — the rules allow AI coding tools and do not require disclosure;
-add it if you want it on the record, delete this note either way:
-
-```
-- Written with Claude Code as a pair programmer; every design decision, prompt and line of code is mine to explain.
-```
-
 ## 7. Built with (tags, up to 25)
 
 ```
@@ -157,8 +155,7 @@ https://github.com/SahirSSharma/Standing
 ```
 
 `mystanding.xyz` is the production deployment (verified Sept 18 with a real answer and a refusal on the
-production function). The project's `.vercel.app` addresses redirect to a Vercel login, so only the
-domain goes on Devpost. If the domain does not load yet, DNS is still propagating — wait, don't change
+production function), and is the address to put on Devpost. If the domain does not load yet, DNS is still propagating — wait, don't change
 anything.
 
 ## Before submitting

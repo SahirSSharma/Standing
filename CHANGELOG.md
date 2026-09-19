@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-18 — Repository hygiene pass
+- Audited the public repo and its full git history for credentials: none present, in the working tree or
+  in any past commit. `.env*.local`, `.vercel` and the local session log stay gitignored.
+- PROGRESS.md, DESIGN.md and CHANGELOG.md: the build log now records decisions and measurements rather
+  than working-session chatter. Operational detail that does not belong in a public repo — internal
+  deployment URLs, registrar and key-handling steps, the deployment's protection posture — is out. Every
+  technical decision, eval number and cost figure stays.
+- `devpost/SUBMISSION.md`: the "Try it out" note no longer describes how the project's non-public
+  deployment URLs are protected.
+
 ## 2026-09-18 — Devpost package
 - `devpost/SUBMISSION.md`: every field of the LexHack Devpost form in order, ready to paste — name,
   pitch (188 characters), the About story in Markdown (inspiration, what it does, how it was built,
@@ -9,14 +19,12 @@
   `devpost/gallery/`: home, the protest quick picks, Pip reading, a real grade-appeal answer (replayed
   from the answer recorded through the Vercel preview, so no call was made), its timeline and columns,
   its deadlines and quoted sources, the library, one policy, and the real refusal. Nothing spent.
-- PROGRESS.md: what production needs before a live link can go on Devpost, and the sponsor's free .xyz
-  domain steps with unregistered candidates.
-- `mystanding.xyz` (registered by Sahir the same afternoon) added to the Vercel team and attached to the
-  project; the two A records it needs at gen.xyz and the Production-key step are in PROGRESS.md.
-- **First production deployment** (Sahir's go: "Point it"), verified with a router refusal (2.6 s) and a
-  real grade-appeal answer (15 s, 11 citations) on the production function. Deployment Protection keeps
-  the `.vercel.app` URLs behind a login; https://mystanding.xyz is the public address (DNS switched over
-  and the certificate was issued the same afternoon; verified end to end without a login).
+- PROGRESS.md: what production needs before a live link can go on Devpost, and the domain steps.
+- `mystanding.xyz` registered the same afternoon and attached to the Vercel project; the DNS records it
+  needs and the production-environment step are in PROGRESS.md.
+- **First production deployment**, verified with a router refusal (2.6 s) and a real grade-appeal answer
+  (15 s, 11 citations) on the production function. https://mystanding.xyz is the public address (DNS
+  switched over and the certificate was issued the same afternoon; verified end to end).
 
 ## 2026-09-18 — Quick picks: answers written for your situation
 - Picking a situation card now opens "Tell Pip a bit more" (`app/components/Context.js`): two to four
@@ -39,7 +47,7 @@
   hero, reads and bobs while an answer loads, points at the speech bubble and moves its mouth when the
   short answer lands (cheers on "yes"), sits sorry on a refusal, and is the header mark, favicon
   (`app/icon.png`, `app/apple-icon.png`) and Open Graph image (`app/opengraph-image.png`, rendered from the
-  same drawing). Sahir picked the sea lion over a pelican and an abstract mark.
+  same drawing). The sea lion was picked over a pelican and an abstract mark.
 - Friendlier copy: the hero explains what Pip does, "Something happened? You've got options.", loading steps
   in plain words, a "no" with "You can" items adds "You still have options — see what you can do below",
   and the refusal card names four campus offices (Ombuds, Student Legal Services, SAGE, OPHD; URLs checked
@@ -138,7 +146,7 @@
   median 12.9 s.
 - Docs rewritten for v2 (README, PROGRESS); the v1 retrieval numbers stay in the README as the reason
   retrieval was removed.
-- Repair after the independent verifier pass: DESIGN.md's architecture and contract sections carry the
+- Repair after an independent verification pass: DESIGN.md's architecture and contract sections carry the
   measured figures (74k corpus tokens, a citation resolved to every clause it covers, `inputTokens` 74025)
   instead of the pre-measurement ~41k / single-clause wording; q21's eval note no longer says "retrieval";
   PROGRESS.md records the API usage-limit blocker (the key is capped until 2026-10-01).

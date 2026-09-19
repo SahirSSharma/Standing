@@ -146,7 +146,7 @@ Next.js (App Router, JavaScript), Tailwind, @anthropic-ai/sdk (Claude Sonnet 5 b
 
 ## Deployment
 Vercel. Every push → preview deployment (= staging, reported automatically).
-Production (`vercel --prod`) only on Sahir's explicit OK.
+Production (`vercel --prod`) only on an explicit go.
 
 ## Decisions log
 - 2026-09-17 — Corpus bounded to the 7 student-facing PPM docs; generality is proven by a second
@@ -255,7 +255,7 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   and one card carry the actual list text. A citation covering a parent's lead-in plus one sub-clause is
   citing that sub-clause. The eval counts a list citation as a hit only when its quote contains the
   expected answer text. Result on Sonnet 5: 30/30 decisions, 22/22 citations, 5.1 s median, $0.57/run.
-- 2026-09-18 — Corpus v3. "Too few policies" was the product's real ceiling: 7 documents covered records,
+- 2026-09-18 — Corpus v3. Too few policies was the product's real ceiling: 7 documents covered records,
   conduct and student orgs and nothing a student asks about grades, protests, harassment, money or parking.
   `scripts/catalog.mjs` now lists 42 policies in six life areas (34 PPM + 8 Senate). Ingest gained a Senate
   page parser (nested `li.clause` → "A) text" lines; amendment stamps → dates; one-paragraph regulations
@@ -269,14 +269,14 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   runner-up area once. Cache-write price corrected to the 1-hour rate (2× input, was billed as 1.25× in the
   log). First live question (grade appeal): routed academics/conduct, 13 clauses of Senate Regulation 502
   cited, 15 s cold, 19.9¢ with the area's cache write, ~2¢ warm.
-- 2026-09-18 — Sahir's direction: "too boring", "diagrams / easy / animations, less text at first, then the
-  user decides to expand". The answer is now structured (verdict, short answer, why, they can / you can,
+- 2026-09-18 — Direction after the v2 review: less text at first, diagrams over prose, and the reader
+  decides what to expand. The answer is now structured (verdict, short answer, why, they can / you can,
   steps, deadlines) so the UI can open with a verdict and a diagram — a numbered timeline when the policy is a
   process, a two-column "they can / you can" otherwise — and keep the explanation and sources behind
   expanders. Deadlines with a parseable "within N days/weeks/months" get a date calculator, client-side.
   "Draft a request" adds one ~1.5¢ call. Chosen over free-form prose because a diagram needs structure the
   model can only supply if asked for it; every part stays optional so a one-line answer still renders.
-- 2026-09-18 — UI v3 (built by four agents against the mock, verified independently at 390–2560 px). Home:
+- 2026-09-18 — UI v3 (built against the mock, verified independently at 390–2560 px). Home:
   hero + "Something happened?" (eight situation cards, each a preset question) + "Browse by area" (six
   cards into the library); no example questions, no policy chip strip. Answer page: verdict mark that draws
   itself, the short answer, a numbered timeline (steps) or "They can / You can" columns, deadlines with a
@@ -316,9 +316,9 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   router-only refusal, while a fresh process reached the same model in 0.6 s at the same minute. Either
   way the fix is the same — the SDK client is now `timeout: 40 s, maxRetries: 1` (a retry opens a fresh
   connection) and the ask route's `maxDuration` is 100 s so one retry fits inside it.
-- 2026-09-18 — Pip. Sahir: "friendlier, a logo/mascot, more positive, an animation of them speaking or
-  pointing to the answer". Pip is a sea lion (La Jolla's own; King Triton and the trident are UCSD marks),
-  drawn as one inline SVG in the three brand colours with a gold scarf, chosen by Sahir from three
+- 2026-09-18 — Pip. The brief: friendlier — a mascot, more positive framing, and an animation of it
+  speaking or pointing to the answer. Pip is a sea lion (La Jolla's own; King Triton and the trident are UCSD marks),
+  drawn as one inline SVG in the three brand colours with a gold scarf, chosen from three
   candidates (sea lion, pelican, an abstract standing figure). One component, `app/components/Pip.js`,
   posed by prop; the motion is CSS only (`pip-*` keyframes in globals.css, all off under
   prefers-reduced-motion): waves once in the hero, reads and bobs while an answer loads, points at the
@@ -328,9 +328,9 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   refusal names four real offices (Ombuds, Student Legal Services, SAGE, OPHD; URLs curl-checked) instead
   of only saying what Standing can't do. The favicon, apple icon and Open Graph image are rendered from the
   same drawing.
-- 2026-09-18 — Quick picks. Sahir: personalise it — for the protest card the student should answer
-  "super straightforward short questions", with a slider, and quickly change an answer and see a new one;
-  and spend no more money. The money constraint shaped the design: every distinct composed question is one
+- 2026-09-18 — Quick picks. The brief: personalise it — for the protest card the student answers a few
+  very short questions, one of them a slider, and can change a pick and see a new answer quickly; and
+  spend no more money. The money constraint shaped the design: every distinct composed question is one
   ~2¢ call, so no control fires on its own (the panel goes dirty and "Update answer" sends once), the page
   caches every answer for the session so flipping back is free and instant, and the context rides in the
   question text after the cached documents so the area cache is untouched. The picks were chosen from what
@@ -342,4 +342,4 @@ Production (`vercel --prod`) only on Sahir's explicit OK.
   quarters on notice and units over three quarters for probation; the week of the quarter, the reason and
   financial aid for withdrawal. Typing a different question drops the situation. Verified on the mock only
   (request bodies, dirty state, cache hits, the skip path, 390–2560 px); whether the model uses the context
-  well is unverified until Sahir allows about eight warm calls (~16¢).
+  well is unverified pending about eight warm calls (~16¢).
