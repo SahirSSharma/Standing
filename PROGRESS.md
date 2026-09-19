@@ -119,7 +119,8 @@ for run 3 still prints "false answers 3 (q59, q60, q61)" for those three timeout
 right after the run to count an error as an error, not a false answer, and a rerun was not worth $1.14.
 
 ## Budget — $20 of API credit for the rest of the project (from 2026-09-18; revised after the v3 eval)
-Rules so it lasts: agents run with `LLM_MOCK=1` only — real-key calls are made by hand; `npm run eval`
+Rules so it lasts: development and UI verification run with `LLM_MOCK=1` only — real-key calls are
+made deliberately; `npm run eval`
 runs once per change to `lib/llm.js`, the prompt or the router summaries (sequential, area by area, ≈$2.46 cold or ≈$1.14 warm
 for 69 questions of which ≈$1.20 is the six cache writes); answers are capped at 2,000 output tokens; each
 area's cache lives for an hour; every call logs its estimated cost and stop reason.
