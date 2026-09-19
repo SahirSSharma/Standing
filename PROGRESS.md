@@ -7,7 +7,7 @@ Deadline: **Sept 27, 2026, 2:00 pm PDT** (5 pm EDT). Target submission: Sept 26.
 | 1 | Sep 17 | Repo, contracts, corpus ingest, cited Q&A end-to-end with the real key, eval harness | done — details below |
 | 2–4 | Sep 18–20 | Cited Q&A end-to-end with real key; eval ≥ target; refusal gate tuned | done on day 1 (30/30, 22/22) — see below |
 | 5–7 | Sep 21–23 | UI polish (1336–2560 px), staging on Vercel, real students try it | UI redesign shipped to staging Sep 18 (verified 390–2560 px); the review found it too plain and the corpus too small → v3 below |
-| 8 | Sep 24 | Demo video (≤ 3 min per the rules) + README final | record on https://mystanding.xyz (production) |
+| 8 | Sep 24 | Demo video (≤ 3 min per the rules) + README final | shot list, narration and recording run sheet in `devpost/VIDEO.md` and `devpost/VIDEO-RUNSHEET.md`; record on https://mystanding.xyz (production) |
 | 9 | Sep 25 | Buffer, second-institution ingest if time | |
 | 10 | Sep 26 | Devpost submission complete | copy, thumbnail and gallery ready in `devpost/SUBMISSION.md` (Sep 18); the live link is in; video (Sep 24) still to add |
 

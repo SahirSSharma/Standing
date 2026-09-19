@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-09-18 — Demo video plan
+- `devpost/VIDEO.md`: the plan for the ≤ 3-minute demo video the rules require — one flow end to end (the
+  grade appeal, the only preset that reaches quick picks, verdict, timeline, deadline calculator, a cited
+  clause and "Draft a request"), then one refusal; a beat-by-beat shot list with timings, the narration
+  (398 words, ~2:45 against a 3:00 ceiling), which beat each part of the rubric is buying, the cuts to make
+  first if it runs long, and a pre-flight list of what to verify before the shoot.
+- `devpost/VIDEO-RUNSHEET.md`: the same cut as instructions an agent can follow — nine clips shot
+  separately so the model's latency falls on a clip boundary instead of inside a take, every control named
+  by its literal on-screen string, wait-for conditions instead of fixed delays, and the two clips that
+  contain a real model call marked to log their own elapsed time (the number the voiceover then quotes).
+- Three claims corrected against the code and the eval before they reached a shoot: the refusal question
+  was still v2's "How much is a parking ticket?", which v3 answers `n/a` in 19.8 s now that a parking
+  policy is in the corpus (eval q24) — replaced with a landlord-tenant question the router turns away in
+  1.4 s with no policy read (q26); "ten business days" appears nowhere in the corpus, so the narration
+  uses the ten-day window Senate Regulation 502 actually sets; and retakes of the same question would have
+  replayed from the client-side answer cache in `Ask.js`, so the run sheet reloads between takes.
+- `devpost/thumbnail.png`: the footer line drops "says so when it can't answer" — it wrapped onto a second
+  line and read as a fragment. Now "42 policies · every answer cited".
+
 ## 2026-09-18 — Repository hygiene pass
 - Audited the public repo and its full git history for credentials: none present, in the working tree or
   in any past commit. `.env*.local`, `.vercel` and the local session log stay gitignored.
